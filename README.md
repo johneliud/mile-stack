@@ -160,7 +160,7 @@ Copy the contract ID printed in the output — you'll need it as `NEXT_PUBLIC_CO
 | `create_project(env, client, freelancer, titles, amounts)` | Creates a new escrow project; returns the project ID |
 | `fund_milestone(env, project_id, milestone_index, token)` | Locks milestone XLM in contract escrow (client only, milestone must be Pending) |
 | `approve_milestone(env, project_id, milestone_index, token)` | Releases escrowed XLM to the freelancer (client only, milestone must be Funded) |
-| `dispute_milestone(env, project_id, milestone_index)` | Flags a milestone as disputed, locking funds until resolved |
+| `dispute_milestone(env, caller, project_id, milestone_index)` | Flags a milestone as disputed, locking funds until resolved (client or freelancer) |
 | `get_project_count(env)` | Returns total number of projects created |
 | `get_project(env, project_id)` | Fetch a full project by ID |
 | `get_milestone(env, project_id, milestone_index)` | Fetch a single milestone |
