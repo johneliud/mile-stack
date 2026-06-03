@@ -1,6 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, contracttype, log, Address, Env, String, Vec};
+use soroban_sdk::{contract, contractimpl, contracttype, log, token, Address, Env, String, Vec};
 
 // Data types
 #[contracttype]
@@ -38,6 +38,34 @@ pub enum DataKey {
     ProjectCount,
 }
 
+// Internal helpers
+fn load_project(env: &Env, project_id: u64) -> Project {
+    env.storage()
+        .instance()
+        .get(&DataKey::Project(project_id))
+        .expect("project not found")
+}
+
+fn save_project(env: &Env, project: &Project) {
+    env.storage()
+        .instance()
+        .set(&DataKey::Project(project.id), project);
+}
+
+/// Replace the milestone at `index` inside a project and return the updated project.
+fn update_milestone(env: &Env, mut project: Project, index: u32, updated: Milestone) -> Project {
+    let mut milestones: Vec<Milestone> = Vec::new(env);
+    for i in 0..project.milestones.len() {
+        if i == index {
+            milestones.push_back(updated.clone());
+        } else {
+            milestones.push_back(project.milestones.get(i).unwrap());
+        }
+    }
+    project.milestones = milestones;
+    project
+}
+
 // Contract
 #[contract]
 pub struct MileStackContract;
@@ -53,7 +81,6 @@ impl MileStackContract {
         milestone_titles: Vec<String>,
         milestone_amounts: Vec<i128>,
     ) -> u64 {
-        // Only the declared client may create on their behalf.
         client.require_auth();
 
         let title_count = milestone_titles.len();
@@ -63,7 +90,6 @@ impl MileStackContract {
             "milestone titles and amounts must be non-empty and equal in length"
         );
 
-        // Assign a unique ID using a persistent counter.
         let project_id: u64 = env
             .storage()
             .instance()
@@ -71,7 +97,6 @@ impl MileStackContract {
             .unwrap_or(0u64)
             + 1;
 
-        // Build milestone list.
         let mut milestones: Vec<Milestone> = Vec::new(&env);
         for i in 0..title_count {
             milestones.push_back(Milestone {
@@ -89,9 +114,7 @@ impl MileStackContract {
             created_at: env.ledger().timestamp(),
         };
 
-        env.storage()
-            .instance()
-            .set(&DataKey::Project(project_id), &project);
+        save_project(&env, &project);
         env.storage()
             .instance()
             .set(&DataKey::ProjectCount, &project_id);
@@ -99,6 +122,52 @@ impl MileStackContract {
         log!(&env, "ProjectCreated: id={}, client={}", project_id, client);
 
         project_id
+    }
+
+    /// Lock the milestone's XLM amount in the contract escrow.
+    /// Only the project client may call this. Milestone must be Pending.
+    pub fn fund_milestone(
+        env: Env,
+        project_id: u64,
+        milestone_index: u32,
+        token_address: Address,
+    ) -> bool {
+        let project = load_project(&env, project_id);
+
+        project.client.require_auth();
+
+        let milestone = project
+            .milestones
+            .get(milestone_index)
+            .expect("milestone index out of range");
+
+        assert!(
+            matches!(milestone.status, MilestoneStatus::Pending),
+            "milestone must be Pending to fund"
+        );
+
+        // Pull funds from the client into this contract.
+        token::Client::new(&env, &token_address).transfer(
+            &project.client,
+            &env.current_contract_address(),
+            &milestone.amount,
+        );
+
+        let updated = Milestone {
+            status: MilestoneStatus::Funded,
+            ..milestone
+        };
+        let project = update_milestone(&env, project, milestone_index, updated);
+        save_project(&env, &project);
+
+        log!(
+            &env,
+            "MilestoneFunded: project_id={}, milestone_index={}",
+            project_id,
+            milestone_index
+        );
+
+        true
     }
 
     pub fn get_project_count(env: Env) -> u64 {
@@ -109,15 +178,11 @@ impl MileStackContract {
     }
 
     pub fn get_project(env: Env, project_id: u64) -> Project {
-        env.storage()
-            .instance()
-            .get(&DataKey::Project(project_id))
-            .expect("project not found")
+        load_project(&env, project_id)
     }
 
     pub fn get_milestone(env: Env, project_id: u64, milestone_index: u32) -> Milestone {
-        let project = Self::get_project(env.clone(), project_id);
-        project
+        load_project(&env, project_id)
             .milestones
             .get(milestone_index)
             .expect("milestone index out of range")
