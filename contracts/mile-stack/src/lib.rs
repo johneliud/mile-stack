@@ -156,6 +156,54 @@ impl MileStackContract {
         true
     }
 
+    /// Flag a funded milestone as disputed, locking XLM until resolved.
+    /// Either the project client or the milestone freelancer may call this.
+    /// Milestone must be Funded. No funds are moved — escrow stays locked.
+    pub fn dispute_milestone(
+        env: Env,
+        caller: Address,
+        project_id: u64,
+        milestone_index: u32,
+    ) -> bool {
+        // Caller provides their own auth signature.
+        caller.require_auth();
+
+        let project = load_project(&env, project_id);
+
+        let milestone = project
+            .milestones
+            .get(milestone_index)
+            .expect("milestone index out of range");
+
+        // Only the project client or the milestone's freelancer may raise a dispute.
+        let is_client = caller == project.client;
+        let is_freelancer = caller == milestone.freelancer;
+        assert!(is_client || is_freelancer, "only the client or freelancer can dispute a milestone");
+
+        assert!(
+            matches!(milestone.status, MilestoneStatus::Funded | MilestoneStatus::Completed),
+            "milestone must be Funded to dispute"
+        );
+
+        // Funds remain in the contract — no token transfer here.
+        let updated = Milestone {
+            status: MilestoneStatus::Disputed,
+            ..milestone
+        };
+        let project = update_milestone(&env, project, milestone_index, updated);
+        save_project(&env, &project);
+
+        log!(
+            &env,
+            "MilestoneDisputed: project_id={}, milestone_index={}, caller={}",
+            project_id,
+            milestone_index,
+            caller
+        );
+
+        true
+    }
+
     pub fn get_project_count(env: Env) -> u64 {
         env.storage()
             .instance()
