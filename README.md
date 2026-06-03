@@ -38,11 +38,12 @@ Built on **Stellar** + **Soroban** for the hackathon.
 | Function | Description |
 |----------|-------------|
 | `create_project(env, client, freelancer, titles, amounts)` | Creates a new escrow project; returns the project ID |
+| `fund_milestone(env, project_id, milestone_index, token)` | Locks milestone XLM in contract escrow (client only, milestone must be Pending) |
 | `get_project_count(env)` | Returns total number of projects created |
 | `get_project(env, project_id)` | Fetch a full project by ID |
 | `get_milestone(env, project_id, milestone_index)` | Fetch a single milestone |
 
-> Additional functions (`fund_milestone`, `approve_milestone`, `dispute_milestone`) are implemented in subsequent issues.
+> Additional functions (`approve_milestone`, `dispute_milestone`) are implemented in subsequent issues.
 
 ---
 
@@ -83,6 +84,7 @@ Copy `.env.example` to `.env.local` in the frontend directory:
 |----------|-------------|
 | `NEXT_PUBLIC_CONTRACT_ID` | Deployed Soroban contract address (testnet) |
 | `NEXT_PUBLIC_NETWORK` | `TESTNET` |
+| `NEXT_PUBLIC_XLM_TOKEN_ADDRESS` | Native XLM token contract address on testnet |
 
 ---
 
