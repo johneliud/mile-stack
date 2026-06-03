@@ -1,0 +1,15 @@
+# Rust's output directory
+target
+
+# Local settings
+.soroban
+.stellar
+
+# Contract test snapshots
+**/contracts/mile-stack/test_snapshots
+
+# Node.js dependencies
+**/node_modules
+
+# Build output
+**/dist
