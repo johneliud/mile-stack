@@ -37,11 +37,12 @@ Built on **Stellar** + **Soroban** for the hackathon.
 
 | Function | Description |
 |----------|-------------|
+| `create_project(env, client, freelancer, titles, amounts)` | Creates a new escrow project; returns the project ID |
 | `get_project_count(env)` | Returns total number of projects created |
 | `get_project(env, project_id)` | Fetch a full project by ID |
 | `get_milestone(env, project_id, milestone_index)` | Fetch a single milestone |
 
-> Additional functions (`create_project`, `fund_milestone`, `approve_milestone`, `dispute_milestone`) are implemented in subsequent issues.
+> Additional functions (`fund_milestone`, `approve_milestone`, `dispute_milestone`) are implemented in subsequent issues.
 
 ---
 
