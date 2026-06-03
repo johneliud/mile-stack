@@ -1,72 +1,13 @@
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, contracttype, log, token, Address, Env, String, Vec};
+mod storage;
+mod types;
 
-// Data types
-#[contracttype]
-#[derive(Clone, PartialEq)]
-pub enum MilestoneStatus {
-    Pending,
-    Funded,
-    Completed,
-    Disputed,
-    Released,
-}
+use soroban_sdk::{contract, contractimpl, log, token, Address, Env, String, Vec};
 
-#[contracttype]
-#[derive(Clone)]
-pub struct Milestone {
-    pub title: String,
-    pub amount: i128,
-    pub status: MilestoneStatus,
-    pub freelancer: Address,
-}
+use storage::{load_project, save_project, update_milestone};
+use types::{DataKey, Milestone, MilestoneStatus, Project};
 
-#[contracttype]
-#[derive(Clone)]
-pub struct Project {
-    pub id: u64,
-    pub client: Address,
-    pub milestones: Vec<Milestone>,
-    pub created_at: u64,
-}
-
-// Storage keys
-#[contracttype]
-pub enum DataKey {
-    Project(u64),
-    ProjectCount,
-}
-
-// Internal helpers
-fn load_project(env: &Env, project_id: u64) -> Project {
-    env.storage()
-        .instance()
-        .get(&DataKey::Project(project_id))
-        .expect("project not found")
-}
-
-fn save_project(env: &Env, project: &Project) {
-    env.storage()
-        .instance()
-        .set(&DataKey::Project(project.id), project);
-}
-
-/// Replace the milestone at `index` inside a project and return the updated project.
-fn update_milestone(env: &Env, mut project: Project, index: u32, updated: Milestone) -> Project {
-    let mut milestones: Vec<Milestone> = Vec::new(env);
-    for i in 0..project.milestones.len() {
-        if i == index {
-            milestones.push_back(updated.clone());
-        } else {
-            milestones.push_back(project.milestones.get(i).unwrap());
-        }
-    }
-    project.milestones = milestones;
-    project
-}
-
-// Contract
 #[contract]
 pub struct MileStackContract;
 
@@ -146,7 +87,6 @@ impl MileStackContract {
             "milestone must be Pending to fund"
         );
 
-        // Pull funds from the client into this contract.
         token::Client::new(&env, &token_address).transfer(
             &project.client,
             &env.current_contract_address(),
@@ -163,6 +103,52 @@ impl MileStackContract {
         log!(
             &env,
             "MilestoneFunded: project_id={}, milestone_index={}",
+            project_id,
+            milestone_index
+        );
+
+        true
+    }
+
+    /// Release escrowed XLM to the freelancer.
+    /// Only the project client may call this. Milestone must be Funded.
+    pub fn approve_milestone(
+        env: Env,
+        project_id: u64,
+        milestone_index: u32,
+        token_address: Address,
+    ) -> bool {
+        let project = load_project(&env, project_id);
+
+        project.client.require_auth();
+
+        let milestone = project
+            .milestones
+            .get(milestone_index)
+            .expect("milestone index out of range");
+
+        assert!(
+            matches!(milestone.status, MilestoneStatus::Funded),
+            "milestone must be Funded to approve"
+        );
+
+        // Release escrowed XLM from the contract to the freelancer.
+        token::Client::new(&env, &token_address).transfer(
+            &env.current_contract_address(),
+            &milestone.freelancer,
+            &milestone.amount,
+        );
+
+        let updated = Milestone {
+            status: MilestoneStatus::Released,
+            ..milestone
+        };
+        let project = update_milestone(&env, project, milestone_index, updated);
+        save_project(&env, &project);
+
+        log!(
+            &env,
+            "MilestoneReleased: project_id={}, milestone_index={}",
             project_id,
             milestone_index
         );
