@@ -192,7 +192,7 @@ export async function acceptApplication(
 
   const sb = getSupabaseClient();
 
-  const updates: Promise<unknown>[] = [
+  const updates: PromiseLike<unknown>[] = [
     sb
       .from("listings")
       .update({ status: "filled", on_chain_project_id: projectId })
