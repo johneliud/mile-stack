@@ -47,3 +47,69 @@ const OVERALL_BADGE_VARIANT: Record<string, "pending" | "funded" | "released" | 
   Disputed: "disputed",
   Completed: "released",
 };
+
+function MilestoneRow({ milestone }: { milestone: ContractMilestone }) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-2">
+      <div className="flex items-center gap-2 min-w-0">
+        <Badge variant={MILESTONE_BADGE_VARIANT[milestone.status]} className="shrink-0">
+          {milestone.status}
+        </Badge>
+        <span className="text-sm text-foreground truncate">{milestone.title}</span>
+      </div>
+      <span className="text-sm font-medium text-foreground tabular-nums shrink-0">
+        {stroopsToXlm(milestone.amount)} XLM
+      </span>
+    </div>
+  );
+}
+
+function ProjectCard({ project }: { project: ContractProject }) {
+  const total = totalProjectValue(project);
+  const overall = projectOverallStatus(project);
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col gap-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">Project #{String(project.id)}</h3>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Created {formatDate(project.created_at)}
+          </p>
+        </div>
+        <Badge variant={OVERALL_BADGE_VARIANT[overall]}>{overall}</Badge>
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        Client:{" "}
+        <span className="font-medium text-foreground tabular-nums">
+          {truncateAddress(project.client)}
+        </span>
+      </p>
+
+      <div className="border-t border-border pt-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+          Milestones
+        </p>
+        <div className="divide-y divide-border">
+          {project.milestones.map((m, i) => (
+            <MilestoneRow key={i} milestone={m} />
+          ))}
+        </div>
+      </div>
+
+      <div className="border-t border-border pt-4 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs text-muted-foreground">Total Value</p>
+          <p className="text-lg font-bold text-primary">{stroopsToXlm(total)} XLM</p>
+        </div>
+        <Link href={`/freelancer/projects/${String(project.id)}`}>
+          <Button variant="outline" size="sm">
+            View Details
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
