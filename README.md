@@ -1,6 +1,6 @@
 # MileStack
 
-> A Soroban-powered talent marketplace enabling developers in the Global South to access global opportunities through milestone-based escrow payments, transparent smart contracts, and borderless financial infrastructure.
+> A Soroban-powered talent marketplace enabling developers in the Global South to access global opportunities through milestone-based XLM escrow payments, transparent smart contracts, and borderless financial infrastructure.
 
 Built on **Stellar** + **Soroban** for the hackathon.
 
@@ -16,6 +16,7 @@ Built on **Stellar** + **Soroban** for the hackathon.
 - [Frontend Setup](#frontend-setup)
 - [Environment Variables](#environment-variables)
 - [Deployed Contract](#deployed-contract)
+- [Contributing](#contributing)
 
 ---
 
@@ -26,12 +27,20 @@ Built on **Stellar** + **Soroban** for the hackathon.
 ├── contracts/
 │   └── mile-stack/
 │       ├── src/
-│       │   ├── lib.rs      # Contract entry point & function implementations
-│       │   ├── types.rs    # Data types: MilestoneStatus, Milestone, Project, DataKey
-│       │   ├── storage.rs  # Storage helpers: load_project, save_project, update_milestone
-│       │   └── test.rs     # Unit tests
+│       │   ├── lib.rs          # Contract entry point & function implementations
+│       │   ├── types.rs        # Data types: MilestoneStatus, Milestone, Project, DataKey
+│       │   ├── storage.rs      # Storage helpers: load_project, save_project, update_milestone
+│       │   └── test/
+│       │       ├── mod.rs              # Shared test helpers
+│       │       ├── types.rs            # Data structure tests
+│       │       ├── create_project.rs   # create_project tests
+│       │       ├── fund_milestone.rs   # fund_milestone tests
+│       │       ├── approve_milestone.rs
+│       │       ├── dispute_milestone.rs
+│       │       ├── view_functions.rs
+│       │       └── lifecycle.rs        # Auth guards + end-to-end lifecycle test
 │       └── Cargo.toml
-├── frontend/               # Next.js app (coming soon)
+├── mile-stack-frontend/        # Next.js 16 frontend
 ├── Cargo.toml
 └── README.md
 ```
@@ -41,18 +50,16 @@ Built on **Stellar** + **Soroban** for the hackathon.
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Smart Contracts | Rust + Soroban SDK |
+|-------|------------|
+| Smart Contracts | Rust + Soroban SDK 25 |
 | Blockchain | Stellar (Testnet) |
 | Payments | XLM (native Stellar token) |
-| Frontend | Next.js 14, Tailwind CSS |
+| Frontend | Next.js 16, Tailwind CSS v4, TypeScript |
 | Wallet | Freighter browser extension |
 
 ---
 
 ## Prerequisites
-
-Before you begin, ensure you have the following installed:
 
 - [Git](https://git-scm.com/)
 - [Rust](https://www.rust-lang.org/tools/install) (stable toolchain)
@@ -86,26 +93,42 @@ cargo test
 Expected output:
 
 ```
-running 17 tests
-test test::test_approve_milestone_records_client_auth ... ok
-test test::test_approve_milestone_rejects_already_released_milestone ... ok
-test test::test_approve_milestone_rejects_pending_milestone ... ok
-test test::test_approve_milestone_releases_xlm_to_freelancer ... ok
-test test::test_approve_milestone_updates_status_to_released ... ok
-test test::test_create_project_persists_correctly ... ok
-test test::test_create_project_rejects_empty_milestones ... ok
-test test::test_create_project_rejects_mismatched_milestone_lengths ... ok
-test test::test_create_project_requires_client_auth ... ok
-test test::test_create_project_returns_incrementing_ids ... ok
-test test::test_fund_milestone_records_client_auth ... ok
-test test::test_fund_milestone_rejects_already_funded_milestone ... ok
-test test::test_fund_milestone_transfers_xlm_to_contract ... ok
-test test::test_fund_milestone_updates_status_to_funded ... ok
-test test::test_initial_project_count_is_zero ... ok
-test test::test_milestone_status_variants ... ok
-test test::test_project_and_milestone_structs_are_well_formed ... ok
+running 35 tests
+test test::approve_milestone::test_approve_milestone_records_client_auth ... ok
+test test::approve_milestone::test_approve_milestone_rejects_already_released_milestone ... ok
+test test::approve_milestone::test_approve_milestone_rejects_pending_milestone ... ok
+test test::approve_milestone::test_approve_milestone_releases_xlm_to_freelancer ... ok
+test test::approve_milestone::test_approve_milestone_updates_status_to_released ... ok
+test test::create_project::test_create_project_persists_correctly ... ok
+test test::create_project::test_create_project_rejects_empty_milestones ... ok
+test test::create_project::test_create_project_rejects_mismatched_milestone_lengths ... ok
+test test::create_project::test_create_project_requires_client_auth ... ok
+test test::create_project::test_create_project_returns_incrementing_ids ... ok
+test test::dispute_milestone::test_dispute_milestone_client_can_dispute ... ok
+test test::dispute_milestone::test_dispute_milestone_does_not_affect_siblings ... ok
+test test::dispute_milestone::test_dispute_milestone_freelancer_can_dispute ... ok
+test test::dispute_milestone::test_dispute_milestone_locks_funds_in_contract ... ok
+test test::dispute_milestone::test_dispute_milestone_records_caller_auth ... ok
+test test::dispute_milestone::test_dispute_milestone_rejects_already_released_milestone ... ok
+test test::dispute_milestone::test_dispute_milestone_rejects_pending_milestone ... ok
+test test::dispute_milestone::test_dispute_milestone_rejects_unauthorized_caller ... ok
+test test::fund_milestone::test_fund_milestone_records_client_auth ... ok
+test test::fund_milestone::test_fund_milestone_rejects_already_funded_milestone ... ok
+test test::fund_milestone::test_fund_milestone_transfers_xlm_to_contract ... ok
+test test::fund_milestone::test_fund_milestone_updates_status_to_funded ... ok
+test test::lifecycle::test_full_project_lifecycle ... ok
+test test::lifecycle::test_only_client_can_approve ... ok
+test test::lifecycle::test_only_client_can_fund ... ok
+test test::types::test_initial_project_count_is_zero ... ok
+test test::view_functions::test_get_milestone_panics_for_out_of_range_index ... ok
+test test::view_functions::test_get_milestone_panics_for_unknown_project ... ok
+test test::view_functions::test_get_milestone_returns_correct_fields ... ok
+test test::view_functions::test_get_project_count_tracks_multiple_projects ... ok
+test test::view_functions::test_get_project_panics_for_unknown_id ... ok
+test test::view_functions::test_get_project_returns_correct_fields ... ok
+test test::view_functions::test_view_functions_do_not_require_auth ... ok
 
-test result: ok. 17 passed; 0 failed
+test result: ok. 35 passed; 0 failed
 ```
 
 ### 4. Build the contract
@@ -114,7 +137,7 @@ test result: ok. 17 passed; 0 failed
 cargo build --target wasm32-unknown-unknown --release
 ```
 
-The compiled WASM binary is output to:
+Output:
 
 ```
 target/wasm32-unknown-unknown/release/mile_stack.wasm
@@ -122,14 +145,14 @@ target/wasm32-unknown-unknown/release/mile_stack.wasm
 
 ### 5. Deploy to Stellar Testnet
 
-First, generate and fund a deployer account using Friendbot:
+Generate and fund a deployer account:
 
 ```bash
 stellar keys generate deployer --network testnet
 stellar keys fund deployer --network testnet
 ```
 
-Then deploy the contract:
+Deploy the contract:
 
 ```bash
 stellar contract deploy \
@@ -138,67 +161,73 @@ stellar contract deploy \
   --network testnet
 ```
 
-Copy the contract ID printed in the output — you'll need it as `NEXT_PUBLIC_CONTRACT_ID` in the frontend.
+Copy the contract ID from the output — set it as `NEXT_PUBLIC_CONTRACT_ID` in the frontend.
 
 ---
 
 ## Smart Contract
 
+### Milestone Lifecycle
+
+```
+Pending → Funded → Released
+                ↘ Disputed
+```
+
 ### Data Types
 
 | Type | Description |
 |------|-------------|
-| `MilestoneStatus` | `Pending` → `Funded` → `Released` (or `Disputed`) |
+| `MilestoneStatus` | `Pending` → `Funded` → `Released` or `Disputed` |
 | `Milestone` | Title, XLM amount, status, freelancer address |
 | `Project` | ID, client address, milestone list, creation timestamp |
 | `DataKey` | Storage keys: `Project(id)`, `ProjectCount` |
 
 ### Contract Functions
 
-| Function | Description |
-|----------|-------------|
-| `create_project(env, client, freelancer, titles, amounts)` | Creates a new escrow project; returns the project ID |
-| `fund_milestone(env, project_id, milestone_index, token)` | Locks milestone XLM in contract escrow (client only, milestone must be Pending) |
-| `approve_milestone(env, project_id, milestone_index, token)` | Releases escrowed XLM to the freelancer (client only, milestone must be Funded) |
-| `dispute_milestone(env, caller, project_id, milestone_index)` | Flags a milestone as disputed, locking funds until resolved (client or freelancer) |
-| `get_project_count(env)` | Returns total number of projects created |
-| `get_project(env, project_id)` | Fetch a full project by ID |
-| `get_milestone(env, project_id, milestone_index)` | Fetch a single milestone |
+| Function | Auth | Description |
+|----------|------|-------------|
+| `create_project(client, freelancer, titles, amounts)` | Client | Creates a new escrow project; returns project ID |
+| `fund_milestone(project_id, milestone_index, token)` | Client | Locks milestone XLM in contract escrow (must be `Pending`) |
+| `approve_milestone(project_id, milestone_index, token)` | Client | Releases escrowed XLM to the freelancer (must be `Funded`) |
+| `dispute_milestone(caller, project_id, milestone_index)` | Client or Freelancer | Flags milestone as `Disputed`, funds stay locked |
+| `get_project_count()` | None | Returns total number of projects |
+| `get_project(project_id)` | None | Fetch a full project by ID |
+| `get_milestone(project_id, milestone_index)` | None | Fetch a single milestone |
 
 ---
 
 ## Frontend Setup
 
-> The frontend is under active development. Once the `frontend/` directory is scaffolded (issue #9), follow these steps:
-
 ```bash
-cd frontend
+cd mile-stack-frontend
 
-# Install dependencies
+# Install dependencies (also runs Prettier)
 npm install
 
-# Copy and fill in environment variables
-cp .env.example .env.local
+# Copy environment variables
+cp .env.local.example .env.local
+# Fill in NEXT_PUBLIC_CONTRACT_ID with the deployed contract address
 
 # Start the development server
 npm run dev
 ```
 
-The app will be available at `http://localhost:3000`.
+Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
 ## Environment Variables
 
-Create a `.env.local` file inside the `frontend/` directory using the values below:
+Create `.env.local` inside `mile-stack-frontend/` using `.env.local.example` as a template:
 
 | Variable | Description |
 |----------|-------------|
-| `NEXT_PUBLIC_CONTRACT_ID` | Deployed Soroban contract address on testnet |
-| `NEXT_PUBLIC_NETWORK` | Set to `TESTNET` |
-| `NEXT_PUBLIC_XLM_TOKEN_ADDRESS` | Native XLM token contract address on testnet |
+| `NEXT_PUBLIC_STELLAR_RPC_URL` | Soroban RPC endpoint (defaults to `https://soroban-testnet.stellar.org`) |
+| `NEXT_PUBLIC_CONTRACT_ID` | Deployed MileStack contract ID on testnet |
+| `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015` |
 
-To get the native XLM token contract address:
+To get the native XLM token contract address on testnet:
 
 ```bash
 stellar contract id asset --asset native --network testnet
@@ -218,5 +247,5 @@ stellar contract id asset --asset native --network testnet
 
 1. Pick an open issue from the [issue tracker](https://github.com/johneliud/mile-stack/issues)
 2. Create a branch: `git checkout -b feat/<issue-number>-short-description`
-3. Make your changes and ensure `cargo test` passes
+3. Make your changes and ensure tests pass: `cargo test`
 4. Open a PR referencing the issue with `Closes #<issue-number>`
