@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 const NAV_LINKS = [
   { label: "Features", href: "/#features" },
   { label: "How it works", href: "/#how-it-works" },
+  { label: "Freelancer", href: "/freelancer" },
 ];
 
 function truncateAddress(addr: string) {
@@ -64,9 +65,9 @@ function WalletButton({ onClose }: { onClose?: () => void }) {
         <button
           onClick={handleDisconnect}
           aria-label="Disconnect wallet"
-          className="rounded-lg border border-border p-2 text-muted-foreground transition-colors duration-150 hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+          className="rounded-lg border border-border p-2 px-6 text-muted-foreground transition-colors duration-150 hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
         >
-          <LogOut className="h-4 w-4" aria-hidden="true" />
+          Log out
         </button>
       </div>
     );
