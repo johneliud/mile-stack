@@ -198,6 +198,7 @@ export default function ApplicationsPage() {
         application.freelancer_address,
         listing.milestones,
         address,
+        listing.title,
       );
       notify(`Project #${projectId} created — freelancer accepted.`, "success");
       router.push(`/client/projects/${projectId}`);
