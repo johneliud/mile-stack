@@ -17,16 +17,16 @@ Next.js 16 frontend for [MileStack](../README.md) — a Soroban-powered mileston
 
 ## Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| Next.js 16 (App Router) | Framework |
-| TypeScript | Language |
-| Tailwind CSS v4 | Styling |
-| Plus Jakarta Sans | Typography |
-| Lucide React | Icons |
-| `@stellar/stellar-sdk` | Soroban contract interaction |
-| `@stellar/freighter-api` | Freighter wallet connection |
-| Prettier | Code formatting |
+| Technology               | Purpose                      |
+| ------------------------ | ---------------------------- |
+| Next.js 16 (App Router)  | Framework                    |
+| TypeScript               | Language                     |
+| Tailwind CSS v4          | Styling                      |
+| Plus Jakarta Sans        | Typography                   |
+| Lucide React             | Icons                        |
+| `@stellar/stellar-sdk`   | Soroban contract interaction |
+| `@stellar/freighter-api` | Freighter wallet connection  |
+| Prettier                 | Code formatting              |
 
 ---
 
@@ -95,27 +95,27 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 
 ### Color Tokens
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `--primary` | `#1E3A5F` | Brand navy — headings, logo |
-| `--accent` | `#0369A1` | CTA buttons, links |
-| `--success` | `#059669` | Released milestone state |
-| `--destructive` | `#DC2626` | Disputed state, errors |
-| `--background` | `#F8FAFC` | Page background |
-| `--card` | `#FFFFFF` | Card surfaces |
-| `--foreground` | `#0F172A` | Body text |
-| `--muted` | `#F1F5F9` | Section backgrounds |
-| `--muted-foreground` | `#64748B` | Secondary text |
-| `--border` | `#E2E8F0` | Dividers, card borders |
+| Token                | Hex       | Usage                       |
+| -------------------- | --------- | --------------------------- |
+| `--primary`          | `#1E3A5F` | Brand navy — headings, logo |
+| `--accent`           | `#0369A1` | CTA buttons, links          |
+| `--success`          | `#059669` | Released milestone state    |
+| `--destructive`      | `#DC2626` | Disputed state, errors      |
+| `--background`       | `#F8FAFC` | Page background             |
+| `--card`             | `#FFFFFF` | Card surfaces               |
+| `--foreground`       | `#0F172A` | Body text                   |
+| `--muted`            | `#F1F5F9` | Section backgrounds         |
+| `--muted-foreground` | `#64748B` | Secondary text              |
+| `--border`           | `#E2E8F0` | Dividers, card borders      |
 
 ### Milestone Status Colors
 
-| Status | Style |
-|--------|-------|
-| Pending | Gray — `bg-slate-100 text-slate-600` |
-| Funded | Blue — `bg-blue-50 text-accent border-blue-200` |
+| Status   | Style                                                   |
+| -------- | ------------------------------------------------------- |
+| Pending  | Gray — `bg-slate-100 text-slate-600`                    |
+| Funded   | Blue — `bg-blue-50 text-accent border-blue-200`         |
 | Released | Green — `bg-emerald-50 text-success border-emerald-200` |
-| Disputed | Red — `bg-red-50 text-destructive border-red-200` |
+| Disputed | Red — `bg-red-50 text-destructive border-red-200`       |
 
 ### Rules
 
@@ -128,20 +128,20 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_STELLAR_RPC_URL` | Soroban RPC endpoint (defaults to testnet) |
-| `NEXT_PUBLIC_CONTRACT_ID` | Deployed MileStack contract ID |
-| `NEXT_PUBLIC_NETWORK_PASSPHRASE` | Stellar network passphrase |
+| Variable                         | Description                                |
+| -------------------------------- | ------------------------------------------ |
+| `NEXT_PUBLIC_STELLAR_RPC_URL`    | Soroban RPC endpoint (defaults to testnet) |
+| `NEXT_PUBLIC_CONTRACT_ID`        | Deployed MileStack contract ID             |
+| `NEXT_PUBLIC_NETWORK_PASSPHRASE` | Stellar network passphrase                 |
 
 ---
 
 ## Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Production build with type checking |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Run Prettier across all files |
+| Script           | Description                         |
+| ---------------- | ----------------------------------- |
+| `npm run dev`    | Start development server            |
+| `npm run build`  | Production build with type checking |
+| `npm run start`  | Start production server             |
+| `npm run lint`   | Run ESLint                          |
+| `npm run format` | Run Prettier across all files       |
