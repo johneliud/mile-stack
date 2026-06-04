@@ -65,4 +65,90 @@ function ApplicationCard({
   const [confirming, setConfirming] = useState(false);
   const isPending = application.status === "pending";
   const canAct = listingOpen && isPending;
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-0.5">
+          <p className="text-sm font-semibold text-foreground font-mono">
+            {truncateAddress(application.freelancer_address)}
+          </p>
+          <p className="text-xs text-muted-foreground">{timeAgo(application.created_at)}</p>
+        </div>
+        <span
+          className={`rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_STYLES[application.status]}`}
+        >
+          {application.status}
+        </span>
+      </div>
+
+      {application.message && (
+        <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap border-t border-border pt-4">
+          {application.message}
+        </p>
+      )}
+
+      {canAct && !confirming && (
+        <div className="border-t border-border pt-4 flex items-center gap-2">
+          <Button
+            variant="primary"
+            size="sm"
+            loading={isAccepting}
+            onClick={() => setConfirming(true)}
+          >
+            <Check className="h-4 w-4" />
+            Accept
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            loading={isRejecting}
+            onClick={() => onReject(application)}
+          >
+            <X className="h-4 w-4" />
+            Reject
+          </Button>
+        </div>
+      )}
+
+      {canAct && confirming && (
+        <div className="border-t border-border pt-4 rounded-xl bg-muted/50 p-4 flex flex-col gap-3">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" aria-hidden="true" />
+            <p className="text-sm font-medium text-foreground">
+              Accept this applicant and create an on-chain escrow project?
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            This will trigger a Freighter popup to sign the transaction. All other applications will
+            be automatically rejected.
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="primary"
+              size="sm"
+              loading={isAccepting}
+              onClick={() => {
+                setConfirming(false);
+                onAccept(application);
+              }}
+            >
+              <Check className="h-4 w-4" />
+              {isAccepting ? "Creating project..." : "Confirm"}
+            </Button>
+            <button
+              type="button"
+              onClick={() => setConfirming(false)}
+              disabled={isAccepting}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted cursor-pointer disabled:opacity-50"
+            >
+              <X className="h-4 w-4" />
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 }
