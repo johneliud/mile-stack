@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X, Wallet, ExternalLink } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
 import { Button } from "@/components/ui/Button";
@@ -151,7 +152,12 @@ function MobileWalletButton({ onClose }: { onClose: () => void }) {
   );
 }
 
+function isActive(href: string, pathname: string): boolean {
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
 export function Navbar() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -204,16 +210,23 @@ export function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <nav aria-label="Main navigation" className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map(({ label, href }) => (
-              <Link
-                key={href}
-                href={href}
-                className="text-sm font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground"
-              >
-                {label}
-              </Link>
-            ))}
+          <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map(({ label, href }) => {
+              const active = isActive(href, pathname);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150 ${
+                    active
+                      ? "bg-primary text-background"
+                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Desktop wallet */}
@@ -273,16 +286,23 @@ export function Navbar() {
 
             {/* Nav links */}
             <nav aria-label="Mobile navigation" className="flex flex-col px-6 py-4">
-              {NAV_LINKS.map(({ label, href }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={closeMenu}
-                  className="border-b border-border py-4 text-base font-medium text-muted-foreground transition-colors hover:text-foreground last:border-b-0"
-                >
-                  {label}
-                </Link>
-              ))}
+              {NAV_LINKS.map(({ label, href }) => {
+                const active = isActive(href, pathname);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={closeMenu}
+                    className={`border-b border-border py-4 text-base font-medium transition-colors last:border-b-0 ${
+                      active
+                        ? "text-primary font-black"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Wallet at the bottom */}
