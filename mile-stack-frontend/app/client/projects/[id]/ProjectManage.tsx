@@ -186,4 +186,137 @@ export function ProjectManage({ projectId }: { projectId: number }) {
   };
 
   const clientRole = project ? isClient(project, address) : false;
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Navbar />
+
+      <main className="flex-1 bg-background py-12">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <Link
+            href="/client"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground mb-8"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Link>
+
+          {/* Loading */}
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-24 gap-3">
+              <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
+              <p className="text-sm text-muted-foreground">Loading project...</p>
+            </div>
+          )}
+
+          {/* Error */}
+          {!loading && error && (
+            <div className="rounded-2xl border border-border bg-card p-10 text-center">
+              <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">
+                {error === "CONTRACT_NOT_CONFIGURED"
+                  ? "Contract not yet deployed"
+                  : error === "SIMULATION_SOURCE_NOT_CONFIGURED"
+                    ? "Simulation source not configured"
+                    : "Failed to load project"}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground mb-6">
+                {error === "CONTRACT_NOT_CONFIGURED"
+                  ? "Set NEXT_PUBLIC_CONTRACT_ID in your .env.local after deploying the contract."
+                  : error === "SIMULATION_SOURCE_NOT_CONFIGURED"
+                    ? "Set NEXT_PUBLIC_SIMULATION_SOURCE in your .env.local to a funded testnet account."
+                    : error}
+              </p>
+              <Button variant="outline" onClick={fetchProject}>
+                <RefreshCw className="h-4 w-4" />
+                Retry
+              </Button>
+            </div>
+          )}
+
+          {/* Not found */}
+          {!loading && !error && !project && (
+            <div className="rounded-2xl border border-border bg-card p-10 text-center">
+              <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">Project not found</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Project #{projectId} does not exist on this network.
+              </p>
+            </div>
+          )}
+
+          {/* Project detail */}
+          {!loading && !error && project && (
+            <div className="flex flex-col gap-8">
+              {/* Header */}
+              <div className="flex flex-col gap-1">
+                <h1 className="text-3xl font-bold text-primary">Project #{String(project.id)}</h1>
+                <p className="text-sm text-muted-foreground">
+                  Created {formatDate(project.created_at)}
+                </p>
+              </div>
+
+              {/* Meta */}
+              <div className="bg-card border border-border rounded-2xl p-6 grid sm:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                    Client
+                  </p>
+                  <p className="text-sm font-medium text-foreground tabular-nums">
+                    {truncateAddress(project.client)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                    Total Value
+                  </p>
+                  <p className="text-lg font-bold text-primary">
+                    {stroopsToXlm(project.milestones.reduce((s, m) => s + m.amount, 0n))} XLM
+                  </p>
+                </div>
+              </div>
+
+              {/* Wallet prompt */}
+              {!isConnected && (
+                <div className="rounded-2xl border border-border bg-card p-6 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <Wallet className="h-5 w-5 text-muted-foreground shrink-0" />
+                    <p className="text-sm text-muted-foreground">
+                      {isFreighterInstalled === false
+                        ? "Install Freighter to manage milestones."
+                        : "Connect your wallet to fund milestones."}
+                    </p>
+                  </div>
+                  {isFreighterInstalled !== false && (
+                    <Button variant="primary" size="sm" onClick={connect}>
+                      Connect
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Milestones */}
+              <div>
+                <h2 className="text-lg font-semibold text-foreground mb-4">Milestones</h2>
+                <div className="flex flex-col gap-4">
+                  {project.milestones.map((m, i) => (
+                    <MilestoneCard
+                      key={i}
+                      milestone={m}
+                      index={i}
+                      canFund={isConnected && clientRole}
+                      isFunding={fundingIndex === i}
+                      onFund={handleFund}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
 }
