@@ -144,3 +144,46 @@ function MilestoneCard({
     </div>
   );
 }
+
+export function ProjectManage({ projectId }: { projectId: number }) {
+  const { address, isConnected, isFreighterInstalled, connect } = useWallet();
+  const { notify } = useNotification();
+
+  const [project, setProject] = useState<ContractProject | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [fundingIndex, setFundingIndex] = useState<number | null>(null);
+
+  const fetchProject = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getProject(projectId);
+      setProject(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load project");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProject();
+  }, [projectId]);
+
+  const handleFund = async (milestoneIndex: number) => {
+    if (!address) return;
+    setFundingIndex(milestoneIndex);
+    try {
+      await fundMilestone(address, projectId, milestoneIndex);
+      notify("Milestone funded — XLM is now held in escrow.", "success");
+      await fetchProject();
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Failed to fund milestone", "error");
+    } finally {
+      setFundingIndex(null);
+    }
+  };
+
+  const clientRole = project ? isClient(project, address) : false;
+}
