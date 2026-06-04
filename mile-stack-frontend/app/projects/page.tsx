@@ -64,3 +64,95 @@ function ListingCard({ listing }: { listing: Listing }) {
     </div>
   );
 }
+
+export default function ProjectsPage() {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchListings = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getOpenListings();
+      setListings(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load listings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchListings();
+  }, []);
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Navbar />
+
+      <main className="flex-1 bg-background py-12">
+        <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10">
+            <h1 className="text-3xl font-bold text-primary">Open Projects</h1>
+            <p className="mt-2 text-muted-foreground">
+              Browse projects posted by clients and apply with your Stellar wallet.
+            </p>
+          </div>
+
+          {/* Loading */}
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-24 gap-3">
+              <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
+              <p className="text-sm text-muted-foreground">Loading projects...</p>
+            </div>
+          )}
+
+          {/* Error */}
+          {!loading && error && (
+            <div className="rounded-2xl border border-border bg-card p-10 text-center">
+              <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">Failed to load projects</h2>
+              <p className="mt-1 text-sm text-muted-foreground mb-6">
+                {error === "SUPABASE_NOT_CONFIGURED"
+                  ? "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local."
+                  : error}
+              </p>
+              <Button variant="outline" onClick={fetchListings}>
+                <RefreshCw className="h-4 w-4" />
+                Retry
+              </Button>
+            </div>
+          )}
+
+          {/* Empty */}
+          {!loading && !error && listings.length === 0 && (
+            <div className="rounded-2xl border border-border bg-card p-10 text-center">
+              <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">No open projects</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                No projects have been posted yet. Check back soon.
+              </p>
+            </div>
+          )}
+
+          {/* Grid */}
+          {!loading && !error && listings.length > 0 && (
+            <>
+              <p className="text-sm text-muted-foreground mb-6">
+                {listings.length} open project{listings.length !== 1 ? "s" : ""}
+              </p>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {listings.map((listing) => (
+                  <ListingCard key={listing.id} listing={listing} />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
