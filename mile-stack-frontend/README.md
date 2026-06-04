@@ -35,23 +35,32 @@ Next.js 16 frontend for [MileStack](../README.md) — a Soroban-powered mileston
 ```text
 mile-stack-frontend/
 ├── app/
-│   ├── globals.css         # Design system tokens, animations, base styles
-│   ├── icon.svg            # App favicon (navy "M" on transparent)
-│   ├── layout.tsx          # Root layout — font, metadata
-│   └── page.tsx            # Landing page (hero, features, how it works, CTA)
+│   ├── freelancer/
+│   │   ├── page.tsx                        # Freelancer Dashboard — all active projects
+│   │   └── projects/[id]/
+│   │       ├── page.tsx                    # Server Component — resolves dynamic params
+│   │       └── ProjectDetail.tsx           # Client Component — milestones + dispute flow
+│   ├── globals.css                         # Design system tokens, animations, base styles
+│   ├── icon.svg                            # App favicon (navy "M" on transparent)
+│   ├── layout.tsx                          # Root layout — font, providers, metadata
+│   └── page.tsx                            # Landing page (hero, features, how it works, CTA)
 ├── components/
 │   ├── ui/
-│   │   ├── Button.tsx      # Primary / accent / outline / ghost / destructive variants
-│   │   └── Badge.tsx       # Milestone status badges (pending / funded / released / disputed)
-│   ├── Footer.tsx          # Site footer with link columns
-│   ├── Navbar.tsx          # Sticky nav with 75vw mobile slide-in menu
-│   └── ScrollReveal.tsx    # IntersectionObserver scroll animation wrapper
+│   │   ├── Button.tsx                      # Primary / accent / outline / ghost / destructive variants
+│   │   └── Badge.tsx                       # Milestone status badges (pending / funded / released / disputed)
+│   ├── Footer.tsx                          # Site footer with link columns
+│   ├── Navbar.tsx                          # Sticky nav with 75vw mobile slide-in menu
+│   ├── Notification.tsx                    # Toast notification provider + useNotification hook
+│   └── ScrollReveal.tsx                    # IntersectionObserver scroll animation wrapper
+├── contexts/
+│   └── WalletContext.tsx                   # Freighter wallet state — connect / disconnect / auto-restore
 ├── lib/
-│   ├── stellar.ts          # RPC server and contract instance helpers
-│   └── freighter.ts        # Wallet connect / sign transaction helpers
+│   ├── contract.ts                         # Soroban contract queries and dispute transaction
+│   ├── freighter.ts                        # Wallet connect / sign transaction helpers
+│   └── stellar.ts                          # RPC server and contract instance helpers
 ├── design-system/
 │   └── milestack/
-│       └── MASTER.md       # Generated design system reference
+│       └── MASTER.md                       # Generated design system reference
 ├── public/
 │   └── favicon.svg
 ├── .env.local.example
@@ -77,7 +86,7 @@ Prettier runs automatically after install via the `postinstall` hook.
 cp .env.local.example .env.local
 ```
 
-Fill in `NEXT_PUBLIC_CONTRACT_ID` once the smart contract is deployed (see [issue #8](https://github.com/johneliud/mile-stack/issues/8)).
+The example file ships with the deployed testnet contract ID pre-filled. Set `NEXT_PUBLIC_SIMULATION_SOURCE` to any funded testnet account public key.
 
 ### 3. Start the development server
 
@@ -128,11 +137,13 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 
 ## Environment Variables
 
-| Variable                         | Description                                |
-| -------------------------------- | ------------------------------------------ |
-| `NEXT_PUBLIC_STELLAR_RPC_URL`    | Soroban RPC endpoint (defaults to testnet) |
-| `NEXT_PUBLIC_CONTRACT_ID`        | Deployed MileStack contract ID             |
-| `NEXT_PUBLIC_NETWORK_PASSPHRASE` | Stellar network passphrase                 |
+| Variable                         | Value / Description                                             |
+| -------------------------------- | --------------------------------------------------------------- |
+| `NEXT_PUBLIC_STELLAR_RPC_URL`    | `https://soroban-testnet.stellar.org`                           |
+| `NEXT_PUBLIC_CONTRACT_ID`        | `CAHK5YTBEY7RGHYHIC4TJBWD7755IEMJVMYAKB7FJZWQJOLGMZ4W2EP7`      |
+| `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015`                             |
+| `NEXT_PUBLIC_XLM_TOKEN_ID`       | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`      |
+| `NEXT_PUBLIC_SIMULATION_SOURCE`  | A funded testnet account public key (for read-only simulations) |
 
 ---
 

@@ -78,13 +78,7 @@ git clone https://github.com/johneliud/mile-stack.git
 cd mile-stack
 ```
 
-### 2. Install the Rust WASM target
-
-```bash
-rustup target add wasm32-unknown-unknown
-```
-
-### 3. Run the contract tests
+### 2. Run the contract tests
 
 ```bash
 cargo test
@@ -134,13 +128,13 @@ test result: ok. 35 passed; 0 failed
 ### 4. Build the contract
 
 ```bash
-cargo build --target wasm32-unknown-unknown --release
+stellar contract build
 ```
 
 Output:
 
 ```
-target/wasm32-unknown-unknown/release/mile_stack.wasm
+target/wasm32v1-none/release/mile_stack.wasm
 ```
 
 ### 5. Deploy to Stellar Testnet
@@ -156,12 +150,12 @@ Deploy the contract:
 
 ```bash
 stellar contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/mile_stack.wasm \
+  --wasm target/wasm32v1-none/release/mile_stack.wasm \
   --source deployer \
   --network testnet
 ```
 
-Copy the contract ID from the output — set it as `NEXT_PUBLIC_CONTRACT_ID` in the frontend.
+The contract ID printed to stdout is your `NEXT_PUBLIC_CONTRACT_ID`.
 
 ---
 
@@ -221,17 +215,13 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Create `.env.local` inside `mile-stack-frontend/` using `.env.local.example` as a template:
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_STELLAR_RPC_URL` | Soroban RPC endpoint (defaults to `https://soroban-testnet.stellar.org`) |
-| `NEXT_PUBLIC_CONTRACT_ID` | Deployed MileStack contract ID on testnet |
+| Variable | Value / Description |
+|----------|---------------------|
+| `NEXT_PUBLIC_STELLAR_RPC_URL` | `https://soroban-testnet.stellar.org` |
+| `NEXT_PUBLIC_CONTRACT_ID` | `CAHK5YTBEY7RGHYHIC4TJBWD7755IEMJVMYAKB7FJZWQJOLGMZ4W2EP7` |
 | `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015` |
-
-To get the native XLM token contract address on testnet:
-
-```bash
-stellar contract id asset --asset native --network testnet
-```
+| `NEXT_PUBLIC_XLM_TOKEN_ID` | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
+| `NEXT_PUBLIC_SIMULATION_SOURCE` | A funded testnet account public key (for read-only contract simulations) |
 
 ---
 
@@ -239,7 +229,13 @@ stellar contract id asset --asset native --network testnet
 
 | Network | Contract ID |
 |---------|-------------|
-| Testnet | _TBD — see issue #8_ |
+| Testnet | [`CAHK5YTBEY7RGHYHIC4TJBWD7755IEMJVMYAKB7FJZWQJOLGMZ4W2EP7`](https://stellar.expert/explorer/testnet/contract/CAHK5YTBEY7RGHYHIC4TJBWD7755IEMJVMYAKB7FJZWQJOLGMZ4W2EP7) |
+
+**Deployer:** `GCQQCRKG3C5DPPWTVTYYWEJLIPHUVBKQYT6HIOBX7I37UVSY7DNMNFZR`
+
+**Deploy transaction:** [`a9ffe9e9f7a5f15ba0c2dd81139760b7e350dcd205db06055bd26f2a850ab3c8`](https://stellar.expert/explorer/testnet/tx/a9ffe9e9f7a5f15ba0c2dd81139760b7e350dcd205db06055bd26f2a850ab3c8)
+
+**Native XLM token (testnet):** `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
 
 ---
 
