@@ -2,13 +2,152 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X, Wallet } from "lucide-react";
+import { Menu, X, Wallet, LogOut, ExternalLink } from "lucide-react";
+import { useWallet } from "@/contexts/WalletContext";
 import { Button } from "@/components/ui/Button";
 
 const NAV_LINKS = [
   { label: "Features", href: "/#features" },
   { label: "How it works", href: "/#how-it-works" },
 ];
+
+function truncateAddress(addr: string) {
+  return `${addr.slice(0, 4)}...${addr.slice(-4)}`;
+}
+
+function WalletButton({ onClose }: { onClose?: () => void }) {
+  const { address, isConnected, isConnecting, isFreighterInstalled, connect, disconnect } =
+    useWallet();
+
+  const handleConnect = async () => {
+    onClose?.();
+    await connect();
+  };
+
+  const handleDisconnect = () => {
+    onClose?.();
+    disconnect();
+  };
+
+  // Still detecting whether Freighter is installed
+  if (isFreighterInstalled === null) {
+    return (
+      <Button variant="outline" size="sm" disabled>
+        <Wallet className="h-4 w-4" aria-hidden="true" />
+        Connect Wallet
+      </Button>
+    );
+  }
+
+  // Freighter not installed
+  if (!isFreighterInstalled) {
+    return (
+      <a
+        href="https://www.freighter.app"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-muted cursor-pointer"
+      >
+        <ExternalLink className="h-4 w-4" aria-hidden="true" />
+        Install Freighter
+      </a>
+    );
+  }
+
+  // Connected — show address + disconnect
+  if (isConnected && address) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="rounded-lg border border-border bg-muted px-3 py-2 text-sm font-medium text-foreground tabular-nums">
+          {truncateAddress(address)}
+        </span>
+        <button
+          onClick={handleDisconnect}
+          aria-label="Disconnect wallet"
+          className="rounded-lg border border-border p-2 text-muted-foreground transition-colors duration-150 hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+        >
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
+    );
+  }
+
+  // Not connected
+  return (
+    <Button variant="outline" size="sm" loading={isConnecting} onClick={handleConnect}>
+      <Wallet className="h-4 w-4" aria-hidden="true" />
+      {isConnecting ? "Connecting..." : "Connect Wallet"}
+    </Button>
+  );
+}
+
+function MobileWalletButton({ onClose }: { onClose: () => void }) {
+  const { address, isConnected, isConnecting, isFreighterInstalled, connect, disconnect } =
+    useWallet();
+
+  const handleConnect = async () => {
+    onClose();
+    await connect();
+  };
+
+  const handleDisconnect = () => {
+    onClose();
+    disconnect();
+  };
+
+  if (isFreighterInstalled === null) {
+    return (
+      <Button variant="primary" size="md" className="w-full" disabled>
+        <Wallet className="h-4 w-4" aria-hidden="true" />
+        Connect Wallet
+      </Button>
+    );
+  }
+
+  if (!isFreighterInstalled) {
+    return (
+      <a
+        href="https://www.freighter.app"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+      >
+        <ExternalLink className="h-4 w-4" aria-hidden="true" />
+        Install Freighter
+      </a>
+    );
+  }
+
+  if (isConnected && address) {
+    return (
+      <div className="flex flex-col gap-2">
+        <p className="rounded-lg border border-border bg-muted px-3 py-2.5 text-sm font-medium text-foreground tabular-nums text-center">
+          {truncateAddress(address)}
+        </p>
+        <button
+          onClick={handleDisconnect}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+        >
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+          Disconnect
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <Button
+      variant="primary"
+      size="md"
+      className="w-full"
+      loading={isConnecting}
+      onClick={handleConnect}
+    >
+      <Wallet className="h-4 w-4" aria-hidden="true" />
+      {isConnecting ? "Connecting..." : "Connect Wallet"}
+    </Button>
+  );
+}
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,7 +162,6 @@ export function Navbar() {
     }, 220);
   }, []);
 
-  // Close on outside click
   useEffect(() => {
     if (!menuOpen) return;
     function handlePointerDown(e: PointerEvent) {
@@ -35,7 +173,6 @@ export function Navbar() {
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [menuOpen, closeMenu]);
 
-  // Close on Escape
   useEffect(() => {
     if (!menuOpen) return;
     function handleKeyDown(e: KeyboardEvent) {
@@ -45,7 +182,6 @@ export function Navbar() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [menuOpen, closeMenu]);
 
-  // Prevent body scroll while menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => {
@@ -59,8 +195,9 @@ export function Navbar() {
         <div className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link href="/" className="shrink-0">
-            <span className="text-2xl font-bold text-primary tracking-tight">
-              Mile<span className="text-accent">Stack</span>
+            <span className="text-2xl font-bold tracking-tight">
+              <span className="text-primary">Mile</span>
+              <span className="text-accent">Stack</span>
             </span>
           </Link>
 
@@ -77,11 +214,9 @@ export function Navbar() {
             ))}
           </nav>
 
-          {/* Desktop right */}
+          {/* Desktop wallet */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="outline" size="sm" disabled>
-              Connect Wallet
-            </Button>
+            <WalletButton />
           </div>
 
           {/* Hamburger — mobile only */}
@@ -101,7 +236,6 @@ export function Navbar() {
         </div>
       </header>
 
-      {/* Mobile menu overlay + panel */}
       {menuOpen && (
         <>
           {/* Backdrop */}
@@ -112,7 +246,7 @@ export function Navbar() {
             aria-hidden="true"
           />
 
-          {/* Slide-in panel — 75vw from the right */}
+          {/* Slide-in panel */}
           <div
             ref={panelRef}
             id="mobile-menu"
@@ -149,11 +283,9 @@ export function Navbar() {
               ))}
             </nav>
 
-            {/* Connect Wallet at the bottom */}
+            {/* Wallet at the bottom */}
             <div className="mt-auto border-t border-border px-6 py-5">
-              <Button variant="primary" size="md" className="w-full" disabled>
-                Connect Wallet
-              </Button>
+              <MobileWalletButton onClose={closeMenu} />
             </div>
           </div>
         </>
