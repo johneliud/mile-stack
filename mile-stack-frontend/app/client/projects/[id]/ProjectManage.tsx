@@ -9,8 +9,10 @@ import {
   FolderOpen,
   Wallet,
   DollarSign,
+  CheckCircle,
   X,
   Check,
+  AlertTriangle,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -21,6 +23,7 @@ import { useWallet } from "@/contexts/WalletContext";
 import {
   getProject,
   fundMilestone,
+  approveMilestone,
   stroopsToXlm,
   type ContractMilestone,
   type ContractProject,
@@ -59,17 +62,25 @@ function MilestoneCard({
   milestone,
   index,
   canFund,
+  canApprove,
   isFunding,
+  isApproving,
   onFund,
+  onApprove,
 }: {
   milestone: ContractMilestone;
   index: number;
   canFund: boolean;
+  canApprove: boolean;
   isFunding: boolean;
+  isApproving: boolean;
   onFund: (index: number) => void;
+  onApprove: (index: number) => void;
 }) {
-  const [confirming, setConfirming] = useState(false);
+  const [fundConfirming, setFundConfirming] = useState(false);
+  const [approveConfirming, setApproveConfirming] = useState(false);
   const showFundButton = canFund && milestone.status === "Pending";
+  const showApproveButton = canApprove && milestone.status === "Funded";
 
   return (
     <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
@@ -96,16 +107,17 @@ function MilestoneCard({
         </div>
       </div>
 
-      {showFundButton && !confirming && (
+      {/* Fund flow */}
+      {showFundButton && !fundConfirming && (
         <div className="border-t border-border pt-4">
-          <Button variant="primary" size="sm" onClick={() => setConfirming(true)}>
+          <Button variant="primary" size="sm" onClick={() => setFundConfirming(true)}>
             <DollarSign className="h-4 w-4" aria-hidden="true" />
             Fund Milestone
           </Button>
         </div>
       )}
 
-      {showFundButton && confirming && (
+      {showFundButton && fundConfirming && (
         <div className="border-t border-border pt-4 rounded-xl bg-muted/50 p-4 flex flex-col gap-3">
           <p className="text-sm font-medium text-foreground">
             Lock{" "}
@@ -122,7 +134,7 @@ function MilestoneCard({
               size="sm"
               loading={isFunding}
               onClick={() => {
-                setConfirming(false);
+                setFundConfirming(false);
                 onFund(index);
               }}
             >
@@ -131,8 +143,64 @@ function MilestoneCard({
             </Button>
             <button
               type="button"
-              onClick={() => setConfirming(false)}
+              onClick={() => setFundConfirming(false)}
               disabled={isFunding}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted cursor-pointer disabled:opacity-50"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Approve flow */}
+      {showApproveButton && !approveConfirming && (
+        <div className="border-t border-border pt-4">
+          <Button variant="accent" size="sm" onClick={() => setApproveConfirming(true)}>
+            <CheckCircle className="h-4 w-4" aria-hidden="true" />
+            Approve &amp; Release
+          </Button>
+        </div>
+      )}
+
+      {showApproveButton && approveConfirming && (
+        <div className="border-t border-border pt-4 rounded-xl bg-muted/50 p-4 flex flex-col gap-3">
+          <div className="flex items-start gap-2">
+            <AlertTriangle
+              className="h-4 w-4 text-destructive shrink-0 mt-0.5"
+              aria-hidden="true"
+            />
+            <p className="text-sm font-medium text-foreground">
+              Release{" "}
+              <span className="font-bold text-primary">{stroopsToXlm(milestone.amount)} XLM</span>{" "}
+              to{" "}
+              <span className="font-mono text-foreground">
+                {truncateAddress(milestone.freelancer)}
+              </span>
+              ?
+            </p>
+          </div>
+          <p className="text-xs text-destructive font-medium">
+            This action is irreversible. Funds will be sent directly to the freelancer.
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="primary"
+              size="sm"
+              loading={isApproving}
+              onClick={() => {
+                setApproveConfirming(false);
+                onApprove(index);
+              }}
+            >
+              <Check className="h-4 w-4" aria-hidden="true" />
+              {isApproving ? "Releasing..." : "Confirm Release"}
+            </Button>
+            <button
+              type="button"
+              onClick={() => setApproveConfirming(false)}
+              disabled={isApproving}
               className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted cursor-pointer disabled:opacity-50"
             >
               <X className="h-4 w-4" aria-hidden="true" />
@@ -153,6 +221,7 @@ export function ProjectManage({ projectId }: { projectId: number }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fundingIndex, setFundingIndex] = useState<number | null>(null);
+  const [approvingIndex, setApprovingIndex] = useState<number | null>(null);
 
   const fetchProject = async () => {
     setLoading(true);
@@ -182,6 +251,20 @@ export function ProjectManage({ projectId }: { projectId: number }) {
       notify(err instanceof Error ? err.message : "Failed to fund milestone", "error");
     } finally {
       setFundingIndex(null);
+    }
+  };
+
+  const handleApprove = async (milestoneIndex: number) => {
+    if (!address) return;
+    setApprovingIndex(milestoneIndex);
+    try {
+      await approveMilestone(address, projectId, milestoneIndex);
+      notify("Milestone approved — XLM released to the freelancer.", "success");
+      await fetchProject();
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Failed to approve milestone", "error");
+    } finally {
+      setApprovingIndex(null);
     }
   };
 
@@ -305,8 +388,11 @@ export function ProjectManage({ projectId }: { projectId: number }) {
                       milestone={m}
                       index={i}
                       canFund={isConnected && clientRole}
+                      canApprove={isConnected && clientRole}
                       isFunding={fundingIndex === i}
+                      isApproving={approvingIndex === i}
                       onFund={handleFund}
+                      onApprove={handleApprove}
                     />
                   ))}
                 </div>
