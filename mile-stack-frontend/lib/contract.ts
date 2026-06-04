@@ -4,6 +4,7 @@ import {
   TransactionBuilder,
   Account,
   rpc,
+  xdr,
   nativeToScVal,
   scValToNative,
 } from "@stellar/stellar-sdk";
@@ -171,6 +172,73 @@ export async function disputeMilestone(
     await new Promise((r) => setTimeout(r, 2000));
     const txResult = await server.getTransaction(submitResult.hash);
     if (txResult.status === rpc.Api.GetTransactionStatus.SUCCESS) return;
+    if (txResult.status === rpc.Api.GetTransactionStatus.FAILED) {
+      throw new Error("Transaction failed on-chain");
+    }
+  }
+  throw new Error("Transaction timed out — check your wallet for status");
+}
+
+// Creates a new escrow project. Returns the assigned project ID.
+export async function createProject(
+  clientAddress: string,
+  freelancerAddress: string,
+  milestones: Array<{ title: string; amount: bigint }>,
+): Promise<number> {
+  if (!CONTRACT_ID) throw new Error("CONTRACT_NOT_CONFIGURED");
+
+  const server = new rpc.Server(RPC_URL, { allowHttp: true });
+  const contract = new Contract(CONTRACT_ID);
+  const account = await server.getAccount(clientAddress);
+
+  const titlesVec = xdr.ScVal.scvVec(
+    milestones.map((m) => nativeToScVal(m.title, { type: "string" })),
+  );
+  const amountsVec = xdr.ScVal.scvVec(
+    milestones.map((m) => nativeToScVal(m.amount, { type: "i128" })),
+  );
+
+  const tx = new TransactionBuilder(account, {
+    fee: "300000",
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
+    .addOperation(
+      contract.call(
+        "create_project",
+        new Address(clientAddress).toScVal(),
+        new Address(freelancerAddress).toScVal(),
+        titlesVec,
+        amountsVec,
+      ),
+    )
+    .setTimeout(30)
+    .build();
+
+  const simResult = await server.simulateTransaction(tx);
+  if (rpc.Api.isSimulationError(simResult)) throw new Error(simResult.error);
+
+  const assembled = rpc.assembleTransaction(tx, simResult).build();
+  const signedXdr = await signTx(assembled.toXDR(), NETWORK_PASSPHRASE);
+
+  const signedTx = TransactionBuilder.fromXDR(signedXdr, NETWORK_PASSPHRASE);
+  const submitResult = await server.sendTransaction(signedTx);
+
+  if (submitResult.status === "ERROR") {
+    throw new Error(
+      `Transaction submission failed: ${JSON.stringify(submitResult.errorResult ?? "")}`,
+    );
+  }
+
+  for (let i = 0; i < 10; i++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    const txResult = await server.getTransaction(submitResult.hash);
+    if (txResult.status === rpc.Api.GetTransactionStatus.SUCCESS) {
+      // returnValue holds the u64 project ID returned by the contract
+      if ("returnValue" in txResult && txResult.returnValue) {
+        return Number(scValToNative(txResult.returnValue));
+      }
+      return await getProjectCount();
+    }
     if (txResult.status === rpc.Api.GetTransactionStatus.FAILED) {
       throw new Error("Transaction failed on-chain");
     }
