@@ -223,4 +223,155 @@ export default function ApplicationsPage() {
 
   const isOwner =
     listing && address ? listing.client_address.toLowerCase() === address.toLowerCase() : false;
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Navbar />
+
+      <main className="flex-1 bg-background py-12">
+        <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+          <Link
+            href="/client"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground mb-8"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Link>
+
+          {/* Loading */}
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-24 gap-3">
+              <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
+              <p className="text-sm text-muted-foreground">Loading applications...</p>
+            </div>
+          )}
+
+          {/* Error */}
+          {!loading && error && (
+            <div className="rounded-2xl border border-border bg-card p-10 text-center">
+              <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">Failed to load</h2>
+              <p className="mt-1 text-sm text-muted-foreground mb-6">{error}</p>
+              <Button variant="outline" onClick={fetchData}>
+                <RefreshCw className="h-4 w-4" />
+                Retry
+              </Button>
+            </div>
+          )}
+
+          {/* Wallet not connected */}
+          {!loading && !error && !isConnected && (
+            <div className="rounded-2xl border border-border bg-card p-10 text-center">
+              <Wallet className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">Connect your wallet</h2>
+              <p className="mt-1 text-sm text-muted-foreground mb-6">
+                {isFreighterInstalled === false
+                  ? "Install Freighter to manage applications."
+                  : "Connect your wallet to review applications."}
+              </p>
+              {isFreighterInstalled !== false && (
+                <Button variant="primary" onClick={connect}>
+                  <Wallet className="h-4 w-4" />
+                  Connect Wallet
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Unauthorized */}
+          {!loading && !error && isConnected && listing && !isOwner && (
+            <div className="rounded-2xl border border-border bg-card p-10 text-center">
+              <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">Unauthorized</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Only the client who posted this listing can review applications.
+              </p>
+            </div>
+          )}
+
+          {/* Content */}
+          {!loading && !error && isConnected && listing && isOwner && (
+            <div className="flex flex-col gap-8">
+              {/* Header */}
+              <div className="flex flex-col gap-1">
+                <h1 className="text-3xl font-bold text-primary">{listing.title}</h1>
+                <div className="flex items-center gap-3 mt-1">
+                  <span
+                    className={`rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${
+                      listing.status === "open"
+                        ? "bg-blue-50 text-accent border-blue-200"
+                        : "bg-muted text-muted-foreground border-border"
+                    }`}
+                  >
+                    {listing.status}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {listing.total_xlm.toLocaleString("en-US", { maximumFractionDigits: 2 })} XLM
+                    total &middot; {listing.milestones.length} milestone
+                    {listing.milestones.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              </div>
+
+              {/* Filled state */}
+              {listing.status === "filled" && listing.on_chain_project_id && (
+                <div className="rounded-2xl border border-border bg-card p-6 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="h-5 w-5 text-success shrink-0" />
+                    <p className="text-sm font-medium text-foreground">
+                      A freelancer has been accepted. Project #{listing.on_chain_project_id} is
+                      active on-chain.
+                    </p>
+                  </div>
+                  <Link href={`/client/projects/${listing.on_chain_project_id}`}>
+                    <Button variant="outline" size="sm">
+                      Manage Project
+                    </Button>
+                  </Link>
+                </div>
+              )}
+
+              {/* Applications */}
+              <div>
+                <h2 className="text-lg font-semibold text-foreground mb-4">
+                  Applications{" "}
+                  <span className="text-base font-normal text-muted-foreground">
+                    ({applications.length})
+                  </span>
+                </h2>
+
+                {applications.length === 0 ? (
+                  <div className="rounded-2xl border border-border bg-card p-10 text-center">
+                    <Users className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+                    <h3 className="text-base font-semibold text-foreground">No applications yet</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Share your listing at{" "}
+                      <span className="font-mono text-xs">/projects/{listingId}</span> to attract
+                      freelancers.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {applications.map((app) => (
+                      <ApplicationCard
+                        key={app.id}
+                        application={app}
+                        listingOpen={listing.status === "open"}
+                        isAccepting={acceptingId === app.id}
+                        isRejecting={rejectingId === app.id}
+                        onAccept={handleAccept}
+                        onReject={handleReject}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
 }
