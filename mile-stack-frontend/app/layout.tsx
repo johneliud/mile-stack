@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { NotificationProvider } from "@/components/Notification";
 import { WalletProvider } from "@/contexts/WalletContext";
 import "./globals.css";
 
@@ -24,7 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${plusJakartaSans.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
-        <WalletProvider>{children}</WalletProvider>
+        <NotificationProvider>
+          <WalletProvider>{children}</WalletProvider>
+        </NotificationProvider>
       </body>
     </html>
   );
