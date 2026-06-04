@@ -246,6 +246,60 @@ export async function createProject(
   throw new Error("Transaction timed out — check your wallet for status");
 }
 
+export async function fundMilestone(
+  walletAddress: string,
+  projectId: number,
+  milestoneIndex: number,
+): Promise<void> {
+  const XLM_TOKEN = process.env.NEXT_PUBLIC_XLM_TOKEN_ID;
+  if (!XLM_TOKEN) throw new Error("XLM_TOKEN_NOT_CONFIGURED");
+  if (!CONTRACT_ID) throw new Error("CONTRACT_NOT_CONFIGURED");
+
+  const server = new rpc.Server(RPC_URL, { allowHttp: true });
+  const contract = new Contract(CONTRACT_ID);
+  const account = await server.getAccount(walletAddress);
+
+  const tx = new TransactionBuilder(account, {
+    fee: "300000",
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
+    .addOperation(
+      contract.call(
+        "fund_milestone",
+        nativeToScVal(BigInt(projectId), { type: "u64" }),
+        nativeToScVal(milestoneIndex, { type: "u32" }),
+        new Address(XLM_TOKEN).toScVal(),
+      ),
+    )
+    .setTimeout(30)
+    .build();
+
+  const simResult = await server.simulateTransaction(tx);
+  if (rpc.Api.isSimulationError(simResult)) throw new Error(simResult.error);
+
+  const assembled = rpc.assembleTransaction(tx, simResult).build();
+  const signedXdr = await signTx(assembled.toXDR(), NETWORK_PASSPHRASE);
+
+  const signedTx = TransactionBuilder.fromXDR(signedXdr, NETWORK_PASSPHRASE);
+  const submitResult = await server.sendTransaction(signedTx);
+
+  if (submitResult.status === "ERROR") {
+    throw new Error(
+      `Transaction submission failed: ${JSON.stringify(submitResult.errorResult ?? "")}`,
+    );
+  }
+
+  for (let i = 0; i < 10; i++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    const txResult = await server.getTransaction(submitResult.hash);
+    if (txResult.status === rpc.Api.GetTransactionStatus.SUCCESS) return;
+    if (txResult.status === rpc.Api.GetTransactionStatus.FAILED) {
+      throw new Error("Transaction failed on-chain");
+    }
+  }
+  throw new Error("Transaction timed out — check your wallet for status");
+}
+
 export async function getFreelancerProjects(freelancerAddress: string): Promise<ContractProject[]> {
   const count = await getProjectCount();
   if (count === 0) return [];
