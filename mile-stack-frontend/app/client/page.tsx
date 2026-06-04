@@ -132,3 +132,29 @@ function ProjectCard({ project }: { project: ContractProject }) {
     </div>
   );
 }
+
+export default function ClientDashboard() {
+  const { address, isConnected, isFreighterInstalled, connect } = useWallet();
+  const [projects, setProjects] = useState<ContractProject[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProjects = async (addr: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getClientProjects(addr);
+      setProjects(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load projects");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isConnected && address) {
+      fetchProjects(address);
+    }
+  }, [address, isConnected]);
+}
