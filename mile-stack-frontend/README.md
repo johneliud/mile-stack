@@ -88,6 +88,37 @@ cp .env.local.example .env.local
 
 The example file ships with the deployed testnet contract ID pre-filled. Set `NEXT_PUBLIC_SIMULATION_SOURCE` to any funded testnet account public key.
 
+### 2a. Set up Supabase
+
+1. Create a free project at [supabase.com](https://supabase.com)
+2. In the SQL editor, run:
+
+```sql
+create table listings (
+  id uuid default gen_random_uuid() primary key,
+  client_address text not null,
+  title text not null,
+  description text not null,
+  skills text[] default '{}',
+  milestones jsonb not null,
+  total_xlm numeric not null,
+  status text default 'open',
+  on_chain_project_id bigint,
+  created_at timestamptz default now()
+);
+
+create table applications (
+  id uuid default gen_random_uuid() primary key,
+  listing_id uuid references listings(id) on delete cascade,
+  freelancer_address text not null,
+  message text,
+  status text default 'pending',
+  created_at timestamptz default now()
+);
+```
+
+3. Copy your project URL and anon key from **Project Settings > API** into `.env.local`
+
 ### 3. Start the development server
 
 ```bash
@@ -144,6 +175,8 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 | `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015`                             |
 | `NEXT_PUBLIC_XLM_TOKEN_ID`       | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`      |
 | `NEXT_PUBLIC_SIMULATION_SOURCE`  | A funded testnet account public key (for read-only simulations) |
+| `NEXT_PUBLIC_SUPABASE_URL`       | Your Supabase project URL (Project Settings > API)              |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`  | Your Supabase anon/public key (Project Settings > API)          |
 
 ---
 
