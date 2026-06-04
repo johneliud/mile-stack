@@ -275,7 +275,7 @@ export function ProjectManage({ projectId }: { projectId: number }) {
       <Navbar />
 
       <main className="flex-1 bg-background py-12">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           <Link
             href="/client"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground mb-8"
