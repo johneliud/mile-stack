@@ -161,7 +161,9 @@ export async function disputeMilestone(
   const submitResult = await server.sendTransaction(signedTx);
 
   if (submitResult.status === "ERROR") {
-    throw new Error(`Transaction submission failed: ${JSON.stringify(submitResult.errorResult ?? "")}`);
+    throw new Error(
+      `Transaction submission failed: ${JSON.stringify(submitResult.errorResult ?? "")}`,
+    );
   }
 
   // Poll until the transaction is confirmed (max ~20 s)
