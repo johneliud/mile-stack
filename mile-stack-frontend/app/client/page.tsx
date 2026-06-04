@@ -2,15 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  Wallet,
-  FolderOpen,
-  ChevronRight,
-  AlertCircle,
-  RefreshCw,
-  Plus,
-  Layers,
-} from "lucide-react";
+import { Wallet, FolderOpen, ChevronRight, AlertCircle, RefreshCw, Plus } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/Badge";
@@ -25,7 +17,12 @@ import {
   type ContractProject,
   type MilestoneStatus,
 } from "@/lib/contract";
-import { getClientListings, getApplicationCount, type Listing } from "@/lib/listings";
+import {
+  getClientListings,
+  getApplicationCount,
+  getProjectNames,
+  type Listing,
+} from "@/lib/listings";
 
 function truncateAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-6)}`;
@@ -67,9 +64,7 @@ function ListingCard({ listing }: { listing: ListingWithCount }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-base font-semibold text-foreground">{listing.title}</h3>
-          <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
-            {listing.description}
-          </p>
+          <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{listing.description}</p>
         </div>
         <span
           className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${
@@ -88,7 +83,9 @@ function ListingCard({ listing }: { listing: ListingWithCount }) {
             {listing.total_xlm.toLocaleString("en-US", { maximumFractionDigits: 2 })} XLM
           </span>
         </span>
-        <span>{listing.milestones.length} milestone{listing.milestones.length !== 1 ? "s" : ""}</span>
+        <span>
+          {listing.milestones.length} milestone{listing.milestones.length !== 1 ? "s" : ""}
+        </span>
         <span>
           {listing.applicationCount} applicant{listing.applicationCount !== 1 ? "s" : ""}
         </span>
@@ -131,7 +128,7 @@ function MilestoneRow({ milestone }: { milestone: ContractMilestone }) {
   );
 }
 
-function ProjectCard({ project }: { project: ContractProject }) {
+function ProjectCard({ project, name }: { project: ContractProject; name?: string }) {
   const total = totalProjectValue(project);
   const overall = projectOverallStatus(project);
   const funded = project.milestones.filter((m) => m.status !== "Pending").length;
@@ -142,9 +139,11 @@ function ProjectCard({ project }: { project: ContractProject }) {
     <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col gap-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-base font-semibold text-foreground">Project #{String(project.id)}</h3>
+          <h3 className="text-base font-semibold text-foreground">
+            {name ?? `Project #${String(project.id)}`}
+          </h3>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Created {formatDate(project.created_at)}
+            #{String(project.id)} &middot; Created {formatDate(project.created_at)}
           </p>
         </div>
         <Badge variant={OVERALL_BADGE_VARIANT[overall]}>{overall}</Badge>
@@ -152,7 +151,9 @@ function ProjectCard({ project }: { project: ContractProject }) {
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{funded} of {project.milestones.length} milestones funded</span>
+          <span>
+            {funded} of {project.milestones.length} milestones funded
+          </span>
           <span>{progressPct}% released</span>
         </div>
         <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
@@ -201,6 +202,7 @@ export default function ClientDashboard() {
   const { address, isConnected, isFreighterInstalled, connect } = useWallet();
 
   const [projects, setProjects] = useState<ContractProject[]>([]);
+  const [projectNames, setProjectNames] = useState<Record<number, string>>({});
   const [projectsLoading, setProjectsLoading] = useState(false);
   const [projectsError, setProjectsError] = useState<string | null>(null);
 
@@ -212,8 +214,12 @@ export default function ClientDashboard() {
     setProjectsLoading(true);
     setProjectsError(null);
     try {
-      const data = await getClientProjects(addr);
+      const [data, names] = await Promise.all([
+        getClientProjects(addr),
+        getProjectNames(addr).catch(() => ({}) as Record<number, string>),
+      ]);
       setProjects(data);
+      setProjectNames(names);
     } catch (err) {
       setProjectsError(err instanceof Error ? err.message : "Failed to load projects");
     } finally {
@@ -253,7 +259,6 @@ export default function ClientDashboard() {
 
       <main className="flex-1 bg-background py-12">
         <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-
           {/* Page header */}
           <div className="mb-10 flex items-start justify-between gap-4">
             <div>
@@ -263,20 +268,12 @@ export default function ClientDashboard() {
               </p>
             </div>
             {isConnected && (
-              <div className="flex items-center gap-2">
-                <Link href="/client/listings/new">
-                  <Button variant="outline">
-                    <Layers className="h-4 w-4" />
-                    Post a Listing
-                  </Button>
-                </Link>
-                <Link href="/client/projects/new">
-                  <Button variant="primary">
-                    <Plus className="h-4 w-4" />
-                    New Project
-                  </Button>
-                </Link>
-              </div>
+              <Link href="/client/listings/new">
+                <Button variant="primary">
+                  <Plus className="h-4 w-4" />
+                  New Project
+                </Button>
+              </Link>
             )}
           </div>
 
@@ -310,18 +307,9 @@ export default function ClientDashboard() {
 
           {isConnected && (
             <div className="flex flex-col gap-12">
-
               {/* ── My Listings ── */}
               <section>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-foreground">My Listings</h2>
-                  <Link href="/client/listings/new">
-                    <Button variant="ghost" size="sm">
-                      <Plus className="h-4 w-4" />
-                      Post a Listing
-                    </Button>
-                  </Link>
-                </div>
+                <h2 className="text-xl font-semibold text-foreground mb-6">My Projects</h2>
 
                 {listingsLoading && (
                   <div className="flex items-center gap-3 py-8 text-muted-foreground">
@@ -346,14 +334,14 @@ export default function ClientDashboard() {
                 {!listingsLoading && !listingsError && listings.length === 0 && (
                   <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
                     <FolderOpen className="mx-auto h-8 w-8 text-muted-foreground mb-3" />
-                    <p className="text-sm font-medium text-foreground">No listings yet</p>
+                    <p className="text-sm font-medium text-foreground">No projects yet</p>
                     <p className="mt-1 text-sm text-muted-foreground mb-4">
-                      Post a listing to find freelancers through the marketplace.
+                      Post a project and freelancers will be able to apply.
                     </p>
                     <Link href="/client/listings/new">
                       <Button variant="outline" size="sm">
                         <Plus className="h-4 w-4" />
-                        Post a Listing
+                        New Project
                       </Button>
                     </Link>
                   </div>
@@ -408,29 +396,26 @@ export default function ClientDashboard() {
                 {!projectsLoading && !projectsError && projects.length === 0 && (
                   <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
                     <FolderOpen className="mx-auto h-8 w-8 text-muted-foreground mb-3" />
-                    <p className="text-sm font-medium text-foreground">No active projects</p>
-                    <p className="mt-1 text-sm text-muted-foreground mb-4">
-                      Accept a listing application or create a project directly if you already have
-                      a freelancer.
+                    <p className="text-sm font-medium text-foreground">No active escrow projects</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Accept a freelancer application from one of your projects above to start an
+                      escrow contract.
                     </p>
-                    <Link href="/client/projects/new">
-                      <Button variant="outline" size="sm">
-                        <Plus className="h-4 w-4" />
-                        New Project
-                      </Button>
-                    </Link>
                   </div>
                 )}
 
                 {!projectsLoading && !projectsError && projects.length > 0 && (
                   <div className="grid gap-6 sm:grid-cols-2">
                     {projects.map((project) => (
-                      <ProjectCard key={String(project.id)} project={project} />
+                      <ProjectCard
+                        key={String(project.id)}
+                        project={project}
+                        name={projectNames[Number(project.id)]}
+                      />
                     ))}
                   </div>
                 )}
               </section>
-
             </div>
           )}
         </div>
