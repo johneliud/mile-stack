@@ -147,6 +147,32 @@ export async function rejectApplication(applicationId: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+export async function saveProjectName(
+  onChainProjectId: number,
+  name: string,
+  clientAddress: string,
+): Promise<void> {
+  const sb = getSupabaseClient();
+  const { error } = await sb.from("project_metadata").upsert({
+    on_chain_project_id: onChainProjectId,
+    name,
+    client_address: clientAddress.toLowerCase(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function getProjectNames(clientAddress: string): Promise<Record<number, string>> {
+  const sb = getSupabaseClient();
+  const { data, error } = await sb
+    .from("project_metadata")
+    .select("on_chain_project_id, name")
+    .eq("client_address", clientAddress.toLowerCase());
+  if (error) throw new Error(error.message);
+  return Object.fromEntries(
+    (data ?? []).map((r) => [r.on_chain_project_id as number, r.name as string]),
+  );
+}
+
 // Accepts an application: creates the on-chain project, marks the listing as filled,
 // marks the accepted application as accepted, and rejects all others.
 export async function acceptApplication(
@@ -155,6 +181,7 @@ export async function acceptApplication(
   freelancerAddress: string,
   milestones: MilestoneInput[],
   clientAddress: string,
+  projectName?: string,
 ): Promise<number> {
   const contractMilestones = milestones.map((m) => ({
     title: m.title,
@@ -165,7 +192,7 @@ export async function acceptApplication(
 
   const sb = getSupabaseClient();
 
-  await Promise.all([
+  const updates: Promise<unknown>[] = [
     sb
       .from("listings")
       .update({ status: "filled", on_chain_project_id: projectId })
@@ -176,7 +203,13 @@ export async function acceptApplication(
       .update({ status: "rejected" })
       .eq("listing_id", listingId)
       .neq("id", applicationId),
-  ]);
+  ];
+
+  if (projectName) {
+    updates.push(saveProjectName(projectId, projectName, clientAddress));
+  }
+
+  await Promise.all(updates);
 
   return projectId;
 }
