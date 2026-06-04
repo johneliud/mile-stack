@@ -151,4 +151,76 @@ function ApplicationCard({
     </div>
   );
 }
+
+export default function ApplicationsPage() {
+  const params = useParams();
+  const router = useRouter();
+  const listingId = params.id as string;
+
+  const { address, isConnected, isFreighterInstalled, connect } = useWallet();
+  const { notify } = useNotification();
+
+  const [listing, setListing] = useState<Listing | null>(null);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [listingData, appsData] = await Promise.all([
+        getListing(listingId),
+        getApplications(listingId),
+      ]);
+      setListing(listingData);
+      setApplications(appsData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [listingId]);
+
+  const handleAccept = async (application: Application) => {
+    if (!address || !listing) return;
+    setAcceptingId(application.id);
+    try {
+      const projectId = await acceptApplication(
+        listingId,
+        application.id,
+        application.freelancer_address,
+        listing.milestones,
+        address,
+      );
+      notify(`Project #${projectId} created — freelancer accepted.`, "success");
+      router.push(`/client/projects/${projectId}`);
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Failed to accept application", "error");
+      setAcceptingId(null);
+    }
+  };
+
+  const handleReject = async (application: Application) => {
+    setRejectingId(application.id);
+    try {
+      await rejectApplication(application.id);
+      setApplications((prev) =>
+        prev.map((a) => (a.id === application.id ? { ...a, status: "rejected" } : a)),
+      );
+    } catch (err) {
+      notify(err instanceof Error ? err.message : "Failed to reject application", "error");
+    } finally {
+      setRejectingId(null);
+    }
+  };
+
+  const isOwner =
+    listing && address ? listing.client_address.toLowerCase() === address.toLowerCase() : false;
 }
