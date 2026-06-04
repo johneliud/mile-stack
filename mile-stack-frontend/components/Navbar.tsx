@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X, Wallet, LogOut, ExternalLink } from "lucide-react";
+import { Menu, X, Wallet, ExternalLink } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
 import { Button } from "@/components/ui/Button";
 
@@ -130,7 +130,6 @@ function MobileWalletButton({ onClose }: { onClose: () => void }) {
           onClick={handleDisconnect}
           className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
         >
-          <LogOut className="h-4 w-4" aria-hidden="true" />
           Disconnect
         </button>
       </div>

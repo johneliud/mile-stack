@@ -354,6 +354,20 @@ export async function approveMilestone(
   throw new Error("Transaction timed out — check your wallet for status");
 }
 
+export async function getClientProjects(clientAddress: string): Promise<ContractProject[]> {
+  const count = await getProjectCount();
+  if (count === 0) return [];
+
+  const results = await Promise.allSettled(
+    Array.from({ length: count }, (_, i) => getProject(i + 1)),
+  );
+
+  return results
+    .filter((r): r is PromiseFulfilledResult<ContractProject> => r.status === "fulfilled")
+    .map((r) => r.value)
+    .filter((project) => project.client.toLowerCase() === clientAddress.toLowerCase());
+}
+
 export async function getFreelancerProjects(freelancerAddress: string): Promise<ContractProject[]> {
   const count = await getProjectCount();
   if (count === 0) return [];

@@ -90,7 +90,7 @@ export default function CreateProjectPage() {
       <Navbar />
 
       <main className="flex-1 bg-background py-12">
-        <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10">
             <h1 className="text-3xl font-bold text-primary">Create Project</h1>
             <p className="mt-2 text-muted-foreground">
