@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Wallet, FolderOpen, ChevronRight, AlertCircle, RefreshCw, Plus } from "lucide-react";
+import {
+  Wallet,
+  FolderOpen,
+  ChevronRight,
+  AlertCircle,
+  RefreshCw,
+  Plus,
+  Layers,
+} from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/Badge";
@@ -17,6 +25,7 @@ import {
   type ContractProject,
   type MilestoneStatus,
 } from "@/lib/contract";
+import { getClientListings, getApplicationCount, type Listing } from "@/lib/listings";
 
 function truncateAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-6)}`;
@@ -47,6 +56,64 @@ const OVERALL_BADGE_VARIANT: Record<string, "pending" | "funded" | "released" | 
   Disputed: "disputed",
   Completed: "released",
 };
+
+type ListingWithCount = Listing & { applicationCount: number };
+
+function ListingCard({ listing }: { listing: ListingWithCount }) {
+  const isOpen = listing.status === "open";
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">{listing.title}</h3>
+          <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
+            {listing.description}
+          </p>
+        </div>
+        <span
+          className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${
+            isOpen
+              ? "bg-blue-50 text-accent border-blue-200"
+              : "bg-muted text-muted-foreground border-border"
+          }`}
+        >
+          {listing.status}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <span>
+          <span className="font-semibold text-primary">
+            {listing.total_xlm.toLocaleString("en-US", { maximumFractionDigits: 2 })} XLM
+          </span>
+        </span>
+        <span>{listing.milestones.length} milestone{listing.milestones.length !== 1 ? "s" : ""}</span>
+        <span>
+          {listing.applicationCount} applicant{listing.applicationCount !== 1 ? "s" : ""}
+        </span>
+      </div>
+
+      <div className="border-t border-border pt-4 flex items-center justify-between gap-4">
+        {listing.status === "filled" && listing.on_chain_project_id && (
+          <Link
+            href={`/client/projects/${listing.on_chain_project_id}`}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Project #{listing.on_chain_project_id}
+          </Link>
+        )}
+        {listing.status !== "filled" && <div />}
+        <Link href={`/client/listings/${listing.id}/applications`}>
+          <Button variant="outline" size="sm">
+            Review Applications
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 function MilestoneRow({ milestone }: { milestone: ContractMilestone }) {
   return (
@@ -83,12 +150,9 @@ function ProjectCard({ project }: { project: ContractProject }) {
         <Badge variant={OVERALL_BADGE_VARIANT[overall]}>{overall}</Badge>
       </div>
 
-      {/* Progress bar */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            {funded} of {project.milestones.length} milestones funded
-          </span>
+          <span>{funded} of {project.milestones.length} milestones funded</span>
           <span>{progressPct}% released</span>
         </div>
         <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
@@ -135,26 +199,51 @@ function ProjectCard({ project }: { project: ContractProject }) {
 
 export default function ClientDashboard() {
   const { address, isConnected, isFreighterInstalled, connect } = useWallet();
+
   const [projects, setProjects] = useState<ContractProject[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [projectsLoading, setProjectsLoading] = useState(false);
+  const [projectsError, setProjectsError] = useState<string | null>(null);
+
+  const [listings, setListings] = useState<ListingWithCount[]>([]);
+  const [listingsLoading, setListingsLoading] = useState(false);
+  const [listingsError, setListingsError] = useState<string | null>(null);
 
   const fetchProjects = async (addr: string) => {
-    setLoading(true);
-    setError(null);
+    setProjectsLoading(true);
+    setProjectsError(null);
     try {
       const data = await getClientProjects(addr);
       setProjects(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load projects");
+      setProjectsError(err instanceof Error ? err.message : "Failed to load projects");
     } finally {
-      setLoading(false);
+      setProjectsLoading(false);
+    }
+  };
+
+  const fetchListings = async (addr: string) => {
+    setListingsLoading(true);
+    setListingsError(null);
+    try {
+      const data = await getClientListings(addr);
+      const withCounts = await Promise.all(
+        data.map(async (l) => ({
+          ...l,
+          applicationCount: await getApplicationCount(l.id).catch(() => 0),
+        })),
+      );
+      setListings(withCounts);
+    } catch (err) {
+      setListingsError(err instanceof Error ? err.message : "Failed to load listings");
+    } finally {
+      setListingsLoading(false);
     }
   };
 
   useEffect(() => {
     if (isConnected && address) {
       fetchProjects(address);
+      fetchListings(address);
     }
   }, [address, isConnected]);
 
@@ -164,21 +253,30 @@ export default function ClientDashboard() {
 
       <main className="flex-1 bg-background py-12">
         <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+
           {/* Page header */}
           <div className="mb-10 flex items-start justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-primary">Client Dashboard</h1>
               <p className="mt-2 text-muted-foreground">
-                All escrow projects you have created as a client.
+                Manage your listings and active escrow projects.
               </p>
             </div>
             {isConnected && (
-              <Link href="/client/projects/new">
-                <Button variant="primary">
-                  <Plus className="h-4 w-4" />
-                  New Project
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link href="/client/listings/new">
+                  <Button variant="outline">
+                    <Layers className="h-4 w-4" />
+                    Post a Listing
+                  </Button>
+                </Link>
+                <Link href="/client/projects/new">
+                  <Button variant="primary">
+                    <Plus className="h-4 w-4" />
+                    New Project
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
 
@@ -190,7 +288,7 @@ export default function ClientDashboard() {
               <p className="mt-1 text-sm text-muted-foreground mb-6">
                 {isFreighterInstalled === false
                   ? "Install the Freighter extension to get started."
-                  : "Connect your Freighter wallet to view your projects."}
+                  : "Connect your Freighter wallet to view your dashboard."}
               </p>
               {isFreighterInstalled === false ? (
                 <a
@@ -210,64 +308,129 @@ export default function ClientDashboard() {
             </div>
           )}
 
-          {/* Loading */}
-          {isConnected && loading && (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
-              <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
-              <p className="text-sm text-muted-foreground">Loading your projects...</p>
-            </div>
-          )}
+          {isConnected && (
+            <div className="flex flex-col gap-12">
 
-          {/* Error */}
-          {isConnected && !loading && error && (
-            <div className="rounded-2xl border border-border bg-card p-10 text-center">
-              <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-4" />
-              <h2 className="text-lg font-semibold text-foreground">
-                {error === "CONTRACT_NOT_CONFIGURED"
-                  ? "Contract not yet deployed"
-                  : error === "SIMULATION_SOURCE_NOT_CONFIGURED"
-                    ? "Simulation source not configured"
-                    : "Failed to load projects"}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground mb-6">
-                {error === "CONTRACT_NOT_CONFIGURED"
-                  ? "Set NEXT_PUBLIC_CONTRACT_ID in your .env.local after deploying the contract."
-                  : error === "SIMULATION_SOURCE_NOT_CONFIGURED"
-                    ? "Set NEXT_PUBLIC_SIMULATION_SOURCE in your .env.local to a funded testnet account."
-                    : error}
-              </p>
-              {address && (
-                <Button variant="outline" onClick={() => fetchProjects(address)}>
-                  <RefreshCw className="h-4 w-4" />
-                  Retry
-                </Button>
-              )}
-            </div>
-          )}
+              {/* ── My Listings ── */}
+              <section>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-foreground">My Listings</h2>
+                  <Link href="/client/listings/new">
+                    <Button variant="ghost" size="sm">
+                      <Plus className="h-4 w-4" />
+                      Post a Listing
+                    </Button>
+                  </Link>
+                </div>
 
-          {/* Empty state */}
-          {isConnected && !loading && !error && projects.length === 0 && (
-            <div className="rounded-2xl border border-border bg-card p-10 text-center">
-              <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
-              <h2 className="text-lg font-semibold text-foreground">No projects yet</h2>
-              <p className="mt-1 text-sm text-muted-foreground mb-6">
-                Create your first escrow project and assign a freelancer to get started.
-              </p>
-              <Link href="/client/projects/new">
-                <Button variant="primary">
-                  <Plus className="h-4 w-4" />
-                  Create Project
-                </Button>
-              </Link>
-            </div>
-          )}
+                {listingsLoading && (
+                  <div className="flex items-center gap-3 py-8 text-muted-foreground">
+                    <RefreshCw className="h-5 w-5 animate-spin" />
+                    <span className="text-sm">Loading listings...</span>
+                  </div>
+                )}
 
-          {/* Project grid */}
-          {isConnected && !loading && !error && projects.length > 0 && (
-            <div className="grid gap-6 sm:grid-cols-2">
-              {projects.map((project) => (
-                <ProjectCard key={String(project.id)} project={project} />
-              ))}
+                {!listingsLoading && listingsError && (
+                  <div className="rounded-2xl border border-border bg-card p-8 text-center">
+                    <AlertCircle className="mx-auto h-8 w-8 text-destructive mb-3" />
+                    <p className="text-sm font-medium text-foreground mb-4">{listingsError}</p>
+                    {address && (
+                      <Button variant="outline" size="sm" onClick={() => fetchListings(address)}>
+                        <RefreshCw className="h-4 w-4" />
+                        Retry
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {!listingsLoading && !listingsError && listings.length === 0 && (
+                  <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+                    <FolderOpen className="mx-auto h-8 w-8 text-muted-foreground mb-3" />
+                    <p className="text-sm font-medium text-foreground">No listings yet</p>
+                    <p className="mt-1 text-sm text-muted-foreground mb-4">
+                      Post a listing to find freelancers through the marketplace.
+                    </p>
+                    <Link href="/client/listings/new">
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4" />
+                        Post a Listing
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+
+                {!listingsLoading && !listingsError && listings.length > 0 && (
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    {listings.map((listing) => (
+                      <ListingCard key={listing.id} listing={listing} />
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              {/* ── Active Projects ── */}
+              <section>
+                <h2 className="text-xl font-semibold text-foreground mb-6">Active Projects</h2>
+
+                {projectsLoading && (
+                  <div className="flex items-center gap-3 py-8 text-muted-foreground">
+                    <RefreshCw className="h-5 w-5 animate-spin" />
+                    <span className="text-sm">Loading projects...</span>
+                  </div>
+                )}
+
+                {!projectsLoading && projectsError && (
+                  <div className="rounded-2xl border border-border bg-card p-8 text-center">
+                    <AlertCircle className="mx-auto h-8 w-8 text-destructive mb-3" />
+                    <p className="text-sm font-medium text-foreground mb-1">
+                      {projectsError === "CONTRACT_NOT_CONFIGURED"
+                        ? "Contract not yet deployed"
+                        : projectsError === "SIMULATION_SOURCE_NOT_CONFIGURED"
+                          ? "Simulation source not configured"
+                          : "Failed to load projects"}
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {projectsError === "CONTRACT_NOT_CONFIGURED"
+                        ? "Set NEXT_PUBLIC_CONTRACT_ID in your .env.local."
+                        : projectsError === "SIMULATION_SOURCE_NOT_CONFIGURED"
+                          ? "Set NEXT_PUBLIC_SIMULATION_SOURCE in your .env.local."
+                          : projectsError}
+                    </p>
+                    {address && (
+                      <Button variant="outline" size="sm" onClick={() => fetchProjects(address)}>
+                        <RefreshCw className="h-4 w-4" />
+                        Retry
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {!projectsLoading && !projectsError && projects.length === 0 && (
+                  <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+                    <FolderOpen className="mx-auto h-8 w-8 text-muted-foreground mb-3" />
+                    <p className="text-sm font-medium text-foreground">No active projects</p>
+                    <p className="mt-1 text-sm text-muted-foreground mb-4">
+                      Accept a listing application or create a project directly if you already have
+                      a freelancer.
+                    </p>
+                    <Link href="/client/projects/new">
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4" />
+                        New Project
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+
+                {!projectsLoading && !projectsError && projects.length > 0 && (
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    {projects.map((project) => (
+                      <ProjectCard key={String(project.id)} project={project} />
+                    ))}
+                  </div>
+                )}
+              </section>
+
             </div>
           )}
         </div>
