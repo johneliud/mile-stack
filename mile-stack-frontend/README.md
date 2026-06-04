@@ -17,16 +17,17 @@ Next.js 16 frontend for [MileStack](../README.md) — a Soroban-powered mileston
 
 ## Tech Stack
 
-| Technology               | Purpose                      |
-| ------------------------ | ---------------------------- |
-| Next.js 16 (App Router)  | Framework                    |
-| TypeScript               | Language                     |
-| Tailwind CSS v4          | Styling                      |
-| Plus Jakarta Sans        | Typography                   |
-| Lucide React             | Icons                        |
-| `@stellar/stellar-sdk`   | Soroban contract interaction |
-| `@stellar/freighter-api` | Freighter wallet connection  |
-| Prettier                 | Code formatting              |
+| Technology               | Purpose                                             |
+| ------------------------ | --------------------------------------------------- |
+| Next.js 16 (App Router)  | Framework                                           |
+| TypeScript               | Language                                            |
+| Tailwind CSS v4          | Styling                                             |
+| Plus Jakarta Sans        | Typography                                          |
+| Lucide React             | Icons                                               |
+| `@stellar/stellar-sdk`   | Soroban contract interaction                        |
+| `@stellar/freighter-api` | Freighter wallet connection                         |
+| `@supabase/supabase-js`  | Off-chain marketplace data (listings, applications) |
+| Prettier                 | Code formatting                                     |
 
 ---
 
@@ -35,32 +36,48 @@ Next.js 16 frontend for [MileStack](../README.md) — a Soroban-powered mileston
 ```text
 mile-stack-frontend/
 ├── app/
+│   ├── client/
+│   │   ├── page.tsx                            # Client Dashboard — listings + escrow projects
+│   │   ├── listings/
+│   │   │   ├── new/
+│   │   │   │   └── page.tsx                    # Post a new project listing
+│   │   │   └── [id]/
+│   │   │       └── applications/
+│   │   │           └── page.tsx                # Review freelancer applications
+│   │   └── projects/
+│   │       ├── new/
+│   │       │   └── page.tsx                    # Direct project creation (known freelancer)
+│   │       └── [id]/
+│   │           ├── page.tsx                    # Server Component — resolves dynamic params
+│   │           └── ProjectManage.tsx           # Client Component — fund / approve / dispute
 │   ├── freelancer/
-│   │   ├── page.tsx                        # Freelancer Dashboard — all active projects
+│   │   ├── page.tsx                            # Freelancer Dashboard — active projects
 │   │   └── projects/[id]/
-│   │       ├── page.tsx                    # Server Component — resolves dynamic params
-│   │       └── ProjectDetail.tsx           # Client Component — milestones + dispute flow
-│   ├── globals.css                         # Design system tokens, animations, base styles
-│   ├── icon.svg                            # App favicon (navy "M" on transparent)
-│   ├── layout.tsx                          # Root layout — font, providers, metadata
-│   └── page.tsx                            # Landing page (hero, features, how it works, CTA)
+│   │       ├── page.tsx                        # Server Component — resolves dynamic params
+│   │       └── ProjectDetail.tsx               # Client Component — milestones + dispute flow
+│   ├── projects/
+│   │   ├── page.tsx                            # Public listings browser (no wallet required)
+│   │   └── [id]/
+│   │       ├── page.tsx                        # Server Component — resolves dynamic params
+│   │       └── ListingDetail.tsx               # Client Component — listing detail + apply
+│   ├── globals.css                             # Design system tokens, animations, base styles
+│   ├── icon.svg                                # App favicon
+│   ├── layout.tsx                              # Root layout — font, providers, metadata
+│   └── page.tsx                                # Landing page (hero, features, how it works, CTA)
 ├── components/
 │   ├── ui/
-│   │   ├── Button.tsx                      # Primary / accent / outline / ghost / destructive variants
-│   │   └── Badge.tsx                       # Milestone status badges (pending / funded / released / disputed)
-│   ├── Footer.tsx                          # Site footer with link columns
-│   ├── Navbar.tsx                          # Sticky nav with 75vw mobile slide-in menu
-│   ├── Notification.tsx                    # Toast notification provider + useNotification hook
-│   └── ScrollReveal.tsx                    # IntersectionObserver scroll animation wrapper
+│   │   ├── Button.tsx                          # primary / accent / outline / ghost / destructive variants
+│   │   └── Badge.tsx                           # Milestone status badges
+│   ├── Footer.tsx                              # Site footer
+│   ├── Navbar.tsx                              # Sticky nav with active link highlight + mobile menu
+│   ├── Notification.tsx                        # Toast notification provider + useNotification hook
+│   └── ScrollReveal.tsx                        # IntersectionObserver scroll animation wrapper
 ├── contexts/
-│   └── WalletContext.tsx                   # Freighter wallet state — connect / disconnect / auto-restore
+│   └── WalletContext.tsx                       # Freighter wallet state — connect / disconnect / auto-restore
 ├── lib/
-│   ├── contract.ts                         # Soroban contract queries and dispute transaction
-│   ├── freighter.ts                        # Wallet connect / sign transaction helpers
-│   └── stellar.ts                          # RPC server and contract instance helpers
-├── design-system/
-│   └── milestack/
-│       └── MASTER.md                       # Generated design system reference
+│   ├── contract.ts                             # Soroban contract queries and transactions
+│   ├── listings.ts                             # Supabase CRUD — listings, applications, project metadata
+│   └── supabase.ts                             # Lazy Supabase client singleton
 ├── public/
 │   └── favicon.svg
 ├── .env.local.example
@@ -78,22 +95,21 @@ mile-stack-frontend/
 npm install
 ```
 
-Prettier runs automatically after install via the `postinstall` hook.
-
 ### 2. Set up environment variables
 
 ```bash
 cp .env.local.example .env.local
 ```
 
-The example file ships with the deployed testnet contract ID pre-filled. Set `NEXT_PUBLIC_SIMULATION_SOURCE` to any funded testnet account public key.
+The example file ships with the deployed testnet contract ID pre-filled. Fill in the Supabase and simulation source values.
 
-### 2a. Set up Supabase
+### 3. Set up Supabase
 
 1. Create a free project at [supabase.com](https://supabase.com)
-2. In the SQL editor, run:
+2. In **SQL Editor**, run the following to create all tables and RLS policies:
 
 ```sql
+-- Listings table
 create table listings (
   id uuid default gen_random_uuid() primary key,
   client_address text not null,
@@ -107,6 +123,7 @@ create table listings (
   created_at timestamptz default now()
 );
 
+-- Applications table
 create table applications (
   id uuid default gen_random_uuid() primary key,
   listing_id uuid references listings(id) on delete cascade,
@@ -115,17 +132,61 @@ create table applications (
   status text default 'pending',
   created_at timestamptz default now()
 );
+
+-- Project metadata (off-chain names for on-chain projects)
+create table project_metadata (
+  on_chain_project_id bigint primary key,
+  name text not null,
+  client_address text not null,
+  created_at timestamptz default now()
+);
+
+-- RLS policies (anon key access)
+create policy "anon_select" on listings for select to anon using (true);
+create policy "anon_insert" on listings for insert to anon with check (true);
+create policy "anon_update" on listings for update to anon using (true) with check (true);
+
+create policy "anon_select" on applications for select to anon using (true);
+create policy "anon_insert" on applications for insert to anon with check (true);
+create policy "anon_update" on applications for update to anon using (true) with check (true);
+
+create policy "anon_select" on project_metadata for select to anon using (true);
+create policy "anon_insert" on project_metadata for insert to anon with check (true);
+create policy "anon_update" on project_metadata for update to anon using (true) with check (true);
 ```
 
-3. Copy your project URL and anon key from **Project Settings > API** into `.env.local`
+3. Copy your **Project URL** and **anon/public key** from **Project Settings > API** into `.env.local`
 
-### 3. Start the development server
+### 4. Start the development server
 
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+---
+
+## User Flows
+
+### Client
+
+1. Connect Freighter wallet
+2. Go to **Client** dashboard → **New Project**
+3. Fill in title, description, skills, and milestones
+4. Freelancers apply from the public **/projects** page
+5. Review applications at **Client > listings > applications**
+6. Accept one application — Freighter signs the on-chain `create_project` transaction
+7. Fund each milestone from the project management page
+8. Approve milestones as work is delivered — XLM is released to the freelancer
+
+### Freelancer
+
+1. Connect Freighter wallet
+2. Browse open projects at **/projects** (no wallet required to view)
+3. Apply to a listing with an optional cover message
+4. Once accepted, the project appears on the **Freelancer** dashboard
+5. Dispute a milestone if needed
 
 ---
 

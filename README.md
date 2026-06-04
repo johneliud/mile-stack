@@ -41,6 +41,10 @@ Built on **Stellar** + **Soroban** for the hackathon.
 │       │       └── lifecycle.rs        # Auth guards + end-to-end lifecycle test
 │       └── Cargo.toml
 ├── mile-stack-frontend/        # Next.js 16 frontend
+├── supabase/
+│   └── migrations/             # SQL migration files
+│       ├── 20260604000000_create_listings_and_applications.sql
+│       └── 20260604000001_create_project_metadata.sql
 ├── Cargo.toml
 └── README.md
 ```
@@ -56,6 +60,7 @@ Built on **Stellar** + **Soroban** for the hackathon.
 | Payments | XLM (native Stellar token) |
 | Frontend | Next.js 16, Tailwind CSS v4, TypeScript |
 | Wallet | Freighter browser extension |
+| Database | Supabase (off-chain marketplace data) |
 
 ---
 
@@ -66,6 +71,7 @@ Built on **Stellar** + **Soroban** for the hackathon.
 - [Stellar CLI](https://developers.stellar.org/docs/tools/developer-tools/stellar-cli)
 - [Node.js](https://nodejs.org/) 18+
 - [Freighter Wallet](https://www.freighter.app/) browser extension (for the demo)
+- A free [Supabase](https://supabase.com) project
 
 ---
 
@@ -125,7 +131,7 @@ test test::view_functions::test_view_functions_do_not_require_auth ... ok
 test result: ok. 35 passed; 0 failed
 ```
 
-### 4. Build the contract
+### 3. Build the contract
 
 ```bash
 stellar contract build
@@ -137,7 +143,7 @@ Output:
 target/wasm32v1-none/release/mile_stack.wasm
 ```
 
-### 5. Deploy to Stellar Testnet
+### 4. Deploy to Stellar Testnet
 
 Generate and fund a deployer account:
 
@@ -196,18 +202,20 @@ Pending → Funded → Released
 ```bash
 cd mile-stack-frontend
 
-# Install dependencies (also runs Prettier)
+# Install dependencies
 npm install
 
 # Copy environment variables
 cp .env.local.example .env.local
-# Fill in NEXT_PUBLIC_CONTRACT_ID with the deployed contract address
+# Fill in values — see Environment Variables section below
 
 # Start the development server
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+See [`mile-stack-frontend/README.md`](./mile-stack-frontend/README.md) for full frontend documentation including Supabase setup.
 
 ---
 
@@ -222,6 +230,8 @@ Create `.env.local` inside `mile-stack-frontend/` using `.env.local.example` as 
 | `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015` |
 | `NEXT_PUBLIC_XLM_TOKEN_ID` | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
 | `NEXT_PUBLIC_SIMULATION_SOURCE` | A funded testnet account public key (for read-only contract simulations) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL (Project Settings > API) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon/public key (Project Settings > API) |
 
 ---
 
