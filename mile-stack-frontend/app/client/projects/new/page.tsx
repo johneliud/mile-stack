@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { useNotification } from "@/components/Notification";
 import { useWallet } from "@/contexts/WalletContext";
 import { createProject } from "@/lib/contract";
+import { saveProjectName } from "@/lib/listings";
 
 const STELLAR_ADDRESS_RE = /^G[A-Z2-7]{55}$/;
 
@@ -26,6 +27,7 @@ export default function CreateProjectPage() {
   const { address, isConnected, isFreighterInstalled, connect } = useWallet();
   const { notify } = useNotification();
 
+  const [projectName, setProjectName] = useState("");
   const [freelancerAddress, setFreelancerAddress] = useState("");
   const [milestones, setMilestones] = useState<MilestoneInput[]>([newMilestone()]);
   const [submitting, setSubmitting] = useState(false);
@@ -45,6 +47,8 @@ export default function CreateProjectPage() {
 
   function validate(): string | null {
     if (!isConnected || !address) return "Connect your wallet first.";
+    if (!projectName.trim()) return "Project name is required.";
+    if (!freelancerAddress.trim()) return "Freelancer address is required.";
     if (!STELLAR_ADDRESS_RE.test(freelancerAddress.trim()))
       return "Enter a valid Stellar address (starts with G, 56 characters).";
     if (freelancerAddress.trim() === address)
@@ -70,6 +74,7 @@ export default function CreateProjectPage() {
         amount: BigInt(Math.round(parseFloat(m.xlmAmount) * 10_000_000)),
       }));
       const projectId = await createProject(address!, freelancerAddress.trim(), contractMilestones);
+      await saveProjectName(projectId, projectName.trim(), address!).catch(() => {});
       setCreatedProjectId(projectId);
       notify(`Project #${projectId} created successfully.`, "success");
     } catch (err) {
@@ -80,6 +85,7 @@ export default function CreateProjectPage() {
   }
 
   function resetForm() {
+    setProjectName("");
     setFreelancerAddress("");
     setMilestones([newMilestone()]);
     setCreatedProjectId(null);
@@ -157,6 +163,24 @@ export default function CreateProjectPage() {
           {/* Form */}
           {createdProjectId === null && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+              {/* Project details */}
+              <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
+                <h2 className="text-base font-semibold text-foreground">Project Details</h2>
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="project-name" className="text-sm font-medium text-foreground">
+                    Project Name
+                  </label>
+                  <input
+                    id="project-name"
+                    type="text"
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                    placeholder="e.g. Soroban DEX Integration"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
+                  />
+                </div>
+              </div>
+
               {/* Freelancer address */}
               <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
                 <h2 className="text-base font-semibold text-foreground">Freelancer</h2>
