@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ShieldCheck, Globe, Clock, ArrowRight, Circle } from "lucide-react";
+import { ShieldCheck, Globe, Clock, ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { AnimatedProjectCard } from "@/components/AnimatedProjectCard";
 
 const FEATURES = [
   {
@@ -49,60 +50,6 @@ const STEPS = [
   },
 ];
 
-const MOCK_MILESTONES = [
-  { label: "UI Design", amount: "500 XLM", status: "released" as const },
-  { label: "Frontend Dev", amount: "1,000 XLM", status: "funded" as const },
-  { label: "Backend Integration", amount: "1,500 XLM", status: "pending" as const },
-];
-
-const STATUS_STYLES = {
-  released: { dot: "bg-success", text: "text-success", label: "Released" },
-  funded: { dot: "bg-accent", text: "text-accent", label: "Funded" },
-  pending: { dot: "bg-muted-foreground", text: "text-muted-foreground", label: "Pending" },
-};
-
-function ProjectMockCard() {
-  return (
-    <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-sm">
-      {/* Card header */}
-      <div className="mb-5">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">
-          Active project
-        </p>
-        <h3 className="text-base font-bold text-foreground">Website Redesign</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">3,000 XLM total · Stellar testnet</p>
-      </div>
-
-      {/* Milestones */}
-      <ul className="space-y-3">
-        {MOCK_MILESTONES.map(({ label, amount, status }) => {
-          const s = STATUS_STYLES[status];
-          return (
-            <li
-              key={label}
-              className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-3"
-            >
-              <div className="flex items-center gap-2.5">
-                <Circle className={`h-2 w-2 fill-current ${s.dot} ${s.text}`} aria-hidden="true" />
-                <span className="text-sm font-medium text-foreground">{label}</span>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-semibold text-foreground">{amount}</p>
-                <p className={`text-xs font-medium ${s.text}`}>{s.label}</p>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-
-      {/* Footer */}
-      <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
-        <span className="text-xs text-muted-foreground">Powered by Soroban</span>
-        <span className="text-xs font-semibold text-success">1,500 XLM released</span>
-      </div>
-    </div>
-  );
-}
 
 export default function Home() {
   return (
@@ -152,12 +99,12 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Right: mock project card */}
+              {/* Right: animated project card */}
               <div
                 className="animate-fade-up flex justify-center md:justify-end"
                 style={{ animationDelay: "200ms" }}
               >
-                <ProjectMockCard />
+                <AnimatedProjectCard />
               </div>
             </div>
           </div>
