@@ -29,23 +29,23 @@ const FEATURES = [
 const STEPS = [
   {
     number: "01",
-    title: "Client creates a project",
-    body: "Define milestones, set XLM amounts, and assign a freelancer by their Stellar wallet address.",
+    title: "Browse open projects",
+    body: "Explore projects posted by global clients. No account needed. Just connect your Freighter wallet when you're ready to apply.",
   },
   {
     number: "02",
-    title: "Funds enter escrow",
-    body: "XLM is deposited into the Soroban smart contract, locked and verifiable on-chain until the milestone is approved.",
+    title: "Apply and get hired",
+    body: "Submit your application with a cover message. The client reviews applicants and accepts one, triggering the on-chain escrow contract.",
   },
   {
     number: "03",
-    title: "Work is delivered",
-    body: "The freelancer completes the milestone. The client reviews and approves directly from their dashboard.",
+    title: "Complete milestones",
+    body: "Work through each milestone. The client funds and approves each one individually so you're never waiting on a lump-sum payment.",
   },
   {
     number: "04",
-    title: "Instant XLM release",
-    body: "The smart contract transfers payment directly to the freelancer's wallet in seconds.",
+    title: "Get paid in XLM instantly",
+    body: "The smart contract releases XLM directly to your Stellar wallet in seconds. No bank, no wire fee, no waiting.",
   },
 ];
 
@@ -138,15 +138,15 @@ export default function Home() {
                   className="animate-fade-up mt-10 flex flex-wrap items-center gap-4"
                   style={{ animationDelay: "240ms" }}
                 >
-                  <Link href="/projects/new">
+                  <Link href="/projects">
                     <Button variant="primary" size="lg">
-                      Post a project
+                      Browse open projects
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </Link>
-                  <Link href="/#how-it-works">
+                  <Link href="/client">
                     <Button variant="outline" size="lg">
-                      See how it works
+                      Hire talent
                     </Button>
                   </Link>
                 </div>
@@ -227,14 +227,14 @@ export default function Home() {
         <section className="bg-primary">
           <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-16 text-center">
             <ScrollReveal>
-              <h2 className="text-2xl font-bold text-white mb-4">Ready to get started?</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">Your skills deserve global pay</h2>
               <p className="text-slate-300 mb-8 max-w-xl mx-auto text-sm leading-relaxed">
-                Connect your Freighter wallet and create your first milestone-based project on
-                Stellar testnet.
+                Connect your Freighter wallet, apply to open projects, and get paid in XLM the
+                moment your work is approved. No banks, no borders, no delays.
               </p>
-              <Link href="/projects/new">
+              <Link href="/projects">
                 <Button variant="accent" size="lg">
-                  Create your first project
+                  Find your next project
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </Link>
