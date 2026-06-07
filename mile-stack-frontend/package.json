@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "postinstall": "prettier --write ."
+    "postinstall": "prettier --write .",
+    "seed": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "@stellar/freighter-api": "^6.0.1",
@@ -24,10 +25,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
     "prettier": "^3.8.3",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   }
 }

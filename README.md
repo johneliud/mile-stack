@@ -235,6 +235,19 @@ Create `.env.local` inside `mile-stack-frontend/` using `.env.local.example` as 
 
 ---
 
+## Demo Accounts
+
+Pre-created and funded testnet accounts for testing and live demos. Testnet only — no real value.
+
+| Role | Public Key | Secret Key |
+|------|-----------|------------|
+| Client | `GBRDKWQ4RB4JNIB3JUJXXNC2D4SAPUILUPLJAQIUVOLDYQYSHOHYOFMX` | `SBPC4PYKLSCQVYA3HBDTLDFPCMKVQ4B6YQV3X2QFPOKPG5ZWDNOBCTBW` |
+| Freelancer | `GCJTJMXZ43MF6W5SJVWOOJKPFCP7K4AURSBNLTTMWNABMU6T4DW2ERHF` | `SBMGNNTQRHV2KIARRXKJRPZU35VBJFMWAEJTJNPOJ52SRIWWSD3AHQEY` |
+
+Import each secret key into Freighter (set to Testnet), then run `npm run seed` inside `mile-stack-frontend/` to populate the demo listing. See [`docs/DEMO.md`](./docs/DEMO.md) for the full walkthrough.
+
+---
+
 ## Deployed Contract
 
 | Network | Contract ID |
