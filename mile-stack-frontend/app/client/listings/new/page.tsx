@@ -99,6 +99,7 @@ export default function PostListingPage() {
       notify("Listing posted successfully.", "success");
       router.push("/client");
     } catch (err) {
+      console.error("[PostListing] handleSubmit:", err);
       notify(err instanceof Error ? err.message : "Failed to post listing", "error");
     } finally {
       setSubmitting(false);
