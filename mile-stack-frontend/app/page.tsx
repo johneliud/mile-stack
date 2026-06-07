@@ -1,10 +1,10 @@
-import Link from "next/link";
-import { ShieldCheck, Globe, Clock, ArrowRight } from "lucide-react";
+import { ShieldCheck, Globe, Clock } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Button } from "@/components/ui/Button";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { AnimatedProjectCard } from "@/components/AnimatedProjectCard";
+import { LandingHeroCta } from "@/components/LandingHeroCta";
+import { LandingBottomCta } from "@/components/LandingBottomCta";
 
 const FEATURES = [
   {
@@ -80,22 +80,7 @@ export default function Home() {
                   global employers through milestone-based XLM escrow payments. Trustless,
                   Borderless, and Instant.
                 </p>
-                <div
-                  className="animate-fade-up mt-10 flex flex-wrap items-center gap-4"
-                  style={{ animationDelay: "240ms" }}
-                >
-                  <Link href="/projects">
-                    <Button variant="primary" size="lg">
-                      Browse open projects
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-                  </Link>
-                  <Link href="/client">
-                    <Button variant="outline" size="lg">
-                      Hire talent
-                    </Button>
-                  </Link>
-                </div>
+                <LandingHeroCta />
               </div>
 
               {/* Right: animated project card */}
@@ -172,19 +157,7 @@ export default function Home() {
         {/* ── CTA ── */}
         <section className="bg-primary">
           <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-16 text-center">
-            <ScrollReveal>
-              <h2 className="text-2xl font-bold text-white mb-4">Your skills deserve global pay</h2>
-              <p className="text-slate-300 mb-8 max-w-xl mx-auto text-sm leading-relaxed">
-                Connect your Freighter wallet, apply to open projects, and get paid in XLM the
-                moment your work is approved. No banks, no borders, no delays.
-              </p>
-              <Link href="/projects">
-                <Button variant="accent" size="lg">
-                  Find your next project
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Button>
-              </Link>
-            </ScrollReveal>
+            <LandingBottomCta />
           </div>
         </section>
       </main>
