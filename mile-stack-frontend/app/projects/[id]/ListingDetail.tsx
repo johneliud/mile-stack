@@ -39,6 +39,7 @@ export function ListingDetail({ listingId }: { listingId: string }) {
       const data = await getListing(listingId);
       setListing(data);
     } catch (err) {
+      console.error("[ListingDetail] fetchListing:", err);
       setError(err instanceof Error ? err.message : "Failed to load listing");
     } finally {
       setLoading(false);
@@ -53,7 +54,7 @@ export function ListingDetail({ listingId }: { listingId: string }) {
     if (!address || !listingId) return;
     hasApplied(listingId, address)
       .then(setAlreadyApplied)
-      .catch(() => {});
+      .catch((err) => console.error("[ListingDetail] hasApplied:", err));
   }, [address, listingId]);
 
   const handleApply = async () => {
@@ -65,6 +66,7 @@ export function ListingDetail({ listingId }: { listingId: string }) {
       setAlreadyApplied(true);
       notify("Application submitted successfully.", "success");
     } catch (err) {
+      console.error("[ListingDetail] handleApply:", err);
       notify(err instanceof Error ? err.message : "Failed to submit application", "error");
     } finally {
       setSubmitting(false);
