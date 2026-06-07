@@ -70,9 +70,12 @@ function ApplicationCard({
     <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <p className="text-sm font-semibold text-foreground font-mono">
+          <a
+            href={`/freelancers/${application.freelancer_address}`}
+            className="text-sm font-semibold text-foreground font-mono hover:text-accent transition-colors"
+          >
             {truncateAddress(application.freelancer_address)}
-          </p>
+          </a>
           <p className="text-xs text-muted-foreground">{timeAgo(application.created_at)}</p>
         </div>
         <span

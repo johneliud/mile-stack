@@ -1,7 +1,8 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Plus, Trash2, CheckCircle, ExternalLink } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -27,9 +28,15 @@ function newMilestone(): MilestoneInput {
 export default function CreateProjectPage() {
   const { address, isConnected } = useWallet();
   const { notify } = useNotification();
+  const searchParams = useSearchParams();
 
   const [projectName, setProjectName] = useState("");
   const [freelancerAddress, setFreelancerAddress] = useState("");
+
+  useEffect(() => {
+    const prefill = searchParams.get("freelancer");
+    if (prefill) setFreelancerAddress(prefill);
+  }, [searchParams]);
   const [milestones, setMilestones] = useState<MilestoneInput[]>([newMilestone()]);
   const [submitting, setSubmitting] = useState(false);
   const [createdProjectId, setCreatedProjectId] = useState<number | null>(null);

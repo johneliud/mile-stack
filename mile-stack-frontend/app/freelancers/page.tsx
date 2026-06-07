@@ -2,37 +2,36 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronRight, RefreshCw, AlertCircle, FolderOpen, Search, X } from "lucide-react";
+import { Search, Users, RefreshCw, AlertCircle, GitBranch, Globe, X } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
-import { getOpenListings, type Listing } from "@/lib/listings";
+import { getAllProfiles, type FreelancerProfile } from "@/lib/profiles";
 
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
+function truncateAddress(addr: string) {
+  return `${addr.slice(0, 6)}...${addr.slice(-6)}`;
 }
 
-function ListingCard({ listing }: { listing: Listing }) {
+function FreelancerCard({ profile }: { profile: FreelancerProfile }) {
   return (
-    <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4 shadow-sm hover:border-accent/40 transition-colors duration-150">
-      <div className="flex items-start justify-between gap-4">
-        <h3 className="text-base font-semibold text-foreground leading-snug">{listing.title}</h3>
-        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-          {timeAgo(listing.created_at)}
-        </span>
+    <Link
+      href={`/freelancers/${profile.wallet_address}`}
+      className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4 shadow-sm hover:border-accent/40 transition-colors duration-150 cursor-pointer"
+    >
+      <div className="flex flex-col gap-1">
+        <p className="text-base font-semibold text-foreground">
+          {profile.name ?? truncateAddress(profile.wallet_address)}
+        </p>
+        <p className="text-xs font-mono text-muted-foreground">
+          {truncateAddress(profile.wallet_address)}
+        </p>
       </div>
 
-      <p className="text-sm text-muted-foreground line-clamp-2">{listing.description}</p>
+      {profile.bio && <p className="text-sm text-muted-foreground line-clamp-2">{profile.bio}</p>}
 
-      {listing.skills.length > 0 && (
+      {profile.skills.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {listing.skills.map((skill) => (
+          {profile.skills.slice(0, 6).map((skill) => (
             <span
               key={skill}
               className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
@@ -40,74 +39,76 @@ function ListingCard({ listing }: { listing: Listing }) {
               {skill}
             </span>
           ))}
+          {profile.skills.length > 6 && (
+            <span className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+              +{profile.skills.length - 6}
+            </span>
+          )}
         </div>
       )}
 
-      <div className="border-t border-border pt-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span>
-            <span className="font-semibold text-primary">
-              {listing.total_xlm.toLocaleString("en-US", { maximumFractionDigits: 2 })} XLM
-            </span>
+      <div className="flex items-center gap-3 border-t border-border pt-4">
+        {profile.github_url && (
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <GitBranch className="h-3.5 w-3.5" />
+            GitHub
           </span>
-          <span>
-            {listing.milestones.length} milestone{listing.milestones.length !== 1 ? "s" : ""}
+        )}
+        {profile.portfolio_url && (
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <Globe className="h-3.5 w-3.5" />
+            Portfolio
           </span>
-        </div>
-        <Link href={`/projects/${listing.id}`}>
-          <Button variant="outline" size="sm">
-            View
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </Link>
+        )}
+        <span className="ml-auto text-xs font-medium text-accent">View profile →</span>
       </div>
-    </div>
+    </Link>
   );
 }
 
-export default function ProjectsPage() {
-  const [listings, setListings] = useState<Listing[]>([]);
+export default function FreelancersPage() {
+  const [profiles, setProfiles] = useState<FreelancerProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [activeSkills, setActiveSkills] = useState<Set<string>>(new Set());
 
-  const fetchListings = async () => {
+  const load = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getOpenListings();
-      setListings(data);
+      const data = await getAllProfiles();
+      setProfiles(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load listings");
+      setError(err instanceof Error ? err.message : "Failed to load talent");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchListings();
+    load();
   }, []);
 
   const allSkills = useMemo(() => {
     const set = new Set<string>();
-    listings.forEach((l) => l.skills.forEach((s) => set.add(s)));
+    profiles.forEach((p) => p.skills.forEach((s) => set.add(s)));
     return Array.from(set).sort();
-  }, [listings]);
+  }, [profiles]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return listings.filter((l) => {
+    return profiles.filter((p) => {
       const matchesSearch =
         !q ||
-        l.title.toLowerCase().includes(q) ||
-        l.description.toLowerCase().includes(q) ||
-        l.skills.some((s) => s.toLowerCase().includes(q));
+        (p.name ?? "").toLowerCase().includes(q) ||
+        (p.bio ?? "").toLowerCase().includes(q) ||
+        p.skills.some((s) => s.toLowerCase().includes(q));
       const matchesSkills =
-        activeSkills.size === 0 || [...activeSkills].every((s) => l.skills.includes(s));
+        activeSkills.size === 0 || [...activeSkills].every((s) => p.skills.includes(s));
       return matchesSearch && matchesSkills;
     });
-  }, [listings, search, activeSkills]);
+  }, [profiles, search, activeSkills]);
 
   function toggleSkill(skill: string) {
     setActiveSkills((prev) => {
@@ -118,12 +119,12 @@ export default function ProjectsPage() {
     });
   }
 
-  const hasFilters = search.trim() !== "" || activeSkills.size > 0;
-
   function clearFilters() {
     setSearch("");
     setActiveSkills(new Set());
   }
+
+  const hasFilters = search.trim() !== "" || activeSkills.size > 0;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -132,14 +133,14 @@ export default function ProjectsPage() {
       <main className="flex-1 bg-background py-12">
         <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-primary">Open Projects</h1>
+            <h1 className="text-3xl font-bold text-primary">Find Talent</h1>
             <p className="mt-2 text-muted-foreground">
-              Browse projects posted by clients and apply with your Stellar wallet.
+              Browse freelancers ready to work on your Stellar project.
             </p>
           </div>
 
-          {/* Search + skill filters */}
-          {!loading && !error && listings.length > 0 && (
+          {/* Search + filters */}
+          {!loading && !error && profiles.length > 0 && (
             <div className="mb-8 flex flex-col gap-4">
               <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -147,7 +148,7 @@ export default function ProjectsPage() {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search by title, description, or skill..."
+                  placeholder="Search by name, bio, or skill..."
                   className="w-full rounded-lg border border-border bg-card pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
                 />
               </div>
@@ -187,7 +188,7 @@ export default function ProjectsPage() {
           {loading && (
             <div className="flex flex-col items-center justify-center py-24 gap-3">
               <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
-              <p className="text-sm text-muted-foreground">Loading projects...</p>
+              <p className="text-sm text-muted-foreground">Loading talent...</p>
             </div>
           )}
 
@@ -195,32 +196,28 @@ export default function ProjectsPage() {
           {!loading && error && (
             <div className="rounded-2xl border border-border bg-card p-10 text-center">
               <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-4" />
-              <h2 className="text-lg font-semibold text-foreground">Failed to load projects</h2>
-              <p className="mt-1 text-sm text-muted-foreground mb-6">
-                {error === "SUPABASE_NOT_CONFIGURED"
-                  ? "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local."
-                  : error}
-              </p>
-              <Button variant="outline" onClick={fetchListings}>
+              <h2 className="text-lg font-semibold text-foreground">Failed to load</h2>
+              <p className="mt-1 text-sm text-muted-foreground mb-6">{error}</p>
+              <Button variant="outline" onClick={load}>
                 <RefreshCw className="h-4 w-4" />
                 Retry
               </Button>
             </div>
           )}
 
-          {/* Empty (no listings at all) */}
-          {!loading && !error && listings.length === 0 && (
+          {/* Empty state (no profiles at all) */}
+          {!loading && !error && profiles.length === 0 && (
             <div className="rounded-2xl border border-border bg-card p-10 text-center">
-              <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
-              <h2 className="text-lg font-semibold text-foreground">No open projects</h2>
+              <Users className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">No freelancers yet</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                No projects have been posted yet. Check back soon.
+                Freelancers who complete their profile will appear here.
               </p>
             </div>
           )}
 
           {/* No results after filtering */}
-          {!loading && !error && listings.length > 0 && filtered.length === 0 && (
+          {!loading && !error && profiles.length > 0 && filtered.length === 0 && (
             <div className="rounded-2xl border border-border bg-card p-10 text-center">
               <Search className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
               <h2 className="text-lg font-semibold text-foreground">No matches</h2>
@@ -241,12 +238,12 @@ export default function ProjectsPage() {
           {!loading && !error && filtered.length > 0 && (
             <>
               <p className="text-sm text-muted-foreground mb-6">
-                {filtered.length} open project{filtered.length !== 1 ? "s" : ""}
+                {filtered.length} freelancer{filtered.length !== 1 ? "s" : ""}
                 {hasFilters ? " matching your filters" : ""}
               </p>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {filtered.map((listing) => (
-                  <ListingCard key={listing.id} listing={listing} />
+                {filtered.map((profile) => (
+                  <FreelancerCard key={profile.wallet_address} profile={profile} />
                 ))}
               </div>
             </>
