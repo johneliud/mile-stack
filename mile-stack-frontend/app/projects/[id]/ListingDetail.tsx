@@ -158,7 +158,7 @@ export function ListingDetail({ listingId }: { listingId: string }) {
                       {listing.skills.map((skill) => (
                         <span
                           key={skill}
-                          className="rounded-full border border-border bg-muted px-3 py-1 text-sm font-medium text-foreground"
+                          className="rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-sm font-medium text-accent"
                         >
                           {skill}
                         </span>
@@ -176,7 +176,7 @@ export function ListingDetail({ listingId }: { listingId: string }) {
                     {listing.milestones.map((m, i) => (
                       <div key={i} className="flex items-center justify-between gap-4 py-3">
                         <div className="flex items-center gap-3">
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xs font-bold text-accent">
                             {i + 1}
                           </span>
                           <span className="text-sm text-foreground">{m.title}</span>
@@ -197,7 +197,7 @@ export function ListingDetail({ listingId }: { listingId: string }) {
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
                     Total Budget
                   </p>
-                  <p className="text-3xl font-bold text-primary">
+                  <p className="text-3xl font-bold text-accent">
                     {listing.total_xlm.toLocaleString("en-US", { maximumFractionDigits: 2 })} XLM
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
