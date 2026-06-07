@@ -9,7 +9,7 @@
     "lint": "eslint",
     "format": "prettier --write .",
     "postinstall": "prettier --write .",
-    "seed": "dotenv -e .env.local tsx scripts/seed-demo.ts"
+    "seed": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "@stellar/freighter-api": "^6.0.1",
