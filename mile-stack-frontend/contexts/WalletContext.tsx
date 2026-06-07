@@ -21,6 +21,8 @@ interface WalletState {
 
 const WalletContext = createContext<WalletState | null>(null);
 
+const DISCONNECTED_KEY = "milestack_wallet_disconnected";
+
 export function WalletProvider({ children }: { children: ReactNode }) {
   const { notify } = useNotification();
   const [address, setAddress] = useState<string | null>(null);
@@ -33,7 +35,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       .then(async (installed) => {
         setIsFreighterInstalled(installed);
         if (installed) {
-          // Silently restore the session if the site was already allowed
+          // Skip auto-restore if the user explicitly disconnected
+          if (localStorage.getItem(DISCONNECTED_KEY) === "true") return;
           const allowed = await checkWalletAllowed();
           if (allowed) {
             const addr = await getWalletAddress();
@@ -79,6 +82,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setIsConnecting(true);
     try {
       const addr = await requestWalletAccess();
+      localStorage.removeItem(DISCONNECTED_KEY);
       setAddress(addr);
       notify("Wallet connected successfully.", "success");
     } catch (err) {
@@ -91,6 +95,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }, [notify]);
 
   const disconnect = useCallback(() => {
+    localStorage.setItem(DISCONNECTED_KEY, "true");
     setAddress(null);
     setError(null);
     notify("Wallet disconnected.", "success");
