@@ -110,6 +110,16 @@ function MilestoneCard({
         </div>
       </div>
 
+      {milestone.status === "Disputed" && (
+        <div className="border-t border-border pt-4 flex items-start gap-2">
+          <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" aria-hidden="true" />
+          <p className="text-xs text-muted-foreground">
+            This milestone is disputed. Funds are locked in escrow pending resolution by the
+            platform. Contact support to proceed.
+          </p>
+        </div>
+      )}
+
       {(showMarkComplete || showDispute) && (
         <div className="border-t border-border pt-4 flex items-center gap-2 flex-wrap">
           {showMarkComplete && (
