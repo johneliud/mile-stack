@@ -38,11 +38,11 @@ function formatDate(timestamp: bigint): string {
 
 const MILESTONE_BADGE_VARIANT: Record<
   MilestoneStatus,
-  "pending" | "funded" | "released" | "disputed"
+  "pending" | "funded" | "completed" | "released" | "disputed"
 > = {
   Pending: "pending",
   Funded: "funded",
-  Completed: "released",
+  Completed: "completed",
   Released: "released",
   Disputed: "disputed",
 };
@@ -221,6 +221,7 @@ export default function ClientDashboard() {
       setProjects(data);
       setProjectNames(names);
     } catch (err) {
+      console.error("[ClientDashboard] fetchProjects:", err);
       setProjectsError(err instanceof Error ? err.message : "Failed to load projects");
     } finally {
       setProjectsLoading(false);
@@ -240,6 +241,7 @@ export default function ClientDashboard() {
       );
       setListings(withCounts);
     } catch (err) {
+      console.error("[ClientDashboard] fetchListings:", err);
       setListingsError(err instanceof Error ? err.message : "Failed to load listings");
     } finally {
       setListingsLoading(false);
