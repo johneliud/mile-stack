@@ -34,13 +34,13 @@ function FreelancerCard({ profile }: { profile: FreelancerProfile }) {
           {profile.skills.slice(0, 6).map((skill) => (
             <span
               key={skill}
-              className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
+              className="rounded-full border border-accent/20 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent"
             >
               {skill}
             </span>
           ))}
           {profile.skills.length > 6 && (
-            <span className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+            <span className="rounded-full border border-accent/20 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent">
               +{profile.skills.length - 6}
             </span>
           )}
@@ -49,13 +49,13 @@ function FreelancerCard({ profile }: { profile: FreelancerProfile }) {
 
       <div className="flex items-center gap-3 border-t border-border pt-4">
         {profile.github_url && (
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1 text-xs text-accent/70">
             <GitBranch className="h-3.5 w-3.5" />
             GitHub
           </span>
         )}
         {profile.portfolio_url && (
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1 text-xs text-accent/70">
             <Globe className="h-3.5 w-3.5" />
             Portfolio
           </span>
