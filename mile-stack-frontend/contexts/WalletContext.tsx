@@ -44,6 +44,36 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       .catch(() => setIsFreighterInstalled(false));
   }, []);
 
+  // Detect account switches in Freighter — poll every 3s and re-check on tab focus
+  useEffect(() => {
+    if (!address) return;
+
+    const syncAddress = async () => {
+      try {
+        const allowed = await checkWalletAllowed();
+        if (!allowed) return;
+        const current = await getWalletAddress();
+        if (current && current !== address) setAddress(current);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to sync wallet address";
+        setError(message);
+        notify(message, "error");
+      }
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") syncAddress();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    const interval = setInterval(syncAddress, 3000);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      clearInterval(interval);
+    };
+  }, [address]);
+
   const connect = useCallback(async () => {
     setError(null);
     setIsConnecting(true);
