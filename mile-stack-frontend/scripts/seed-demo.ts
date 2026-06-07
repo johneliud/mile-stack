@@ -30,7 +30,7 @@ interface DemoListing {
 
 const DEMO_LISTINGS: DemoListing[] = [
   {
-    client_address: CLIENT_ADDRESS.toLowerCase(),
+    client_address: CLIENT_ADDRESS,
     title: "Website Redesign",
     description:
       "Complete redesign of our company website covering UI/UX design, frontend implementation in React/TypeScript, and backend API integration. The final deliverable should be responsive, performant, and deployed to production.",
@@ -44,7 +44,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     status: "open",
   },
   {
-    client_address: CLIENT_ADDRESS.toLowerCase(),
+    client_address: CLIENT_ADDRESS,
     title: "Soroban Smart Contract Audit",
     description:
       "We need an experienced Soroban developer to audit our escrow contract before mainnet deployment. Review the contract logic, identify vulnerabilities, and provide a written report with recommendations.",
@@ -58,7 +58,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     status: "open",
   },
   {
-    client_address: CLIENT_ADDRESS.toLowerCase(),
+    client_address: CLIENT_ADDRESS,
     title: "Mobile App UI Design",
     description:
       "Design a clean, modern UI for our fintech mobile application. We need Figma designs covering onboarding, dashboard, transaction history, and settings screens. Our brand uses a dark-blue and white palette.",
@@ -72,7 +72,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     status: "open",
   },
   {
-    client_address: CLIENT_ADDRESS.toLowerCase(),
+    client_address: CLIENT_ADDRESS,
     title: "REST API Development",
     description:
       "Build a RESTful API for our marketplace platform. The API must handle user authentication, product listings, orders, and payments. Node.js with PostgreSQL preferred. Full test coverage required.",
@@ -86,7 +86,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     status: "open",
   },
   {
-    client_address: CLIENT_ADDRESS.toLowerCase(),
+    client_address: CLIENT_ADDRESS,
     title: "Data Dashboard & Analytics",
     description:
       "Create an interactive analytics dashboard to visualise our sales and user data. Charts, filters, date ranges, and CSV export are required. The dashboard will be embedded in our existing Next.js admin panel.",
@@ -144,7 +144,7 @@ async function seedListing(listing: DemoListing, appMessage: string): Promise<st
   } else {
     const { error: appError } = await sb.from("applications").insert({
       listing_id: listingId,
-      freelancer_address: FREELANCER_ADDRESS!.toLowerCase(),
+      freelancer_address: FREELANCER_ADDRESS!,
       message: appMessage,
     });
     if (appError) {
