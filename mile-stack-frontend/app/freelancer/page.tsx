@@ -106,7 +106,7 @@ function ProjectCard({ project, name }: { project: ContractProject; name?: strin
       <div className="border-t border-border pt-4 flex items-center justify-between gap-4">
         <div>
           <p className="text-xs text-muted-foreground">Total Value</p>
-          <p className="text-lg font-bold text-primary">{stroopsToXlm(total)} XLM</p>
+          <p className="text-lg font-bold text-accent">{stroopsToXlm(total)} XLM</p>
         </div>
         <Link href={`/freelancer/projects/${String(project.id)}`}>
           <Button variant="outline" size="sm">
