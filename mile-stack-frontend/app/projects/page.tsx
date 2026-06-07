@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePolling } from "@/hooks/usePolling";
 import { ChevronRight, RefreshCw, AlertCircle, FolderOpen, Search, X } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -72,22 +73,27 @@ export default function ProjectsPage() {
   const [search, setSearch] = useState("");
   const [activeSkills, setActiveSkills] = useState<Set<string>>(new Set());
 
-  const fetchListings = async () => {
-    setLoading(true);
+  const loadListings = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const data = await getOpenListings();
       setListings(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load listings");
+      if (!silent) setError(err instanceof Error ? err.message : "Failed to load listings");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchListings();
-  }, []);
+    loadListings();
+  }, [loadListings]);
+
+  // Poll every 10s for new/updated listings
+  usePolling(() => loadListings(true), 10000);
+
+  const fetchListings = () => loadListings();
 
   const allSkills = useMemo(() => {
     const set = new Set<string>();
