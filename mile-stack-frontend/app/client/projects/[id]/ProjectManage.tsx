@@ -33,11 +33,11 @@ import { getProjectNamesByIds } from "@/lib/listings";
 
 const MILESTONE_BADGE_VARIANT: Record<
   MilestoneStatus,
-  "pending" | "funded" | "released" | "disputed"
+  "pending" | "funded" | "completed" | "released" | "disputed"
 > = {
   Pending: "pending",
   Funded: "funded",
-  Completed: "released",
+  Completed: "completed",
   Released: "released",
   Disputed: "disputed",
 };
@@ -81,7 +81,8 @@ function MilestoneCard({
   const [fundConfirming, setFundConfirming] = useState(false);
   const [approveConfirming, setApproveConfirming] = useState(false);
   const showFundButton = canFund && milestone.status === "Pending";
-  const showApproveButton = canApprove && milestone.status === "Funded";
+  const showWaitingForFreelancer = milestone.status === "Funded";
+  const showApproveButton = canApprove && milestone.status === "Completed";
 
   return (
     <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
@@ -151,6 +152,15 @@ function MilestoneCard({
               Cancel
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Waiting for freelancer */}
+      {showWaitingForFreelancer && (
+        <div className="border-t border-border pt-4">
+          <p className="text-xs text-muted-foreground">
+            Funds are in escrow — waiting for the freelancer to mark this milestone complete.
+          </p>
         </div>
       )}
 
@@ -234,6 +244,7 @@ export function ProjectManage({ projectId }: { projectId: number }) {
       setProject(data);
       setProjectName(names[projectId] ?? null);
     } catch (err) {
+      console.error("[ProjectManage] fetchProject:", err);
       setError(err instanceof Error ? err.message : "Failed to load project");
     } finally {
       setLoading(false);
@@ -252,6 +263,7 @@ export function ProjectManage({ projectId }: { projectId: number }) {
       notify("Milestone funded — XLM is now held in escrow.", "success");
       await fetchProject();
     } catch (err) {
+      console.error("[ProjectManage] handleFund:", err);
       notify(err instanceof Error ? err.message : "Failed to fund milestone", "error");
     } finally {
       setFundingIndex(null);
@@ -266,6 +278,7 @@ export function ProjectManage({ projectId }: { projectId: number }) {
       notify("Milestone approved — XLM released to the freelancer.", "success");
       await fetchProject();
     } catch (err) {
+      console.error("[ProjectManage] handleApprove:", err);
       notify(err instanceof Error ? err.message : "Failed to approve milestone", "error");
     } finally {
       setApprovingIndex(null);
