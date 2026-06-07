@@ -96,10 +96,10 @@ export function FreelancerProfile({ address }: { address: string }) {
             </div>
           )}
 
-          {/* Profile — two-column layout */}
+          {/* Profile - two-column layout */}
           {!loading && !error && profile && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-              {/* Left — bio + skills */}
+              {/* Left - bio + skills */}
               <div className="lg:col-span-2 flex flex-col gap-6">
                 {/* Name + address header */}
                 <div className="flex flex-col gap-1">
@@ -137,7 +137,7 @@ export function FreelancerProfile({ address }: { address: string }) {
                 )}
               </div>
 
-              {/* Right — sidebar: hire CTA + links */}
+              {/* Right - sidebar: hire CTA + links */}
               <div className="flex flex-col gap-4 lg:sticky lg:top-24">
                 {/* Hire CTA for clients */}
                 {role === "client" && (

@@ -98,7 +98,7 @@ export default function EditProfilePage() {
             {isConnected && (
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                  {/* Left — form sections */}
+                  {/* Left - form sections */}
                   <div className="lg:col-span-2 flex flex-col gap-6">
                     {/* Basic info */}
                     <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-5">
@@ -127,7 +127,7 @@ export default function EditProfilePage() {
                           rows={4}
                           value={bio}
                           onChange={(e) => setBio(e.target.value)}
-                          placeholder="Brief intro — your experience, what you build, what you're looking for..."
+                          placeholder="Brief intro. Your experience, what you build, what you're looking for..."
                           className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors resize-none"
                         />
                       </div>
@@ -214,7 +214,7 @@ export default function EditProfilePage() {
                     </div>
                   </div>
 
-                  {/* Right — actions + preview */}
+                  {/* Right - actions + preview */}
                   <div className="flex flex-col gap-4 lg:sticky lg:top-24">
                     <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
                       <h2 className="text-base font-semibold text-foreground">Save Changes</h2>
