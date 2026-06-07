@@ -78,6 +78,7 @@ export default function CreateProjectPage() {
       setCreatedProjectId(projectId);
       notify(`Project #${projectId} created successfully.`, "success");
     } catch (err) {
+      console.error("[CreateProject] handleSubmit:", err);
       notify(err instanceof Error ? err.message : "Failed to create project", "error");
     } finally {
       setSubmitting(false);
