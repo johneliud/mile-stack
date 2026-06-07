@@ -1,6 +1,6 @@
 # MileStack Frontend
 
-Next.js 16 frontend for [MileStack](../README.md) — a Soroban-powered milestone-based XLM escrow platform connecting developers in the Global South with global employers on Stellar.
+Next.js 16 frontend for [MileStack](../README.md) - a Soroban-powered milestone-based XLM escrow platform connecting developers in the Global South with global employers on Stellar.
 
 ---
 
@@ -37,7 +37,7 @@ Next.js 16 frontend for [MileStack](../README.md) — a Soroban-powered mileston
 mile-stack-frontend/
 ├── app/
 │   ├── client/
-│   │   ├── page.tsx                            # Client Dashboard — listings + escrow projects
+│   │   ├── page.tsx                            # Client Dashboard - listings + escrow projects
 │   │   ├── listings/
 │   │   │   ├── new/
 │   │   │   │   └── page.tsx                    # Post a new project listing
@@ -48,36 +48,40 @@ mile-stack-frontend/
 │   │       ├── new/
 │   │       │   └── page.tsx                    # Direct project creation (known freelancer)
 │   │       └── [id]/
-│   │           ├── page.tsx                    # Server Component — resolves dynamic params
-│   │           └── ProjectManage.tsx           # Client Component — fund / approve / dispute
+│   │           ├── page.tsx                    # Server Component - resolves dynamic params
+│   │           └── ProjectManage.tsx           # Client Component - fund / approve / dispute
 │   ├── freelancer/
-│   │   ├── page.tsx                            # Freelancer Dashboard — active projects
+│   │   ├── page.tsx                            # Freelancer Dashboard - active projects
 │   │   └── projects/[id]/
-│   │       ├── page.tsx                        # Server Component — resolves dynamic params
-│   │       └── ProjectDetail.tsx               # Client Component — milestones + mark complete + dispute
+│   │       ├── page.tsx                        # Server Component - resolves dynamic params
+│   │       └── ProjectDetail.tsx               # Client Component - milestones + mark complete + dispute
 │   ├── projects/
 │   │   ├── page.tsx                            # Public listings browser (no wallet required)
 │   │   └── [id]/
-│   │       ├── page.tsx                        # Server Component — resolves dynamic params
-│   │       └── ListingDetail.tsx               # Client Component — listing detail + apply
+│   │       ├── page.tsx                        # Server Component - resolves dynamic params
+│   │       └── ListingDetail.tsx               # Client Component - listing detail + apply
 │   ├── globals.css                             # Design system tokens, animations, base styles
 │   ├── icon.svg                                # App favicon
-│   ├── layout.tsx                              # Root layout — font, providers, metadata
+│   ├── layout.tsx                              # Root layout - font, providers, metadata
 │   └── page.tsx                                # Landing page (hero, features, how it works, CTA)
 ├── components/
 │   ├── ui/
 │   │   ├── Button.tsx                          # primary / accent / outline / ghost / destructive variants
 │   │   └── Badge.tsx                           # Milestone status badges (Pending/Funded/Completed/Released/Disputed)
 │   ├── Footer.tsx                              # Site footer
-│   ├── Navbar.tsx                              # Sticky nav with active link highlight + mobile menu
+│   ├── Navbar.tsx                              # Sticky nav with role-adaptive links, role chip, and mobile menu
 │   ├── Notification.tsx                        # Toast notification provider + useNotification hook
 │   ├── ScrollReveal.tsx                        # IntersectionObserver scroll animation wrapper
-│   └── WalletGuard.tsx                         # Wallet connection gate — wraps pages that require Freighter
+│   ├── WalletGuard.tsx                         # Wallet connection gate - wraps pages that require Freighter
+│   ├── RoleSelector.tsx                        # Role selection modal shown after wallet connect (client / freelancer)
+│   ├── LandingHeroCta.tsx                      # Role-adaptive hero CTA buttons
+│   └── LandingBottomCta.tsx                    # Role-adaptive bottom CTA section
 ├── contexts/
-│   └── WalletContext.tsx                       # Freighter wallet state — connect / disconnect / auto-restore
+│   ├── WalletContext.tsx                       # Freighter wallet state - connect / disconnect / auto-restore
+│   └── RoleContext.tsx                         # Role state ("client" | "freelancer") with localStorage persistence
 ├── lib/
 │   ├── contract.ts                             # Soroban contract queries and transactions
-│   ├── listings.ts                             # Supabase CRUD — listings, applications, project metadata
+│   ├── listings.ts                             # Supabase CRUD - listings, applications, project metadata
 │   └── supabase.ts                             # Lazy Supabase client singleton
 ├── public/
 │   └── favicon.svg
@@ -195,25 +199,27 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Client
 
-1. Connect Freighter wallet
+1. Connect Freighter wallet → select **I want to hire** in the role selector
 2. Go to **Client** dashboard → **New Project**
 3. Fill in title, description, skills, and milestones
 4. Freelancers apply from the public **/projects** page
 5. Review applications at **Client > listings > applications**
-6. Accept one application — Freighter signs the on-chain `create_project` transaction
+6. Accept one application - Freighter signs the on-chain `create_project` transaction
 7. Fund each milestone from the project management page
 8. Wait for the freelancer to mark the milestone complete (`mark_complete`)
-9. Approve the milestone — XLM is released to the freelancer
+9. Approve the milestone - XLM is released to the freelancer
 
 ### Freelancer
 
-1. Connect Freighter wallet
+1. Connect Freighter wallet → select **I want to work** in the role selector
 2. Browse open projects at **/projects** (no wallet required to view)
 3. Apply to a listing with an optional cover message
 4. Once accepted, the project appears on the **Freelancer** dashboard
 5. After completing work on a `Funded` milestone, click **Mark as Complete**
 6. The client can now approve the milestone and release payment
 7. Dispute a milestone if needed
+
+> **Switching roles:** The navbar shows a role chip (e.g. `Freelancer ⇄`) that re-opens the role selector so you can switch without disconnecting your wallet.
 
 ---
 
@@ -225,7 +231,7 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 
 | Token                | Hex       | Usage                       |
 | -------------------- | --------- | --------------------------- |
-| `--primary`          | `#1E3A5F` | Brand navy — headings, logo |
+| `--primary`          | `#1E3A5F` | Brand navy - headings, logo |
 | `--accent`           | `#0369A1` | CTA buttons, links          |
 | `--success`          | `#059669` | Released milestone state    |
 | `--destructive`      | `#DC2626` | Disputed state, errors      |
@@ -240,16 +246,16 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 
 | Status    | Style                                                   |
 | --------- | ------------------------------------------------------- |
-| Pending   | Gray — `bg-slate-100 text-slate-600`                    |
-| Funded    | Blue — `bg-blue-50 text-accent border-blue-200`         |
-| Completed | Amber — `bg-amber-50 text-amber-700 border-amber-200`   |
-| Released  | Green — `bg-emerald-50 text-success border-emerald-200` |
-| Disputed  | Red — `bg-red-50 text-destructive border-red-200`       |
+| Pending   | Gray - `bg-slate-100 text-slate-600`                    |
+| Funded    | Blue - `bg-blue-50 text-accent border-blue-200`         |
+| Completed | Amber - `bg-amber-50 text-amber-700 border-amber-200`   |
+| Released  | Green - `bg-emerald-50 text-success border-emerald-200` |
+| Disputed  | Red - `bg-red-50 text-destructive border-red-200`       |
 
 ### Rules
 
 - No gradients, no purple anywhere
-- All icons from `lucide-react` — no emojis
+- All icons from `lucide-react` - no emojis
 - Light theme only
 - Transitions: 150–200ms ease, flat color shifts
 
