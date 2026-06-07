@@ -14,10 +14,20 @@ interface NavLink {
 }
 
 function getNavLinks(role: UserRole | null): NavLink[] {
-  const base: NavLink = { label: "Browse Projects", href: "/projects" };
-  if (role === "client") return [base, { label: "Dashboard", href: "/client" }];
-  if (role === "freelancer") return [base, { label: "Dashboard", href: "/freelancer" }];
-  return [base];
+  const browse: NavLink = { label: "Browse Projects", href: "/projects" };
+  if (role === "client")
+    return [
+      browse,
+      { label: "Find Talent", href: "/freelancers" },
+      { label: "Dashboard", href: "/client" },
+    ];
+  if (role === "freelancer")
+    return [
+      browse,
+      { label: "My Profile", href: "/freelancer/profile" },
+      { label: "Dashboard", href: "/freelancer" },
+    ];
+  return [browse];
 }
 
 function truncateAddress(addr: string) {
