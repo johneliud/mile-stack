@@ -143,7 +143,7 @@ export default function EditProfilePage() {
                         {skills.map((skill) => (
                           <span
                             key={skill}
-                            className="inline-flex items-center gap-1 rounded-full bg-muted border border-border px-2.5 py-0.5 text-xs font-medium text-foreground"
+                            className="inline-flex items-center gap-1 rounded-full bg-accent/10 border border-accent/20 px-2.5 py-0.5 text-xs font-medium text-accent"
                           >
                             {skill}
                             <button
