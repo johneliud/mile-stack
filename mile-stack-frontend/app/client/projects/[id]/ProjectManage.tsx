@@ -158,7 +158,6 @@ function MilestoneCard({
       {showApproveButton && !approveConfirming && (
         <div className="border-t border-border pt-4">
           <Button variant="accent" size="sm" onClick={() => setApproveConfirming(true)}>
-            <CheckCircle className="h-4 w-4" aria-hidden="true" />
             Approve &amp; Release
           </Button>
         </div>
