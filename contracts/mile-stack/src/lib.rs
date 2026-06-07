@@ -110,8 +110,54 @@ impl MileStackContract {
         true
     }
 
+    /// Signal that work on a funded milestone is complete.
+    /// Only the milestone's freelancer may call this. Milestone must be Funded.
+    /// Transitions status: Funded → Completed.
+    pub fn mark_complete(
+        env: Env,
+        caller: Address,
+        project_id: u64,
+        milestone_index: u32,
+    ) -> bool {
+        caller.require_auth();
+
+        let project = load_project(&env, project_id);
+
+        let milestone = project
+            .milestones
+            .get(milestone_index)
+            .expect("milestone index out of range");
+
+        assert!(
+            caller == milestone.freelancer,
+            "only the milestone freelancer can mark it complete"
+        );
+
+        assert!(
+            matches!(milestone.status, MilestoneStatus::Funded),
+            "milestone must be Funded to mark complete"
+        );
+
+        let updated = Milestone {
+            status: MilestoneStatus::Completed,
+            ..milestone
+        };
+        let project = update_milestone(&env, project, milestone_index, updated);
+        save_project(&env, &project);
+
+        log!(
+            &env,
+            "MilestoneCompleted: project_id={}, milestone_index={}, freelancer={}",
+            project_id,
+            milestone_index,
+            caller
+        );
+
+        true
+    }
+
     /// Release escrowed XLM to the freelancer.
-    /// Only the project client may call this. Milestone must be Funded.
+    /// Only the project client may call this. Milestone must be Completed.
     pub fn approve_milestone(
         env: Env,
         project_id: u64,
@@ -128,8 +174,8 @@ impl MileStackContract {
             .expect("milestone index out of range");
 
         assert!(
-            matches!(milestone.status, MilestoneStatus::Funded),
-            "milestone must be Funded to approve"
+            matches!(milestone.status, MilestoneStatus::Completed),
+            "milestone must be Completed to approve"
         );
 
         // Release escrowed XLM from the contract to the freelancer.
