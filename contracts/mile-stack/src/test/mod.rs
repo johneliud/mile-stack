@@ -5,6 +5,7 @@ mod create_project;
 mod dispute_milestone;
 mod fund_milestone;
 mod lifecycle;
+mod mark_complete;
 mod types;
 mod view_functions;
 
