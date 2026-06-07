@@ -80,7 +80,7 @@ function ListingCard({ listing }: { listing: ListingWithCount }) {
 
       <div className="flex items-center gap-4 text-sm text-muted-foreground">
         <span>
-          <span className="font-semibold text-primary">
+          <span className="font-semibold text-accent">
             {listing.total_xlm.toLocaleString("en-US", { maximumFractionDigits: 2 })} XLM
           </span>
         </span>
@@ -186,7 +186,7 @@ function ProjectCard({ project, name }: { project: ContractProject; name?: strin
       <div className="border-t border-border pt-4 flex items-center justify-between gap-4">
         <div>
           <p className="text-xs text-muted-foreground">Total Value</p>
-          <p className="text-lg font-bold text-primary">{stroopsToXlm(total)} XLM</p>
+          <p className="text-lg font-bold text-accent">{stroopsToXlm(total)} XLM</p>
         </div>
         <Link href={`/client/projects/${String(project.id)}`}>
           <Button variant="outline" size="sm">
