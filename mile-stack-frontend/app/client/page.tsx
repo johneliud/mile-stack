@@ -281,119 +281,121 @@ export default function ClientDashboard() {
           </div>
 
           <WalletGuard message="Connect your Freighter wallet to view your dashboard.">
-          {isConnected && (
-            <div className="flex flex-col gap-12">
-              {/* ── My Listings ── */}
-              <section>
-                <h2 className="text-xl font-semibold text-foreground mb-6">My Projects</h2>
+            {isConnected && (
+              <div className="flex flex-col gap-12">
+                {/* ── My Listings ── */}
+                <section>
+                  <h2 className="text-xl font-semibold text-foreground mb-6">My Projects</h2>
 
-                {listingsLoading && (
-                  <div className="flex items-center gap-3 py-8 text-muted-foreground">
-                    <RefreshCw className="h-5 w-5 animate-spin" />
-                    <span className="text-sm">Loading listings...</span>
-                  </div>
-                )}
+                  {listingsLoading && (
+                    <div className="flex items-center gap-3 py-8 text-muted-foreground">
+                      <RefreshCw className="h-5 w-5 animate-spin" />
+                      <span className="text-sm">Loading listings...</span>
+                    </div>
+                  )}
 
-                {!listingsLoading && listingsError && (
-                  <div className="rounded-2xl border border-border bg-card p-8 text-center">
-                    <AlertCircle className="mx-auto h-8 w-8 text-destructive mb-3" />
-                    <p className="text-sm font-medium text-foreground mb-4">{listingsError}</p>
-                    {address && (
-                      <Button variant="outline" size="sm" onClick={() => fetchListings(address)}>
-                        <RefreshCw className="h-4 w-4" />
-                        Retry
-                      </Button>
-                    )}
-                  </div>
-                )}
+                  {!listingsLoading && listingsError && (
+                    <div className="rounded-2xl border border-border bg-card p-8 text-center">
+                      <AlertCircle className="mx-auto h-8 w-8 text-destructive mb-3" />
+                      <p className="text-sm font-medium text-foreground mb-4">{listingsError}</p>
+                      {address && (
+                        <Button variant="outline" size="sm" onClick={() => fetchListings(address)}>
+                          <RefreshCw className="h-4 w-4" />
+                          Retry
+                        </Button>
+                      )}
+                    </div>
+                  )}
 
-                {!listingsLoading && !listingsError && listings.length === 0 && (
-                  <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-                    <FolderOpen className="mx-auto h-8 w-8 text-muted-foreground mb-3" />
-                    <p className="text-sm font-medium text-foreground">No projects yet</p>
-                    <p className="mt-1 text-sm text-muted-foreground mb-4">
-                      Post a project and freelancers will be able to apply.
-                    </p>
-                    <Link href="/client/listings/new">
-                      <Button variant="outline" size="sm">
-                        <Plus className="h-4 w-4" />
-                        New Project
-                      </Button>
-                    </Link>
-                  </div>
-                )}
+                  {!listingsLoading && !listingsError && listings.length === 0 && (
+                    <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+                      <FolderOpen className="mx-auto h-8 w-8 text-muted-foreground mb-3" />
+                      <p className="text-sm font-medium text-foreground">No projects yet</p>
+                      <p className="mt-1 text-sm text-muted-foreground mb-4">
+                        Post a project and freelancers will be able to apply.
+                      </p>
+                      <Link href="/client/listings/new">
+                        <Button variant="outline" size="sm">
+                          <Plus className="h-4 w-4" />
+                          New Project
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
 
-                {!listingsLoading && !listingsError && listings.length > 0 && (
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    {listings.map((listing) => (
-                      <ListingCard key={listing.id} listing={listing} />
-                    ))}
-                  </div>
-                )}
-              </section>
+                  {!listingsLoading && !listingsError && listings.length > 0 && (
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      {listings.map((listing) => (
+                        <ListingCard key={listing.id} listing={listing} />
+                      ))}
+                    </div>
+                  )}
+                </section>
 
-              {/* ── Active Projects ── */}
-              <section>
-                <h2 className="text-xl font-semibold text-foreground mb-6">Active Projects</h2>
+                {/* ── Active Projects ── */}
+                <section>
+                  <h2 className="text-xl font-semibold text-foreground mb-6">Active Projects</h2>
 
-                {projectsLoading && (
-                  <div className="flex items-center gap-3 py-8 text-muted-foreground">
-                    <RefreshCw className="h-5 w-5 animate-spin" />
-                    <span className="text-sm">Loading projects...</span>
-                  </div>
-                )}
+                  {projectsLoading && (
+                    <div className="flex items-center gap-3 py-8 text-muted-foreground">
+                      <RefreshCw className="h-5 w-5 animate-spin" />
+                      <span className="text-sm">Loading projects...</span>
+                    </div>
+                  )}
 
-                {!projectsLoading && projectsError && (
-                  <div className="rounded-2xl border border-border bg-card p-8 text-center">
-                    <AlertCircle className="mx-auto h-8 w-8 text-destructive mb-3" />
-                    <p className="text-sm font-medium text-foreground mb-1">
-                      {projectsError === "CONTRACT_NOT_CONFIGURED"
-                        ? "Contract not yet deployed"
-                        : projectsError === "SIMULATION_SOURCE_NOT_CONFIGURED"
-                          ? "Simulation source not configured"
-                          : "Failed to load projects"}
-                    </p>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {projectsError === "CONTRACT_NOT_CONFIGURED"
-                        ? "Set NEXT_PUBLIC_CONTRACT_ID in your .env.local."
-                        : projectsError === "SIMULATION_SOURCE_NOT_CONFIGURED"
-                          ? "Set NEXT_PUBLIC_SIMULATION_SOURCE in your .env.local."
-                          : projectsError}
-                    </p>
-                    {address && (
-                      <Button variant="outline" size="sm" onClick={() => fetchProjects(address)}>
-                        <RefreshCw className="h-4 w-4" />
-                        Retry
-                      </Button>
-                    )}
-                  </div>
-                )}
+                  {!projectsLoading && projectsError && (
+                    <div className="rounded-2xl border border-border bg-card p-8 text-center">
+                      <AlertCircle className="mx-auto h-8 w-8 text-destructive mb-3" />
+                      <p className="text-sm font-medium text-foreground mb-1">
+                        {projectsError === "CONTRACT_NOT_CONFIGURED"
+                          ? "Contract not yet deployed"
+                          : projectsError === "SIMULATION_SOURCE_NOT_CONFIGURED"
+                            ? "Simulation source not configured"
+                            : "Failed to load projects"}
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {projectsError === "CONTRACT_NOT_CONFIGURED"
+                          ? "Set NEXT_PUBLIC_CONTRACT_ID in your .env.local."
+                          : projectsError === "SIMULATION_SOURCE_NOT_CONFIGURED"
+                            ? "Set NEXT_PUBLIC_SIMULATION_SOURCE in your .env.local."
+                            : projectsError}
+                      </p>
+                      {address && (
+                        <Button variant="outline" size="sm" onClick={() => fetchProjects(address)}>
+                          <RefreshCw className="h-4 w-4" />
+                          Retry
+                        </Button>
+                      )}
+                    </div>
+                  )}
 
-                {!projectsLoading && !projectsError && projects.length === 0 && (
-                  <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-                    <FolderOpen className="mx-auto h-8 w-8 text-muted-foreground mb-3" />
-                    <p className="text-sm font-medium text-foreground">No active escrow projects</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Accept a freelancer application from one of your projects above to start an
-                      escrow contract.
-                    </p>
-                  </div>
-                )}
+                  {!projectsLoading && !projectsError && projects.length === 0 && (
+                    <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+                      <FolderOpen className="mx-auto h-8 w-8 text-muted-foreground mb-3" />
+                      <p className="text-sm font-medium text-foreground">
+                        No active escrow projects
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Accept a freelancer application from one of your projects above to start an
+                        escrow contract.
+                      </p>
+                    </div>
+                  )}
 
-                {!projectsLoading && !projectsError && projects.length > 0 && (
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    {projects.map((project) => (
-                      <ProjectCard
-                        key={String(project.id)}
-                        project={project}
-                        name={projectNames[Number(project.id)]}
-                      />
-                    ))}
-                  </div>
-                )}
-              </section>
-            </div>
-          )}
+                  {!projectsLoading && !projectsError && projects.length > 0 && (
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      {projects.map((project) => (
+                        <ProjectCard
+                          key={String(project.id)}
+                          project={project}
+                          name={projectNames[Number(project.id)]}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </section>
+              </div>
+            )}
           </WalletGuard>
         </div>
       </main>

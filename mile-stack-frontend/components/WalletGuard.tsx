@@ -14,9 +14,10 @@ export function WalletGuard({ children, message }: WalletGuardProps) {
 
   if (isConnected) return <>{children}</>;
 
-  const defaultMessage = isFreighterInstalled === false
-    ? "Install the Freighter browser extension to get started."
-    : "Connect your Freighter wallet to continue.";
+  const defaultMessage =
+    isFreighterInstalled === false
+      ? "Install the Freighter browser extension to get started."
+      : "Connect your Freighter wallet to continue.";
 
   return (
     <div className="rounded-2xl border border-border bg-card p-10 text-center">

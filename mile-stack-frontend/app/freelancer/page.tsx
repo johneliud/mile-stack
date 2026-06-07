@@ -164,65 +164,65 @@ export default function FreelancerDashboard() {
           </div>
 
           <WalletGuard message="Connect your Freighter wallet to view your active projects.">
-          {/* Loading */}
-          {isConnected && loading && (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
-              <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
-              <p className="text-sm text-muted-foreground">Loading your projects...</p>
-            </div>
-          )}
+            {/* Loading */}
+            {isConnected && loading && (
+              <div className="flex flex-col items-center justify-center py-24 gap-3">
+                <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
+                <p className="text-sm text-muted-foreground">Loading your projects...</p>
+              </div>
+            )}
 
-          {/* Error */}
-          {isConnected && !loading && error && (
-            <div className="rounded-2xl border border-border bg-card p-10 text-center">
-              <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-4" />
-              <h2 className="text-lg font-semibold text-foreground">
-                {error === "CONTRACT_NOT_CONFIGURED"
-                  ? "Contract not yet deployed"
-                  : error === "SIMULATION_SOURCE_NOT_CONFIGURED"
-                    ? "Simulation source not configured"
-                    : "Failed to load projects"}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground mb-6">
-                {error === "CONTRACT_NOT_CONFIGURED"
-                  ? "Set NEXT_PUBLIC_CONTRACT_ID in your .env.local after deploying the contract."
-                  : error === "SIMULATION_SOURCE_NOT_CONFIGURED"
-                    ? "Set NEXT_PUBLIC_SIMULATION_SOURCE in your .env.local to a funded testnet account."
-                    : error}
-              </p>
-              {address && (
-                <Button variant="outline" onClick={() => fetchProjects(address)}>
-                  <RefreshCw className="h-4 w-4" />
-                  Retry
-                </Button>
-              )}
-            </div>
-          )}
+            {/* Error */}
+            {isConnected && !loading && error && (
+              <div className="rounded-2xl border border-border bg-card p-10 text-center">
+                <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-4" />
+                <h2 className="text-lg font-semibold text-foreground">
+                  {error === "CONTRACT_NOT_CONFIGURED"
+                    ? "Contract not yet deployed"
+                    : error === "SIMULATION_SOURCE_NOT_CONFIGURED"
+                      ? "Simulation source not configured"
+                      : "Failed to load projects"}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground mb-6">
+                  {error === "CONTRACT_NOT_CONFIGURED"
+                    ? "Set NEXT_PUBLIC_CONTRACT_ID in your .env.local after deploying the contract."
+                    : error === "SIMULATION_SOURCE_NOT_CONFIGURED"
+                      ? "Set NEXT_PUBLIC_SIMULATION_SOURCE in your .env.local to a funded testnet account."
+                      : error}
+                </p>
+                {address && (
+                  <Button variant="outline" onClick={() => fetchProjects(address)}>
+                    <RefreshCw className="h-4 w-4" />
+                    Retry
+                  </Button>
+                )}
+              </div>
+            )}
 
-          {/* Empty state */}
-          {isConnected && !loading && !error && projects.length === 0 && (
-            <div className="rounded-2xl border border-border bg-card p-10 text-center">
-              <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
-              <h2 className="text-lg font-semibold text-foreground">No active projects</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                You have no projects on this network yet. Share your wallet address with a client to
-                get started.
-              </p>
-            </div>
-          )}
+            {/* Empty state */}
+            {isConnected && !loading && !error && projects.length === 0 && (
+              <div className="rounded-2xl border border-border bg-card p-10 text-center">
+                <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+                <h2 className="text-lg font-semibold text-foreground">No active projects</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  You have no projects on this network yet. Share your wallet address with a client
+                  to get started.
+                </p>
+              </div>
+            )}
 
-          {/* Project grid */}
-          {isConnected && !loading && !error && projects.length > 0 && (
-            <div className="grid gap-6 sm:grid-cols-2">
-              {projects.map((project) => (
-                <ProjectCard
-                  key={String(project.id)}
-                  project={project}
-                  name={projectNames[Number(project.id)]}
-                />
-              ))}
-            </div>
-          )}
+            {/* Project grid */}
+            {isConnected && !loading && !error && projects.length > 0 && (
+              <div className="grid gap-6 sm:grid-cols-2">
+                {projects.map((project) => (
+                  <ProjectCard
+                    key={String(project.id)}
+                    project={project}
+                    name={projectNames[Number(project.id)]}
+                  />
+                ))}
+              </div>
+            )}
           </WalletGuard>
         </div>
       </main>

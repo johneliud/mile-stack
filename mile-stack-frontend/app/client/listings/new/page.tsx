@@ -124,200 +124,200 @@ export default function PostListingPage() {
           </div>
 
           <WalletGuard message="Connect your Freighter wallet to post a listing.">
-          {/* Form */}
-          {isConnected && (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-              {/* Basic info */}
-              <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
-                <h2 className="text-base font-semibold text-foreground">Project Details</h2>
+            {/* Form */}
+            {isConnected && (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+                {/* Basic info */}
+                <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
+                  <h2 className="text-base font-semibold text-foreground">Project Details</h2>
 
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="title" className="text-sm font-medium text-foreground">
-                    Title
-                  </label>
-                  <input
-                    id="title"
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Build a Soroban smart contract"
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="description" className="text-sm font-medium text-foreground">
-                    Description
-                  </label>
-                  <textarea
-                    id="description"
-                    rows={5}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe the project scope, requirements, and any context freelancers need to apply..."
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors resize-none"
-                  />
-                </div>
-
-                {/* Skills tag input */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-foreground">
-                    Required Skills
-                    <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                      (optional)
-                    </span>
-                  </label>
-                  <div
-                    className="flex flex-wrap gap-2 min-h-[42px] w-full rounded-lg border border-border bg-background px-3 py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition-colors cursor-text"
-                    onClick={() => skillInputRef.current?.focus()}
-                  >
-                    {skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="inline-flex items-center gap-1 rounded-full bg-muted border border-border px-2.5 py-0.5 text-xs font-medium text-foreground"
-                      >
-                        {skill}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeSkill(skill);
-                          }}
-                          className="text-muted-foreground hover:text-foreground cursor-pointer"
-                          aria-label={`Remove ${skill}`}
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    ))}
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="title" className="text-sm font-medium text-foreground">
+                      Title
+                    </label>
                     <input
-                      ref={skillInputRef}
+                      id="title"
                       type="text"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      onKeyDown={handleSkillKeyDown}
-                      onBlur={() => addSkill(skillInput)}
-                      placeholder={skills.length === 0 ? "Type a skill and press Enter..." : ""}
-                      className="flex-1 min-w-[120px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="e.g. Build a Soroban smart contract"
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Press Enter or comma to add a skill.
-                  </p>
-                </div>
-              </div>
 
-              {/* Milestones */}
-              <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-base font-semibold text-foreground">Milestones</h2>
-                  <span className="text-xs text-muted-foreground">
-                    {milestones.length} milestone{milestones.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="description" className="text-sm font-medium text-foreground">
+                      Description
+                    </label>
+                    <textarea
+                      id="description"
+                      rows={5}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Describe the project scope, requirements, and any context freelancers need to apply..."
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors resize-none"
+                    />
+                  </div>
 
-                <div className="flex flex-col gap-4">
-                  {milestones.map((m, i) => (
+                  {/* Skills tag input */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-foreground">
+                      Required Skills
+                      <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                        (optional)
+                      </span>
+                    </label>
                     <div
-                      key={m.id}
-                      className="rounded-xl border border-border bg-muted/40 p-4 flex flex-col gap-3"
+                      className="flex flex-wrap gap-2 min-h-[42px] w-full rounded-lg border border-border bg-background px-3 py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition-colors cursor-text"
+                      onClick={() => skillInputRef.current?.focus()}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          Milestone {i + 1}
-                        </span>
-                        {milestones.length > 1 && (
+                      {skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="inline-flex items-center gap-1 rounded-full bg-muted border border-border px-2.5 py-0.5 text-xs font-medium text-foreground"
+                        >
+                          {skill}
                           <button
                             type="button"
-                            onClick={() => removeMilestone(m.id)}
-                            aria-label={`Remove milestone ${i + 1}`}
-                            className="rounded-md p-1 text-muted-foreground transition-colors hover:text-destructive cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeSkill(skill);
+                            }}
+                            className="text-muted-foreground hover:text-foreground cursor-pointer"
+                            aria-label={`Remove ${skill}`}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <X className="h-3 w-3" />
                           </button>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px] gap-3">
-                        <div className="flex flex-col gap-1.5">
-                          <label
-                            htmlFor={`title-${m.id}`}
-                            className="text-xs font-medium text-muted-foreground"
-                          >
-                            Title
-                          </label>
-                          <input
-                            id={`title-${m.id}`}
-                            type="text"
-                            value={m.title}
-                            onChange={(e) => updateMilestone(m.id, "title", e.target.value)}
-                            placeholder="e.g. Smart contract audit"
-                            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
-                          />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                          <label
-                            htmlFor={`amount-${m.id}`}
-                            className="text-xs font-medium text-muted-foreground"
-                          >
-                            Amount (XLM)
-                          </label>
-                          <input
-                            id={`amount-${m.id}`}
-                            type="number"
-                            min="0.0000001"
-                            step="any"
-                            value={m.xlmAmount}
-                            onChange={(e) => updateMilestone(m.id, "xlmAmount", e.target.value)}
-                            placeholder="500"
-                            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
-                          />
-                        </div>
-                      </div>
+                        </span>
+                      ))}
+                      <input
+                        ref={skillInputRef}
+                        type="text"
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)}
+                        onKeyDown={handleSkillKeyDown}
+                        onBlur={() => addSkill(skillInput)}
+                        placeholder={skills.length === 0 ? "Type a skill and press Enter..." : ""}
+                        className="flex-1 min-w-[120px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                      />
                     </div>
-                  ))}
+                    <p className="text-xs text-muted-foreground">
+                      Press Enter or comma to add a skill.
+                    </p>
+                  </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={addMilestone}
-                  className="inline-flex items-center gap-2 self-start rounded-lg border border-dashed border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Milestone
-                </button>
-              </div>
+                {/* Milestones */}
+                <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base font-semibold text-foreground">Milestones</h2>
+                    <span className="text-xs text-muted-foreground">
+                      {milestones.length} milestone{milestones.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
 
-              {/* Total */}
-              {totalXlm > 0 && (
-                <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-3">
-                  <span className="text-sm text-muted-foreground">Total project value</span>
-                  <span className="text-base font-bold text-primary">
-                    {totalXlm.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 7,
-                    })}{" "}
-                    XLM
-                  </span>
+                  <div className="flex flex-col gap-4">
+                    {milestones.map((m, i) => (
+                      <div
+                        key={m.id}
+                        className="rounded-xl border border-border bg-muted/40 p-4 flex flex-col gap-3"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            Milestone {i + 1}
+                          </span>
+                          {milestones.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeMilestone(m.id)}
+                              aria-label={`Remove milestone ${i + 1}`}
+                              className="rounded-md p-1 text-muted-foreground transition-colors hover:text-destructive cursor-pointer"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px] gap-3">
+                          <div className="flex flex-col gap-1.5">
+                            <label
+                              htmlFor={`title-${m.id}`}
+                              className="text-xs font-medium text-muted-foreground"
+                            >
+                              Title
+                            </label>
+                            <input
+                              id={`title-${m.id}`}
+                              type="text"
+                              value={m.title}
+                              onChange={(e) => updateMilestone(m.id, "title", e.target.value)}
+                              placeholder="e.g. Smart contract audit"
+                              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1.5">
+                            <label
+                              htmlFor={`amount-${m.id}`}
+                              className="text-xs font-medium text-muted-foreground"
+                            >
+                              Amount (XLM)
+                            </label>
+                            <input
+                              id={`amount-${m.id}`}
+                              type="number"
+                              min="0.0000001"
+                              step="any"
+                              value={m.xlmAmount}
+                              onChange={(e) => updateMilestone(m.id, "xlmAmount", e.target.value)}
+                              placeholder="500"
+                              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={addMilestone}
+                    className="inline-flex items-center gap-2 self-start rounded-lg border border-dashed border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Milestone
+                  </button>
                 </div>
-              )}
 
-              {/* Actions */}
-              <div className="flex items-center justify-between gap-4">
-                <button
-                  type="button"
-                  onClick={() => router.push("/client")}
-                  className="text-sm text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <Button type="submit" variant="primary" size="lg" loading={submitting}>
-                  {submitting ? "Posting..." : "Post Listing"}
-                </Button>
-              </div>
-            </form>
-          )}
+                {/* Total */}
+                {totalXlm > 0 && (
+                  <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-3">
+                    <span className="text-sm text-muted-foreground">Total project value</span>
+                    <span className="text-base font-bold text-primary">
+                      {totalXlm.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 7,
+                      })}{" "}
+                      XLM
+                    </span>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center justify-between gap-4">
+                  <button
+                    type="button"
+                    onClick={() => router.push("/client")}
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <Button type="submit" variant="primary" size="lg" loading={submitting}>
+                    {submitting ? "Posting..." : "Post Listing"}
+                  </Button>
+                </div>
+              </form>
+            )}
           </WalletGuard>
         </div>
       </main>

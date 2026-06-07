@@ -238,8 +238,8 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 
 ### Milestone Status Colors
 
-| Status   | Style                                                   |
-| -------- | ------------------------------------------------------- |
+| Status    | Style                                                   |
+| --------- | ------------------------------------------------------- |
 | Pending   | Gray — `bg-slate-100 text-slate-600`                    |
 | Funded    | Blue — `bg-blue-50 text-accent border-blue-200`         |
 | Completed | Amber — `bg-amber-50 text-amber-700 border-amber-200`   |
