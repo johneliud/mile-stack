@@ -176,7 +176,7 @@ export async function disputeMilestone(
       throw new Error("Transaction failed on-chain");
     }
   }
-  throw new Error("Transaction timed out — check your wallet for status");
+  throw new Error("Transaction timed out--. Check your wallet for status");
 }
 
 // Creates a new escrow project. Returns the assigned project ID.
@@ -243,7 +243,7 @@ export async function createProject(
       throw new Error("Transaction failed on-chain");
     }
   }
-  throw new Error("Transaction timed out — check your wallet for status");
+  throw new Error("Transaction timed out--. Check your wallet for status");
 }
 
 export async function resolveDispute(
@@ -301,7 +301,7 @@ export async function resolveDispute(
       throw new Error("Transaction failed on-chain");
     }
   }
-  throw new Error("Transaction timed out — check your wallet for status");
+  throw new Error("Transaction timed out--. Check your wallet for status");
 }
 
 export async function markComplete(
@@ -354,7 +354,7 @@ export async function markComplete(
       throw new Error("Transaction failed on-chain");
     }
   }
-  throw new Error("Transaction timed out — check your wallet for status");
+  throw new Error("Transaction timed out--. Check your wallet for status");
 }
 
 export async function fundMilestone(
@@ -408,7 +408,7 @@ export async function fundMilestone(
       throw new Error("Transaction failed on-chain");
     }
   }
-  throw new Error("Transaction timed out — check your wallet for status");
+  throw new Error("Transaction timed out--. Check your wallet for status");
 }
 
 export async function approveMilestone(
@@ -462,7 +462,7 @@ export async function approveMilestone(
       throw new Error("Transaction failed on-chain");
     }
   }
-  throw new Error("Transaction timed out — check your wallet for status");
+  throw new Error("Transaction timed out--. Check your wallet for status");
 }
 
 export async function getClientProjects(clientAddress: string): Promise<ContractProject[]> {

@@ -10,7 +10,7 @@ mod resolve_dispute;
 mod types;
 mod view_functions;
 
-// Shared test helpers — available to all submodules via `use super::helpers::*`
+// Shared test helpers - available to all submodules via `use super::helpers::*`
 pub mod helpers {
     use crate::{MileStackContract, MileStackContractClient, MilestoneStatus, Milestone, Project, DataKey};
     use soroban_sdk::{

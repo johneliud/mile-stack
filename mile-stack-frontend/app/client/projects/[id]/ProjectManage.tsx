@@ -160,7 +160,7 @@ function MilestoneCard({
       {showWaitingForFreelancer && (
         <div className="border-t border-border pt-4">
           <p className="text-xs text-muted-foreground">
-            Funds are in escrow — waiting for the freelancer to mark this milestone complete.
+            Funds are in escrow--. Waiting for the freelancer to mark this milestone complete.
           </p>
         </div>
       )}
@@ -272,7 +272,7 @@ export function ProjectManage({ projectId }: { projectId: number }) {
     setFundingIndex(milestoneIndex);
     try {
       await fundMilestone(address, projectId, milestoneIndex);
-      notify("Milestone funded — XLM is now held in escrow.", "success");
+      notify("Milestone funded--. XLM is now held in escrow.", "success");
       await fetchProject();
     } catch (err) {
       console.error("[ProjectManage] handleFund:", err);
@@ -287,7 +287,7 @@ export function ProjectManage({ projectId }: { projectId: number }) {
     setApprovingIndex(milestoneIndex);
     try {
       await approveMilestone(address, projectId, milestoneIndex);
-      notify("Milestone approved — XLM released to the freelancer.", "success");
+      notify("Milestone approved--. XLM released to the freelancer.", "success");
       await fetchProject();
     } catch (err) {
       console.error("[ProjectManage] handleApprove:", err);

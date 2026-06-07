@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { NotificationProvider } from "@/components/Notification";
 import { WalletProvider } from "@/contexts/WalletContext";
+import { RoleProvider } from "@/contexts/RoleContext";
+import { RoleSelector } from "@/components/RoleSelector";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -12,7 +14,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "MileStack - Milestone-Based Escrow for Global Talent",
+  title: "MileStack",
   description:
     "Connect with global employers through milestone-based XLM escrow payments on Stellar. Built for developers and digital professionals in the Global South.",
 };
@@ -26,7 +28,12 @@ export default function RootLayout({
     <html lang="en" className={`${plusJakartaSans.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
         <NotificationProvider>
-          <WalletProvider>{children}</WalletProvider>
+          <WalletProvider>
+            <RoleProvider>
+              <RoleSelector />
+              {children}
+            </RoleProvider>
+          </WalletProvider>
         </NotificationProvider>
       </body>
     </html>

@@ -194,7 +194,7 @@ stellar contract invoke \
   --resolver <RESOLVER_ADDRESS>
 ```
 
-Replace `<CONTRACT_ID>` with the ID from the previous step and `<RESOLVER_ADDRESS>` with the admin's Stellar public key. This call can only succeed once — any subsequent call will panic.
+Replace `<CONTRACT_ID>` with the ID from the previous step and `<RESOLVER_ADDRESS>` with the admin's Stellar public key. This call can only succeed once - any subsequent call will panic.
 
 ---
 
@@ -228,7 +228,7 @@ The freelancer calls `mark_complete` after finishing work on a `Funded` mileston
 | `mark_complete(caller, project_id, milestone_index)` | Freelancer | Signals work is done; transitions `Funded` → `Completed` |
 | `approve_milestone(project_id, milestone_index, token)` | Client | Releases escrowed XLM to the freelancer (must be `Completed`) |
 | `dispute_milestone(caller, project_id, milestone_index)` | Client or Freelancer | Flags milestone as `Disputed`, funds stay locked |
-| `resolve_dispute(caller, project_id, milestone_index, token, release_to_freelancer)` | Resolver | Settles a `Disputed` milestone — pays winner, marks `Released` |
+| `resolve_dispute(caller, project_id, milestone_index, token, release_to_freelancer)` | Resolver | Settles a `Disputed` milestone - pays winner, marks `Released` |
 | `get_project_count()` | None | Returns total number of projects |
 | `get_project(project_id)` | None | Fetch a full project by ID |
 | `get_milestone(project_id, milestone_index)` | None | Fetch a single milestone |
@@ -245,13 +245,15 @@ npm install
 
 # Copy environment variables
 cp .env.example .env.local
-# Fill in values — see Environment Variables section below
+# Fill in values - see Environment Variables section below
 
 # Start the development server
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+On first use, connect your Freighter wallet and select your role (**I want to hire** or **I want to work**). The role is saved in `localStorage` and determines your navigation, dashboard, and landing page CTAs. You can switch roles at any time via the role chip in the navbar.
 
 See [`mile-stack-frontend/README.md`](./mile-stack-frontend/README.md) for full frontend documentation including Supabase setup.
 
@@ -275,7 +277,7 @@ Create `.env.local` inside `mile-stack-frontend/` using `.env.example` as a temp
 
 ## Demo Accounts
 
-Pre-created and funded testnet accounts for testing and live demos. Testnet only — no real value.
+Pre-created and funded testnet accounts for testing and live demos. Testnet only - no real value.
 
 | Role | Public Key | Secret Key |
 |------|-----------|------------|

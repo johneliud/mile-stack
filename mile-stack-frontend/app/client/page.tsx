@@ -168,7 +168,7 @@ function ProjectCard({ project, name }: { project: ContractProject; name?: strin
       <p className="text-sm text-muted-foreground">
         Freelancer:{" "}
         <span className="font-medium text-foreground tabular-nums">
-          {project.milestones[0] ? truncateAddress(project.milestones[0].freelancer) : "—"}
+          {project.milestones[0] ? truncateAddress(project.milestones[0].freelancer) : "-"}
         </span>
       </p>
 

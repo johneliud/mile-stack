@@ -275,7 +275,7 @@ impl MileStackContract {
 
     /// Flag a funded milestone as disputed, locking XLM until resolved.
     /// Either the project client or the milestone freelancer may call this.
-    /// Milestone must be Funded. No funds are moved — escrow stays locked.
+    /// Milestone must be Funded. No funds are moved - escrow stays locked.
     pub fn dispute_milestone(
         env: Env,
         caller: Address,
@@ -302,7 +302,7 @@ impl MileStackContract {
             "milestone must be Funded to dispute"
         );
 
-        // Funds remain in the contract — no token transfer here.
+        // Funds remain in the contract - no token transfer here.
         let updated = Milestone {
             status: MilestoneStatus::Disputed,
             ..milestone

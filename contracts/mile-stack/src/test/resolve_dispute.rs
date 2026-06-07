@@ -22,7 +22,7 @@ fn test_initialize_sets_resolver() {
     let resolver = Address::generate(&env);
     contract.initialize(&resolver);
 
-    // Verify resolver is stored — attempt to re-initialize should panic
+    // Verify resolver is stored - attempt to re-initialize should panic
     let result = contract.try_initialize(&resolver);
     assert!(result.is_err(), "double initialize must fail");
 }

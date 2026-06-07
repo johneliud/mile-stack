@@ -3,20 +3,45 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Wallet, ExternalLink } from "lucide-react";
+import { Menu, X, Wallet, ExternalLink, Briefcase, Code2, ArrowLeftRight } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
+import { useRole, type UserRole } from "@/contexts/RoleContext";
 import { Button } from "@/components/ui/Button";
 
-const NAV_LINKS = [
-  // { label: "Features", href: "/#features" },
-  // { label: "How it works", href: "/#how-it-works" },
-  { label: "Projects", href: "/projects" },
-  { label: "Freelancer", href: "/freelancer" },
-  { label: "Client", href: "/client" },
-];
+interface NavLink {
+  label: string;
+  href: string;
+}
+
+function getNavLinks(role: UserRole | null): NavLink[] {
+  const base: NavLink = { label: "Browse Projects", href: "/projects" };
+  if (role === "client") return [base, { label: "Dashboard", href: "/client" }];
+  if (role === "freelancer") return [base, { label: "Dashboard", href: "/freelancer" }];
+  return [base];
+}
 
 function truncateAddress(addr: string) {
   return `${addr.slice(0, 4)}...${addr.slice(-4)}`;
+}
+
+function RoleChip({ onSwitch }: { onSwitch: () => void }) {
+  const { role } = useRole();
+  if (!role) return null;
+  return (
+    <button
+      onClick={onSwitch}
+      title="Switch role"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors duration-150 hover:border-accent hover:bg-accent/5 cursor-pointer"
+    >
+      {role === "client" ? (
+        <Briefcase className="h-3.5 w-3.5 text-accent" />
+      ) : (
+        <Code2 className="h-3.5 w-3.5 text-accent" />
+      )}
+      {role === "client" ? "Client" : "Freelancer"}
+      <ArrowLeftRight className="h-3 w-3 text-muted-foreground" />
+    </button>
+  );
 }
 
 function WalletButton({ onClose }: { onClose?: () => void }) {
@@ -33,7 +58,6 @@ function WalletButton({ onClose }: { onClose?: () => void }) {
     disconnect();
   };
 
-  // Still detecting whether Freighter is installed
   if (isFreighterInstalled === null) {
     return (
       <Button variant="outline" size="sm" disabled>
@@ -43,7 +67,6 @@ function WalletButton({ onClose }: { onClose?: () => void }) {
     );
   }
 
-  // Freighter not installed
   if (!isFreighterInstalled) {
     return (
       <a
@@ -58,7 +81,6 @@ function WalletButton({ onClose }: { onClose?: () => void }) {
     );
   }
 
-  // Connected — show address + disconnect
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-2">
@@ -76,7 +98,6 @@ function WalletButton({ onClose }: { onClose?: () => void }) {
     );
   }
 
-  // Not connected
   return (
     <Button variant="outline" size="sm" loading={isConnecting} onClick={handleConnect}>
       <Wallet className="h-4 w-4" aria-hidden="true" />
@@ -158,9 +179,12 @@ function isActive(href: string, pathname: string): boolean {
 
 export function Navbar() {
   const pathname = usePathname();
+  const { role, clearRole } = useRole();
   const [menuOpen, setMenuOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const navLinks = getNavLinks(role);
 
   const closeMenu = useCallback(() => {
     setClosing(true);
@@ -211,7 +235,7 @@ export function Navbar() {
 
           {/* Desktop nav */}
           <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map(({ label, href }) => {
+            {navLinks.map(({ label, href }) => {
               const active = isActive(href, pathname);
               return (
                 <Link
@@ -229,12 +253,13 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Desktop wallet */}
+          {/* Desktop right: role chip + wallet */}
           <div className="hidden md:flex items-center gap-3">
+            <RoleChip onSwitch={clearRole} />
             <WalletButton />
           </div>
 
-          {/* Hamburger — mobile only */}
+          {/* Hamburger - mobile only */}
           <button
             className="md:hidden rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
             onClick={() => setMenuOpen((v) => !v)}
@@ -286,7 +311,7 @@ export function Navbar() {
 
             {/* Nav links */}
             <nav aria-label="Mobile navigation" className="flex flex-col px-6 py-4">
-              {NAV_LINKS.map(({ label, href }) => {
+              {navLinks.map(({ label, href }) => {
                 const active = isActive(href, pathname);
                 return (
                   <Link
@@ -303,6 +328,25 @@ export function Navbar() {
                   </Link>
                 );
               })}
+
+              {/* Mobile role switcher */}
+              {role && (
+                <button
+                  onClick={() => {
+                    clearRole();
+                    closeMenu();
+                  }}
+                  className="mt-4 inline-flex items-center gap-2 self-start rounded-lg border border-border bg-muted px-3 py-2 text-xs font-medium text-foreground transition-colors hover:border-accent hover:bg-accent/5 cursor-pointer"
+                >
+                  {role === "client" ? (
+                    <Briefcase className="h-3.5 w-3.5 text-accent" />
+                  ) : (
+                    <Code2 className="h-3.5 w-3.5 text-accent" />
+                  )}
+                  {role === "client" ? "Viewing as Client" : "Viewing as Freelancer"}
+                  <ArrowLeftRight className="h-3 w-3 text-muted-foreground" />
+                </button>
+              )}
             </nav>
 
             {/* Wallet at the bottom */}

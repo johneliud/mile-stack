@@ -140,7 +140,7 @@ async function seedListing(listing: DemoListing, appMessage: string): Promise<st
     .maybeSingle();
 
   if (existingApp) {
-    console.log(`  Application already exists — skipping.`);
+    console.log(`  Application already exists--. Skipping.`);
   } else {
     const { error: appError } = await sb.from("applications").insert({
       listing_id: listingId,
