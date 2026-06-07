@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Plus, Trash2, CheckCircle, ExternalLink } from "lucide-react";
@@ -25,7 +25,7 @@ function newMilestone(): MilestoneInput {
   return { id: crypto.randomUUID(), title: "", xlmAmount: "" };
 }
 
-export default function CreateProjectPage() {
+function CreateProjectForm() {
   const { address, isConnected } = useWallet();
   const { notify } = useNotification();
   const searchParams = useSearchParams();
@@ -309,5 +309,13 @@ export default function CreateProjectPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function CreateProjectPage() {
+  return (
+    <Suspense>
+      <CreateProjectForm />
+    </Suspense>
   );
 }
