@@ -17,6 +17,7 @@ import {
   type ContractProject,
   type MilestoneStatus,
 } from "@/lib/contract";
+import { getProjectNamesByIds } from "@/lib/listings";
 
 const MILESTONE_BADGE_VARIANT: Record<
   MilestoneStatus,
@@ -109,6 +110,7 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
   const { notify } = useNotification();
 
   const [project, setProject] = useState<ContractProject | null>(null);
+  const [projectName, setProjectName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [disputingIndex, setDisputingIndex] = useState<number | null>(null);
@@ -117,8 +119,12 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
     setLoading(true);
     setError(null);
     try {
-      const data = await getProject(projectId);
+      const [data, names] = await Promise.all([
+        getProject(projectId),
+        getProjectNamesByIds([projectId]).catch(() => ({}) as Record<number, string>),
+      ]);
       setProject(data);
+      setProjectName(names[projectId] ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load project");
     } finally {
@@ -208,9 +214,11 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
             <div className="flex flex-col gap-8">
               {/* Header */}
               <div className="flex flex-col gap-1">
-                <h1 className="text-3xl font-bold text-primary">Project #{String(project.id)}</h1>
+                <h1 className="text-3xl font-bold text-primary">
+                  {projectName ?? `Project #${String(project.id)}`}
+                </h1>
                 <p className="text-sm text-muted-foreground">
-                  Created {formatDate(project.created_at)}
+                  #{String(project.id)} &middot; Created {formatDate(project.created_at)}
                 </p>
               </div>
 
