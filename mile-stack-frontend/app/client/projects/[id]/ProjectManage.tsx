@@ -83,6 +83,7 @@ function MilestoneCard({
   const showFundButton = canFund && milestone.status === "Pending";
   const showWaitingForFreelancer = milestone.status === "Funded";
   const showApproveButton = canApprove && milestone.status === "Completed";
+  const showDisputed = milestone.status === "Disputed";
 
   return (
     <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
@@ -216,6 +217,17 @@ function MilestoneCard({
               Cancel
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Disputed state */}
+      {showDisputed && (
+        <div className="border-t border-border pt-4 flex items-start gap-2">
+          <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" aria-hidden="true" />
+          <p className="text-xs text-muted-foreground">
+            This milestone is disputed. Funds are locked in escrow pending resolution by the
+            platform. Contact support to proceed.
+          </p>
         </div>
       )}
     </div>
