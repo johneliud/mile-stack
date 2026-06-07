@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePolling } from "@/hooks/usePolling";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -245,27 +246,37 @@ export function ProjectManage({ projectId }: { projectId: number }) {
   const [fundingIndex, setFundingIndex] = useState<number | null>(null);
   const [approvingIndex, setApprovingIndex] = useState<number | null>(null);
 
-  const fetchProject = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [data, names] = await Promise.all([
-        getProject(projectId),
-        getProjectNamesByIds([projectId]).catch(() => ({}) as Record<number, string>),
-      ]);
-      setProject(data);
-      setProjectName(names[projectId] ?? null);
-    } catch (err) {
-      console.error("[ProjectManage] fetchProject:", err);
-      setError(err instanceof Error ? err.message : "Failed to load project");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loadProject = useCallback(
+    async (silent = false) => {
+      if (!silent) setLoading(true);
+      setError(null);
+      try {
+        const [data, names] = await Promise.all([
+          getProject(projectId),
+          getProjectNamesByIds([projectId]).catch(() => ({}) as Record<number, string>),
+        ]);
+        setProject(data);
+        setProjectName(names[projectId] ?? null);
+      } catch (err) {
+        console.error("[ProjectManage] loadProject:", err);
+        if (!silent) setError(err instanceof Error ? err.message : "Failed to load project");
+      } finally {
+        if (!silent) setLoading(false);
+      }
+    },
+    [projectId],
+  );
 
+  // Initial load
   useEffect(() => {
-    fetchProject();
-  }, [projectId]);
+    loadProject();
+  }, [loadProject]);
+
+  // Poll every 5s while no transaction is in-flight
+  const isBusy = fundingIndex !== null || approvingIndex !== null;
+  usePolling(() => loadProject(true), 5000, isBusy);
+
+  const fetchProject = () => loadProject();
 
   const handleFund = async (milestoneIndex: number) => {
     if (!address) return;
