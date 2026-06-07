@@ -17,6 +17,7 @@ import {
   type ContractProject,
   type MilestoneStatus,
 } from "@/lib/contract";
+import { getProjectNamesByIds } from "@/lib/listings";
 
 function truncateAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-6)}`;
@@ -64,7 +65,7 @@ function MilestoneRow({ milestone }: { milestone: ContractMilestone }) {
   );
 }
 
-function ProjectCard({ project }: { project: ContractProject }) {
+function ProjectCard({ project, name }: { project: ContractProject; name?: string }) {
   const total = totalProjectValue(project);
   const overall = projectOverallStatus(project);
 
@@ -72,7 +73,10 @@ function ProjectCard({ project }: { project: ContractProject }) {
     <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col gap-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-base font-semibold text-foreground">Project #{String(project.id)}</h3>
+          <h3 className="text-base font-semibold text-foreground">
+            {name ?? `Project #${String(project.id)}`}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">#{String(project.id)}</p>
           <p className="text-sm text-muted-foreground mt-0.5">
             Created {formatDate(project.created_at)}
           </p>
@@ -117,6 +121,7 @@ function ProjectCard({ project }: { project: ContractProject }) {
 export default function FreelancerDashboard() {
   const { address, isConnected, isFreighterInstalled, connect } = useWallet();
   const [projects, setProjects] = useState<ContractProject[]>([]);
+  const [projectNames, setProjectNames] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -126,6 +131,9 @@ export default function FreelancerDashboard() {
     try {
       const data = await getFreelancerProjects(addr);
       setProjects(data);
+      const ids = data.map((p) => Number(p.id));
+      const names = await getProjectNamesByIds(ids).catch(() => ({}) as Record<number, string>);
+      setProjectNames(names);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load projects");
     } finally {
@@ -232,7 +240,11 @@ export default function FreelancerDashboard() {
           {isConnected && !loading && !error && projects.length > 0 && (
             <div className="grid gap-6 sm:grid-cols-2">
               {projects.map((project) => (
-                <ProjectCard key={String(project.id)} project={project} />
+                <ProjectCard
+                  key={String(project.id)}
+                  project={project}
+                  name={projectNames[Number(project.id)]}
+                />
               ))}
             </div>
           )}
