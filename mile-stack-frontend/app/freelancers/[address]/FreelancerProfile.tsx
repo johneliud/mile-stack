@@ -147,7 +147,7 @@ export function FreelancerProfile({ address }: { address: string }) {
                         Hire {profile.name?.split(" ")[0]}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Create a project and assign them directly — funds held in escrow.
+                        Create a project and assign them directly. Funds held in escrow.
                       </p>
                     </div>
                     <Link href={`/client/projects/new?freelancer=${profile.wallet_address}`}>
