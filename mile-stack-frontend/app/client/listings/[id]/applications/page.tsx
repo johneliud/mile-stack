@@ -201,7 +201,7 @@ export default function ApplicationsPage() {
         address,
         listing.title,
       );
-      notify(`Project #${projectId} created — freelancer accepted.`, "success");
+      notify(`Project #${projectId} created - freelancer accepted.`, "success");
       router.push(`/client/projects/${projectId}`);
     } catch (err) {
       console.error("[Applications] handleAccept:", err);

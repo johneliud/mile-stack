@@ -259,7 +259,7 @@ export function Navbar() {
             <WalletButton />
           </div>
 
-          {/* Hamburger — mobile only */}
+          {/* Hamburger - mobile only */}
           <button
             className="md:hidden rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
             onClick={() => setMenuOpen((v) => !v)}

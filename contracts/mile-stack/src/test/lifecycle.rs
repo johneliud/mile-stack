@@ -4,7 +4,7 @@ use soroban_sdk::{testutils::Address as _, token::Client as TokenClient, Address
 
 #[test]
 fn test_only_client_can_fund() {
-    // No mock_all_auths — client auth is NOT provided.
+    // No mock_all_auths - client auth is NOT provided.
     let env = make_env();
     let contract_id = env.register(MileStackContract, ());
     let contract = MileStackContractClient::new(&env, &contract_id);
@@ -21,7 +21,7 @@ fn test_only_client_can_fund() {
 
 #[test]
 fn test_only_client_can_approve() {
-    // No mock_all_auths — client auth is NOT provided.
+    // No mock_all_auths - client auth is NOT provided.
     let env = make_env();
     let contract_id = env.register(MileStackContract, ());
     let contract = MileStackContractClient::new(&env, &contract_id);

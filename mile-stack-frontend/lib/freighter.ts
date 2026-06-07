@@ -27,7 +27,7 @@ export async function checkWalletAllowed(): Promise<boolean> {
   return result.isAllowed;
 }
 
-// Silent address fetch — only works if the site is already allowed by Freighter.
+// Silent address fetch - only works if the site is already allowed by Freighter.
 export async function getWalletAddress(): Promise<string> {
   const result = await getAddress();
   if (result.error) throw new Error(extractErrorMessage(result.error));

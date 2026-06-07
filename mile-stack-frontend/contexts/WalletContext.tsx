@@ -44,7 +44,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       .catch(() => setIsFreighterInstalled(false));
   }, []);
 
-  // Detect account switches in Freighter — poll every 3s and re-check on tab focus
+  // Detect account switches in Freighter - poll every 3s and re-check on tab focus
   useEffect(() => {
     if (!address) return;
 
