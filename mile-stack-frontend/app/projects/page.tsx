@@ -35,7 +35,7 @@ function ListingCard({ listing }: { listing: Listing }) {
           {listing.skills.map((skill) => (
             <span
               key={skill}
-              className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
+              className="rounded-full border border-accent/20 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent"
             >
               {skill}
             </span>
@@ -46,7 +46,7 @@ function ListingCard({ listing }: { listing: Listing }) {
       <div className="border-t border-border pt-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span>
-            <span className="font-semibold text-primary">
+            <span className="font-semibold text-accent">
               {listing.total_xlm.toLocaleString("en-US", { maximumFractionDigits: 2 })} XLM
             </span>
           </span>

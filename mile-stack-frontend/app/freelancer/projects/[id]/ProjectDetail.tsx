@@ -89,7 +89,7 @@ function MilestoneCard({
     <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xs font-bold text-accent">
             {index + 1}
           </span>
           <h3 className="text-base font-semibold text-foreground">{milestone.title}</h3>
@@ -299,7 +299,7 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
                     Total Value
                   </p>
-                  <p className="text-lg font-bold text-primary">
+                  <p className="text-lg font-bold text-accent">
                     {stroopsToXlm(project.milestones.reduce((s, m) => s + m.amount, 0n))} XLM
                   </p>
                 </div>

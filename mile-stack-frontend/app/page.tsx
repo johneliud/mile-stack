@@ -99,6 +99,9 @@ export default function Home() {
           <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-16 md:py-24">
             <ScrollReveal>
               <div className="max-w-2xl mb-12">
+                <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-3">
+                  Features
+                </p>
                 <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                   Built for clarity
                 </h2>
@@ -113,7 +116,9 @@ export default function Home() {
               {FEATURES.map(({ icon: Icon, title, description }, idx) => (
                 <ScrollReveal key={title} delay={idx * 80}>
                   <div className="h-full rounded-xl border border-border bg-card p-6">
-                    <Icon className="mb-4 h-6 w-6 text-primary" aria-hidden="true" />
+                    <div className="bg-accent/10 rounded-lg p-2.5 w-fit mb-4">
+                      <Icon className="h-6 w-6 text-accent" aria-hidden="true" />
+                    </div>
                     <h3 className="text-base font-semibold text-foreground mb-2">{title}</h3>
                     <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
                   </div>
@@ -128,6 +133,9 @@ export default function Home() {
           <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-16 md:py-24">
             <ScrollReveal>
               <div className="max-w-2xl mb-12">
+                <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-3">
+                  Process
+                </p>
                 <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                   How it works
                 </h2>
@@ -142,7 +150,7 @@ export default function Home() {
               {STEPS.map(({ number, title, body }, idx) => (
                 <ScrollReveal key={number} delay={idx * 100}>
                   <div className="flex flex-col gap-4 py-10 md:px-8 md:py-0 md:first:pl-0 md:last:pr-0">
-                    <span className="text-4xl font-black tabular-nums text-primary/20 md:text-5xl">
+                    <span className="text-4xl font-black tabular-nums text-accent md:text-5xl">
                       {number}
                     </span>
                     <h3 className="text-base font-semibold text-foreground">{title}</h3>

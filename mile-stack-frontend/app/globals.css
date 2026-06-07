@@ -42,11 +42,18 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-ring: var(--ring);
   --font-sans: var(--font-plus-jakarta-sans);
+  --font-heading: var(--font-sora);
 }
 
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 4rem; /* offset for sticky header */
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading, var(--font-sans));
 }
 
 body {

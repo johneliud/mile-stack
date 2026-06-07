@@ -127,7 +127,7 @@ export function FreelancerProfile({ address }: { address: string }) {
                       {profile.skills.map((skill) => (
                         <span
                           key={skill}
-                          className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
+                          className="rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-xs font-medium text-accent"
                         >
                           {skill}
                         </span>

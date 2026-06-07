@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Sora } from "next/font/google";
 import { NotificationProvider } from "@/components/Notification";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { RoleProvider } from "@/contexts/RoleContext";
@@ -11,6 +11,13 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   display: "swap",
   weight: ["300", "400", "500", "600", "700"],
+});
+
+const sora = Sora({
+  variable: "--font-sora",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -25,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plusJakartaSans.variable} h-full`}>
+    <html lang="en" className={`${plusJakartaSans.variable} ${sora.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
         <NotificationProvider>
           <WalletProvider>
