@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Wallet, FolderOpen, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
+import { FolderOpen, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { useWallet } from "@/contexts/WalletContext";
+import { WalletGuard } from "@/components/WalletGuard";
 import {
   getFreelancerProjects,
   stroopsToXlm,
@@ -119,7 +120,7 @@ function ProjectCard({ project, name }: { project: ContractProject; name?: strin
 }
 
 export default function FreelancerDashboard() {
-  const { address, isConnected, isFreighterInstalled, connect } = useWallet();
+  const { address, isConnected } = useWallet();
   const [projects, setProjects] = useState<ContractProject[]>([]);
   const [projectNames, setProjectNames] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(false);
@@ -162,34 +163,7 @@ export default function FreelancerDashboard() {
             </p>
           </div>
 
-          {/* Wallet not connected */}
-          {!isConnected && (
-            <div className="rounded-2xl border border-border bg-card p-10 text-center">
-              <Wallet className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
-              <h2 className="text-lg font-semibold text-foreground">Connect your wallet</h2>
-              <p className="mt-1 text-sm text-muted-foreground mb-6">
-                {isFreighterInstalled === false
-                  ? "Install the Freighter extension to get started."
-                  : "Connect your Freighter wallet to view your active projects."}
-              </p>
-              {isFreighterInstalled === false ? (
-                <a
-                  href="https://www.freighter.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-                >
-                  Install Freighter
-                </a>
-              ) : (
-                <Button variant="primary" onClick={connect}>
-                  <Wallet className="h-4 w-4" />
-                  Connect Wallet
-                </Button>
-              )}
-            </div>
-          )}
-
+          <WalletGuard message="Connect your Freighter wallet to view your active projects.">
           {/* Loading */}
           {isConnected && loading && (
             <div className="flex flex-col items-center justify-center py-24 gap-3">
@@ -249,6 +223,7 @@ export default function FreelancerDashboard() {
               ))}
             </div>
           )}
+          </WalletGuard>
         </div>
       </main>
 
