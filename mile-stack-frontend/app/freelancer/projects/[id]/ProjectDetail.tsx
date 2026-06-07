@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, AlertTriangle, RefreshCw, AlertCircle, Wallet, FolderOpen } from "lucide-react";
+import {
+  ArrowLeft,
+  AlertTriangle,
+  Check,
+  RefreshCw,
+  AlertCircle,
+  Wallet,
+  FolderOpen,
+} from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/Badge";
@@ -12,6 +20,7 @@ import { useWallet } from "@/contexts/WalletContext";
 import {
   getProject,
   disputeMilestone,
+  markComplete,
   stroopsToXlm,
   type ContractMilestone,
   type ContractProject,
@@ -21,11 +30,11 @@ import { getProjectNamesByIds } from "@/lib/listings";
 
 const MILESTONE_BADGE_VARIANT: Record<
   MilestoneStatus,
-  "pending" | "funded" | "released" | "disputed"
+  "pending" | "funded" | "completed" | "released" | "disputed"
 > = {
   Pending: "pending",
   Funded: "funded",
-  Completed: "released",
+  Completed: "completed",
   Released: "released",
   Disputed: "disputed",
 };
@@ -48,19 +57,32 @@ function canDispute(milestone: ContractMilestone, walletAddress: string | null):
   return isFreelancer && (milestone.status === "Funded" || milestone.status === "Completed");
 }
 
+function canMarkComplete(milestone: ContractMilestone, walletAddress: string | null): boolean {
+  if (!walletAddress) return false;
+  return (
+    milestone.freelancer.toLowerCase() === walletAddress.toLowerCase() &&
+    milestone.status === "Funded"
+  );
+}
+
 function MilestoneCard({
   milestone,
   index,
   walletAddress,
+  isMarkingComplete,
   isDisputing,
+  onMarkComplete,
   onDispute,
 }: {
   milestone: ContractMilestone;
   index: number;
   walletAddress: string | null;
+  isMarkingComplete: boolean;
   isDisputing: boolean;
+  onMarkComplete: (index: number) => void;
   onDispute: (index: number) => void;
 }) {
+  const showMarkComplete = canMarkComplete(milestone, walletAddress);
   const showDispute = canDispute(milestone, walletAddress);
 
   return (
@@ -88,17 +110,30 @@ function MilestoneCard({
         </div>
       </div>
 
-      {showDispute && (
-        <div className="border-t border-border pt-4">
-          <Button
-            variant="destructive"
-            size="sm"
-            loading={isDisputing}
-            onClick={() => onDispute(index)}
-          >
-            <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-            {isDisputing ? "Submitting..." : "Raise Dispute"}
-          </Button>
+      {(showMarkComplete || showDispute) && (
+        <div className="border-t border-border pt-4 flex items-center gap-2 flex-wrap">
+          {showMarkComplete && (
+            <Button
+              variant="primary"
+              size="sm"
+              loading={isMarkingComplete}
+              onClick={() => onMarkComplete(index)}
+            >
+              <Check className="h-4 w-4" aria-hidden="true" />
+              {isMarkingComplete ? "Submitting..." : "Mark as Complete"}
+            </Button>
+          )}
+          {showDispute && (
+            <Button
+              variant="destructive"
+              size="sm"
+              loading={isDisputing}
+              onClick={() => onDispute(index)}
+            >
+              <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+              {isDisputing ? "Submitting..." : "Raise Dispute"}
+            </Button>
+          )}
         </div>
       )}
     </div>
@@ -113,6 +148,7 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
   const [projectName, setProjectName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [markingCompleteIndex, setMarkingCompleteIndex] = useState<number | null>(null);
   const [disputingIndex, setDisputingIndex] = useState<number | null>(null);
 
   const fetchProject = async () => {
@@ -126,6 +162,7 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
       setProject(data);
       setProjectName(names[projectId] ?? null);
     } catch (err) {
+      console.error("[ProjectDetail] fetchProject:", err);
       setError(err instanceof Error ? err.message : "Failed to load project");
     } finally {
       setLoading(false);
@@ -136,6 +173,21 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
     fetchProject();
   }, [projectId]);
 
+  const handleMarkComplete = async (milestoneIndex: number) => {
+    if (!address) return;
+    setMarkingCompleteIndex(milestoneIndex);
+    try {
+      await markComplete(address, projectId, milestoneIndex);
+      notify("Milestone marked as complete — waiting for client approval.", "success");
+      await fetchProject();
+    } catch (err) {
+      console.error("[ProjectDetail] handleMarkComplete:", err);
+      notify(err instanceof Error ? err.message : "Failed to mark milestone complete", "error");
+    } finally {
+      setMarkingCompleteIndex(null);
+    }
+  };
+
   const handleDispute = async (milestoneIndex: number) => {
     if (!address) return;
     setDisputingIndex(milestoneIndex);
@@ -144,6 +196,7 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
       notify("Dispute raised — funds are now locked until resolved.", "success");
       await fetchProject();
     } catch (err) {
+      console.error("[ProjectDetail] handleDispute:", err);
       notify(err instanceof Error ? err.message : "Failed to raise dispute", "error");
     } finally {
       setDisputingIndex(null);
@@ -271,7 +324,9 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
                       milestone={m}
                       index={i}
                       walletAddress={address}
+                      isMarkingComplete={markingCompleteIndex === i}
                       isDisputing={disputingIndex === i}
+                      onMarkComplete={handleMarkComplete}
                       onDispute={handleDispute}
                     />
                   ))}
