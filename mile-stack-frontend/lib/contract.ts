@@ -246,6 +246,59 @@ export async function createProject(
   throw new Error("Transaction timed out — check your wallet for status");
 }
 
+export async function markComplete(
+  walletAddress: string,
+  projectId: number,
+  milestoneIndex: number,
+): Promise<void> {
+  if (!CONTRACT_ID) throw new Error("CONTRACT_NOT_CONFIGURED");
+
+  const server = new rpc.Server(RPC_URL, { allowHttp: true });
+  const contract = new Contract(CONTRACT_ID);
+
+  const account = await server.getAccount(walletAddress);
+
+  const tx = new TransactionBuilder(account, {
+    fee: "300000",
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
+    .addOperation(
+      contract.call(
+        "mark_complete",
+        new Address(walletAddress).toScVal(),
+        nativeToScVal(BigInt(projectId), { type: "u64" }),
+        nativeToScVal(milestoneIndex, { type: "u32" }),
+      ),
+    )
+    .setTimeout(30)
+    .build();
+
+  const simResult = await server.simulateTransaction(tx);
+  if (rpc.Api.isSimulationError(simResult)) throw new Error(simResult.error);
+
+  const assembled = rpc.assembleTransaction(tx, simResult).build();
+  const signedXdr = await signTx(assembled.toXDR(), NETWORK_PASSPHRASE);
+
+  const signedTx = TransactionBuilder.fromXDR(signedXdr, NETWORK_PASSPHRASE);
+  const submitResult = await server.sendTransaction(signedTx);
+
+  if (submitResult.status === "ERROR") {
+    throw new Error(
+      `Transaction submission failed: ${JSON.stringify(submitResult.errorResult ?? "")}`,
+    );
+  }
+
+  for (let i = 0; i < 10; i++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    const txResult = await server.getTransaction(submitResult.hash);
+    if (txResult.status === rpc.Api.GetTransactionStatus.SUCCESS) return;
+    if (txResult.status === rpc.Api.GetTransactionStatus.FAILED) {
+      throw new Error("Transaction failed on-chain");
+    }
+  }
+  throw new Error("Transaction timed out — check your wallet for status");
+}
+
 export async function fundMilestone(
   walletAddress: string,
   projectId: number,
