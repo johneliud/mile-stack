@@ -13,7 +13,7 @@ interface NavLink {
   href: string;
 }
 
-function getNavLinks(role: UserRole | null): NavLink[] {
+function getNavLinks(role: UserRole | null, isConnected: boolean): NavLink[] {
   const browse: NavLink = { label: "Browse Projects", href: "/projects" };
   if (role === "client")
     return [
@@ -21,12 +21,12 @@ function getNavLinks(role: UserRole | null): NavLink[] {
       { label: "Find Talent", href: "/freelancers" },
       { label: "Dashboard", href: "/client" },
     ];
-  if (role === "freelancer")
-    return [
-      browse,
-      { label: "My Profile", href: "/freelancer/profile" },
-      { label: "Dashboard", href: "/freelancer" },
-    ];
+  if (role === "freelancer") {
+    const links: NavLink[] = [browse];
+    if (isConnected) links.push({ label: "My Profile", href: "/freelancer/profile" });
+    links.push({ label: "Dashboard", href: "/freelancer" });
+    return links;
+  }
   return [browse];
 }
 
@@ -190,11 +190,12 @@ function isActive(href: string, pathname: string): boolean {
 export function Navbar() {
   const pathname = usePathname();
   const { role, clearRole } = useRole();
+  const { isConnected } = useWallet();
   const [menuOpen, setMenuOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const navLinks = getNavLinks(role);
+  const navLinks = getNavLinks(role, isConnected);
 
   const closeMenu = useCallback(() => {
     setClosing(true);
