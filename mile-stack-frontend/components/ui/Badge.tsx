@@ -1,4 +1,4 @@
-type Variant = "default" | "pending" | "funded" | "released" | "disputed";
+type Variant = "default" | "pending" | "funded" | "completed" | "released" | "disputed";
 
 interface BadgeProps {
   variant?: Variant;
@@ -10,6 +10,7 @@ const variantClasses: Record<Variant, string> = {
   default: "bg-muted text-muted-foreground",
   pending: "bg-slate-100 text-slate-600",
   funded: "bg-blue-50 text-accent border border-blue-200",
+  completed: "bg-amber-50 text-amber-700 border border-amber-200",
   released: "bg-emerald-50 text-success border border-emerald-200",
   disputed: "bg-red-50 text-destructive border border-red-200",
 };
