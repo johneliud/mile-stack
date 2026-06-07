@@ -8,8 +8,8 @@ import { useWallet } from "@/contexts/WalletContext";
 import { Button } from "@/components/ui/Button";
 
 const NAV_LINKS = [
-  { label: "Features", href: "/#features" },
-  { label: "How it works", href: "/#how-it-works" },
+  // { label: "Features", href: "/#features" },
+  // { label: "How it works", href: "/#how-it-works" },
   { label: "Projects", href: "/projects" },
   { label: "Freelancer", href: "/freelancer" },
   { label: "Client", href: "/client" },
