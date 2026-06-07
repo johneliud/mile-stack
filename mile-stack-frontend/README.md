@@ -43,20 +43,27 @@ mile-stack-frontend/
 │   │   │   │   └── page.tsx                    # Post a new project listing
 │   │   │   └── [id]/
 │   │   │       └── applications/
-│   │   │           └── page.tsx                # Review freelancer applications
+│   │   │           └── page.tsx                # Review freelancer applications (address links to profile)
 │   │   └── projects/
 │   │       ├── new/
-│   │       │   └── page.tsx                    # Direct project creation (known freelancer)
+│   │       │   └── page.tsx                    # Direct project creation; accepts ?freelancer= query param
 │   │       └── [id]/
 │   │           ├── page.tsx                    # Server Component - resolves dynamic params
 │   │           └── ProjectManage.tsx           # Client Component - fund / approve / dispute
 │   ├── freelancer/
 │   │   ├── page.tsx                            # Freelancer Dashboard - active projects
+│   │   ├── profile/
+│   │   │   └── page.tsx                        # Freelancer profile editor (name, bio, skills, links)
 │   │   └── projects/[id]/
 │   │       ├── page.tsx                        # Server Component - resolves dynamic params
 │   │       └── ProjectDetail.tsx               # Client Component - milestones + mark complete + dispute
+│   ├── freelancers/
+│   │   ├── page.tsx                            # Talent browse - search + skill filter across all profiles
+│   │   └── [address]/
+│   │       ├── page.tsx                        # Server Component - resolves dynamic params
+│   │       └── FreelancerProfile.tsx           # Public profile view - bio, skills, links, hire CTA
 │   ├── projects/
-│   │   ├── page.tsx                            # Public listings browser (no wallet required)
+│   │   ├── page.tsx                            # Public listings browser with search + skill filter chips
 │   │   └── [id]/
 │   │       ├── page.tsx                        # Server Component - resolves dynamic params
 │   │       └── ListingDetail.tsx               # Client Component - listing detail + apply
@@ -82,6 +89,7 @@ mile-stack-frontend/
 ├── lib/
 │   ├── contract.ts                             # Soroban contract queries and transactions
 │   ├── listings.ts                             # Supabase CRUD - listings, applications, project metadata
+│   ├── profiles.ts                             # Supabase CRUD - freelancer profiles (get, upsert, list)
 │   └── supabase.ts                             # Lazy Supabase client singleton
 ├── public/
 │   └── favicon.svg
@@ -179,9 +187,28 @@ alter table project_metadata add constraint project_metadata_name_nonempty
 -- Prevent duplicate applications
 create unique index applications_unique_per_listing
   on applications (listing_id, freelancer_address);
+
+-- Freelancer profiles table
+create table freelancer_profiles (
+  wallet_address text primary key,
+  name text,
+  bio text,
+  skills text[] default '{}',
+  github_url text,
+  portfolio_url text,
+  updated_at timestamptz default now()
+);
+
+alter table freelancer_profiles enable row level security;
+create policy "anon_select" on freelancer_profiles for select to anon using (true);
+create policy "anon_insert" on freelancer_profiles for insert to anon with check (true);
+create policy "anon_upsert" on freelancer_profiles for update to anon using (true) with check (true);
 ```
 
-> If you have an existing Supabase project, apply [`supabase/migrations/20260607000000_tighten_rls_policies.sql`](../supabase/migrations/20260607000000_tighten_rls_policies.sql) to add the constraints and update the RLS policies.
+> If you have an existing Supabase project, apply both migration files in order:
+>
+> 1. [`supabase/migrations/20260607000000_tighten_rls_policies.sql`](../supabase/migrations/20260607000000_tighten_rls_policies.sql) - tighter RLS policies and constraints
+> 2. [`supabase/migrations/20260607000001_create_freelancer_profiles.sql`](../supabase/migrations/20260607000001_create_freelancer_profiles.sql) - freelancer profiles table
 
 3. Copy your **Project URL** and **anon/public key** from **Project Settings > API** into `.env.local`
 
@@ -200,24 +227,25 @@ Open [http://localhost:3000](http://localhost:3000).
 ### Client
 
 1. Connect Freighter wallet → select **I want to hire** in the role selector
-2. Go to **Client** dashboard → **New Project**
-3. Fill in title, description, skills, and milestones
-4. Freelancers apply from the public **/projects** page
-5. Review applications at **Client > listings > applications**
-6. Accept one application - Freighter signs the on-chain `create_project` transaction
+2. Browse **/freelancers** to discover talent- search by name, bio, or skill; filter by skill chips
+3. Click a freelancer card to view their public profile; click **Start a Project** to hire them directly
+4. Or go to **Client** dashboard → **New Listing** to post a project and receive applications
+5. Review applications at **Client > Listings > Applications** (each applicant name links to their profile)
+6. Accept one application- Freighter signs the on-chain `create_project` transaction
 7. Fund each milestone from the project management page
 8. Wait for the freelancer to mark the milestone complete (`mark_complete`)
-9. Approve the milestone - XLM is released to the freelancer
+9. Approve the milestone- XLM is released to the freelancer
 
 ### Freelancer
 
 1. Connect Freighter wallet → select **I want to work** in the role selector
-2. Browse open projects at **/projects** (no wallet required to view)
-3. Apply to a listing with an optional cover message
-4. Once accepted, the project appears on the **Freelancer** dashboard
-5. After completing work on a `Funded` milestone, click **Mark as Complete**
-6. The client can now approve the milestone and release payment
-7. Dispute a milestone if needed
+2. Go to **My Profile** in the navbar and fill in your name, bio, skills, GitHub, and portfolio URL
+3. Browse open projects at **/projects**- search by title/description or filter by skill chips (no wallet required to view)
+4. Apply to a listing with an optional cover message
+5. Once accepted, the project appears on the **Freelancer** dashboard
+6. After completing work on a `Funded` milestone, click **Mark as Complete**
+7. The client can now approve the milestone and release payment
+8. Dispute a milestone if needed
 
 > **Switching roles:** The navbar shows a role chip (e.g. `Freelancer ⇄`) that re-opens the role selector so you can switch without disconnecting your wallet.
 

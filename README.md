@@ -47,7 +47,8 @@ Built on **Stellar** + **Soroban** for the hackathon.
 │   └── migrations/             # SQL migration files
 │       ├── 20260604000000_create_listings_and_applications.sql
 │       ├── 20260604000001_create_project_metadata.sql
-│       └── 20260607000000_tighten_rls_policies.sql
+│       ├── 20260607000000_tighten_rls_policies.sql
+│       └── 20260607000001_create_freelancer_profiles.sql
 ├── Cargo.toml
 └── README.md
 ```
