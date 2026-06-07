@@ -188,7 +188,11 @@ export async function acceptApplication(
     amount: BigInt(Math.round(m.amount_xlm * 10_000_000)),
   }));
 
-  const projectId = await createProject(clientAddress, freelancerAddress, contractMilestones);
+  const projectId = await createProject(
+    clientAddress.toUpperCase(),
+    freelancerAddress.toUpperCase(),
+    contractMilestones,
+  );
 
   const sb = getSupabaseClient();
 
