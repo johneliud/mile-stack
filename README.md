@@ -37,6 +37,8 @@ Built on **Stellar** + **Soroban** for the hackathon.
 │       │       ├── fund_milestone.rs   # fund_milestone tests
 │       │       ├── approve_milestone.rs
 │       │       ├── dispute_milestone.rs
+│       │       ├── mark_complete.rs    # mark_complete tests
+│       │       ├── resolve_dispute.rs  # resolve_dispute + initialize tests
 │       │       ├── view_functions.rs
 │       │       └── lifecycle.rs        # Auth guards + end-to-end lifecycle test
 │       └── Cargo.toml
@@ -44,7 +46,8 @@ Built on **Stellar** + **Soroban** for the hackathon.
 ├── supabase/
 │   └── migrations/             # SQL migration files
 │       ├── 20260604000000_create_listings_and_applications.sql
-│       └── 20260604000001_create_project_metadata.sql
+│       ├── 20260604000001_create_project_metadata.sql
+│       └── 20260607000000_tighten_rls_policies.sql
 ├── Cargo.toml
 └── README.md
 ```
@@ -93,9 +96,10 @@ cargo test
 Expected output:
 
 ```
-running 35 tests
+running 50 tests
 test test::approve_milestone::test_approve_milestone_records_client_auth ... ok
 test test::approve_milestone::test_approve_milestone_rejects_already_released_milestone ... ok
+test test::approve_milestone::test_approve_milestone_rejects_funded_milestone ... ok
 test test::approve_milestone::test_approve_milestone_rejects_pending_milestone ... ok
 test test::approve_milestone::test_approve_milestone_releases_xlm_to_freelancer ... ok
 test test::approve_milestone::test_approve_milestone_updates_status_to_released ... ok
@@ -119,6 +123,20 @@ test test::fund_milestone::test_fund_milestone_updates_status_to_funded ... ok
 test test::lifecycle::test_full_project_lifecycle ... ok
 test test::lifecycle::test_only_client_can_approve ... ok
 test test::lifecycle::test_only_client_can_fund ... ok
+test test::mark_complete::test_mark_complete_auth_required ... ok
+test test::mark_complete::test_mark_complete_does_not_affect_siblings ... ok
+test test::mark_complete::test_mark_complete_rejects_non_freelancer ... ok
+test test::mark_complete::test_mark_complete_rejects_pending_milestone ... ok
+test test::mark_complete::test_mark_complete_records_freelancer_auth ... ok
+test test::mark_complete::test_mark_complete_updates_status_to_completed ... ok
+test test::resolve_dispute::test_initialize_double_init_rejected ... ok
+test test::resolve_dispute::test_initialize_sets_resolver ... ok
+test test::resolve_dispute::test_resolve_dispute_auth_required ... ok
+test test::resolve_dispute::test_resolve_dispute_records_resolver_auth ... ok
+test test::resolve_dispute::test_resolve_dispute_refunds_to_client ... ok
+test test::resolve_dispute::test_resolve_dispute_rejects_funded_milestone ... ok
+test test::resolve_dispute::test_resolve_dispute_rejects_non_resolver ... ok
+test test::resolve_dispute::test_resolve_dispute_releases_to_freelancer ... ok
 test test::types::test_initial_project_count_is_zero ... ok
 test test::view_functions::test_get_milestone_panics_for_out_of_range_index ... ok
 test test::view_functions::test_get_milestone_panics_for_unknown_project ... ok
@@ -128,7 +146,7 @@ test test::view_functions::test_get_project_panics_for_unknown_id ... ok
 test test::view_functions::test_get_project_returns_correct_fields ... ok
 test test::view_functions::test_view_functions_do_not_require_auth ... ok
 
-test result: ok. 35 passed; 0 failed
+test result: ok. 50 passed; 0 failed
 ```
 
 ### 3. Build the contract
@@ -145,11 +163,11 @@ target/wasm32v1-none/release/mile_stack.wasm
 
 ### 4. Deploy to Stellar Testnet
 
-Generate and fund a deployer account:
+Generate and fund a deployer account (skip if the `milestack-deployer` key already exists):
 
 ```bash
-stellar keys generate deployer --network testnet
-stellar keys fund deployer --network testnet
+stellar keys generate milestack-deployer --network testnet
+stellar keys fund milestack-deployer --network testnet
 ```
 
 Deploy the contract:
@@ -157,11 +175,26 @@ Deploy the contract:
 ```bash
 stellar contract deploy \
   --wasm target/wasm32v1-none/release/mile_stack.wasm \
-  --source deployer \
+  --source milestack-deployer \
   --network testnet
 ```
 
 The contract ID printed to stdout is your `NEXT_PUBLIC_CONTRACT_ID`.
+
+### 5. Initialize the contract (required after every deploy)
+
+The contract must be initialized once to set the dispute resolver address. Use the deployer's public key (or any trusted admin account):
+
+```bash
+stellar contract invoke \
+  --id <CONTRACT_ID> \
+  --source milestack-deployer \
+  --network testnet \
+  -- initialize \
+  --resolver <RESOLVER_ADDRESS>
+```
+
+Replace `<CONTRACT_ID>` with the ID from the previous step and `<RESOLVER_ADDRESS>` with the admin's Stellar public key. This call can only succeed once — any subsequent call will panic.
 
 ---
 
@@ -170,27 +203,32 @@ The contract ID printed to stdout is your `NEXT_PUBLIC_CONTRACT_ID`.
 ### Milestone Lifecycle
 
 ```
-Pending → Funded → Released
-                ↘ Disputed
+Pending → Funded → Completed → Released
+                ↘ Disputed ──────────────→ Released (via resolver)
 ```
+
+The freelancer calls `mark_complete` after finishing work on a `Funded` milestone. Only then can the client call `approve_milestone` to release payment. Either party can call `dispute_milestone` at any time while funds are escrowed; a designated resolver account settles the dispute by calling `resolve_dispute`.
 
 ### Data Types
 
 | Type | Description |
 |------|-------------|
-| `MilestoneStatus` | `Pending` → `Funded` → `Released` or `Disputed` |
+| `MilestoneStatus` | `Pending` → `Funded` → `Completed` → `Released` or `Disputed` |
 | `Milestone` | Title, XLM amount, status, freelancer address |
 | `Project` | ID, client address, milestone list, creation timestamp |
-| `DataKey` | Storage keys: `Project(id)`, `ProjectCount` |
+| `DataKey` | Storage keys: `Project(id)`, `ProjectCount`, `Resolver` |
 
 ### Contract Functions
 
 | Function | Auth | Description |
 |----------|------|-------------|
+| `initialize(resolver)` | Deployer (one-time) | Sets the dispute resolver address; panics if called again |
 | `create_project(client, freelancer, titles, amounts)` | Client | Creates a new escrow project; returns project ID |
 | `fund_milestone(project_id, milestone_index, token)` | Client | Locks milestone XLM in contract escrow (must be `Pending`) |
-| `approve_milestone(project_id, milestone_index, token)` | Client | Releases escrowed XLM to the freelancer (must be `Funded`) |
+| `mark_complete(caller, project_id, milestone_index)` | Freelancer | Signals work is done; transitions `Funded` → `Completed` |
+| `approve_milestone(project_id, milestone_index, token)` | Client | Releases escrowed XLM to the freelancer (must be `Completed`) |
 | `dispute_milestone(caller, project_id, milestone_index)` | Client or Freelancer | Flags milestone as `Disputed`, funds stay locked |
+| `resolve_dispute(caller, project_id, milestone_index, token, release_to_freelancer)` | Resolver | Settles a `Disputed` milestone — pays winner, marks `Released` |
 | `get_project_count()` | None | Returns total number of projects |
 | `get_project(project_id)` | None | Fetch a full project by ID |
 | `get_milestone(project_id, milestone_index)` | None | Fetch a single milestone |
@@ -206,7 +244,7 @@ cd mile-stack-frontend
 npm install
 
 # Copy environment variables
-cp .env.local.example .env.local
+cp .env.example .env.local
 # Fill in values — see Environment Variables section below
 
 # Start the development server
@@ -221,12 +259,12 @@ See [`mile-stack-frontend/README.md`](./mile-stack-frontend/README.md) for full 
 
 ## Environment Variables
 
-Create `.env.local` inside `mile-stack-frontend/` using `.env.local.example` as a template:
+Create `.env.local` inside `mile-stack-frontend/` using `.env.example` as a template:
 
 | Variable | Value / Description |
 |----------|---------------------|
 | `NEXT_PUBLIC_STELLAR_RPC_URL` | `https://soroban-testnet.stellar.org` |
-| `NEXT_PUBLIC_CONTRACT_ID` | `CAHK5YTBEY7RGHYHIC4TJBWD7755IEMJVMYAKB7FJZWQJOLGMZ4W2EP7` |
+| `NEXT_PUBLIC_CONTRACT_ID` | `CAYB22PI2YRQPW4VGCX34XSCKMHNPERQYXIJ6Z2OZ3YKISW4XG2DSLIU` |
 | `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015` |
 | `NEXT_PUBLIC_XLM_TOKEN_ID` | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
 | `NEXT_PUBLIC_SIMULATION_SOURCE` | A funded testnet account public key (for read-only contract simulations) |
@@ -252,11 +290,13 @@ Import each secret key into Freighter (set to Testnet), then run `npm run seed` 
 
 | Network | Contract ID |
 |---------|-------------|
-| Testnet | [`CAHK5YTBEY7RGHYHIC4TJBWD7755IEMJVMYAKB7FJZWQJOLGMZ4W2EP7`](https://stellar.expert/explorer/testnet/contract/CAHK5YTBEY7RGHYHIC4TJBWD7755IEMJVMYAKB7FJZWQJOLGMZ4W2EP7) |
+| Testnet | [`CAYB22PI2YRQPW4VGCX34XSCKMHNPERQYXIJ6Z2OZ3YKISW4XG2DSLIU`](https://stellar.expert/explorer/testnet/contract/CAYB22PI2YRQPW4VGCX34XSCKMHNPERQYXIJ6Z2OZ3YKISW4XG2DSLIU) |
 
-**Deployer:** `GCQQCRKG3C5DPPWTVTYYWEJLIPHUVBKQYT6HIOBX7I37UVSY7DNMNFZR`
+**Deployer / Resolver:** `GCQQCRKG3C5DPPWTVTYYWEJLIPHUVBKQYT6HIOBX7I37UVSY7DNMNFZR`
 
-**Deploy transaction:** [`a9ffe9e9f7a5f15ba0c2dd81139760b7e350dcd205db06055bd26f2a850ab3c8`](https://stellar.expert/explorer/testnet/tx/a9ffe9e9f7a5f15ba0c2dd81139760b7e350dcd205db06055bd26f2a850ab3c8)
+**Deploy transaction:** [`b5b91f2f43f746a0d08d741450af7a92747ee5f8f837ac3c96605033b3c4b8ff`](https://stellar.expert/explorer/testnet/tx/b5b91f2f43f746a0d08d741450af7a92747ee5f8f837ac3c96605033b3c4b8ff)
+
+**Initialize transaction:** [`ea7bde1d6446dde399714c79e35027ca3bcb5ac3be77388adace8c5981365690`](https://stellar.expert/explorer/testnet/tx/ea7bde1d6446dde399714c79e35027ca3bcb5ac3be77388adace8c5981365690)
 
 **Native XLM token (testnet):** `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
 

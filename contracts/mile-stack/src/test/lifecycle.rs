@@ -30,7 +30,7 @@ fn test_only_client_can_approve() {
     let freelancer = Address::generate(&env);
     let dummy_token = Address::generate(&env);
 
-    seed_project_in_storage(&env, &contract_id, &client_addr, &freelancer, MilestoneStatus::Funded);
+    seed_project_in_storage(&env, &contract_id, &client_addr, &freelancer, MilestoneStatus::Completed);
 
     let result = contract.try_approve_milestone(&1u64, &0u32, &dummy_token);
     assert!(result.is_err(), "approve_milestone must fail when client auth is not provided");
@@ -70,7 +70,9 @@ fn test_full_project_lifecycle() {
     assert_eq!(token_client.balance(&contract_id), m0_amount);
     assert_eq!(token_client.balance(&client_addr), m1_amount);
 
-    // Approve milestone 0 → XLM released to freelancer
+    // Freelancer marks milestone 0 complete, then client approves → XLM released
+    contract.mark_complete(&freelancer, &project_id, &0);
+    assert!(matches!(contract.get_milestone(&project_id, &0).status, MilestoneStatus::Completed));
     contract.approve_milestone(&project_id, &0, &token_address);
     assert!(matches!(contract.get_milestone(&project_id, &0).status, MilestoneStatus::Released));
     assert_eq!(token_client.balance(&freelancer), m0_amount);

@@ -173,6 +173,19 @@ export async function getProjectNames(clientAddress: string): Promise<Record<num
   );
 }
 
+export async function getProjectNamesByIds(ids: number[]): Promise<Record<number, string>> {
+  if (ids.length === 0) return {};
+  const sb = getSupabaseClient();
+  const { data, error } = await sb
+    .from("project_metadata")
+    .select("on_chain_project_id, name")
+    .in("on_chain_project_id", ids);
+  if (error) throw new Error(error.message);
+  return Object.fromEntries(
+    (data ?? []).map((r) => [r.on_chain_project_id as number, r.name as string]),
+  );
+}
+
 // Accepts an application: creates the on-chain project, marks the listing as filled,
 // marks the accepted application as accepted, and rejects all others.
 export async function acceptApplication(
@@ -188,7 +201,11 @@ export async function acceptApplication(
     amount: BigInt(Math.round(m.amount_xlm * 10_000_000)),
   }));
 
-  const projectId = await createProject(clientAddress, freelancerAddress, contractMilestones);
+  const projectId = await createProject(
+    clientAddress.toUpperCase(),
+    freelancerAddress.toUpperCase(),
+    contractMilestones,
+  );
 
   const sb = getSupabaseClient();
 

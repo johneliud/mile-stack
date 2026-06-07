@@ -178,6 +178,7 @@ export default function ApplicationsPage() {
       setListing(listingData);
       setApplications(appsData);
     } catch (err) {
+      console.error("[Applications] fetchData:", err);
       setError(err instanceof Error ? err.message : "Failed to load data");
     } finally {
       setLoading(false);
@@ -203,6 +204,7 @@ export default function ApplicationsPage() {
       notify(`Project #${projectId} created — freelancer accepted.`, "success");
       router.push(`/client/projects/${projectId}`);
     } catch (err) {
+      console.error("[Applications] handleAccept:", err);
       notify(err instanceof Error ? err.message : "Failed to accept application", "error");
       setAcceptingId(null);
     }
@@ -215,7 +217,9 @@ export default function ApplicationsPage() {
       setApplications((prev) =>
         prev.map((a) => (a.id === application.id ? { ...a, status: "rejected" } : a)),
       );
+      notify("Application rejected.", "success");
     } catch (err) {
+      console.error("[Applications] handleReject:", err);
       notify(err instanceof Error ? err.message : "Failed to reject application", "error");
     } finally {
       setRejectingId(null);

@@ -29,14 +29,15 @@ import {
   type ContractProject,
   type MilestoneStatus,
 } from "@/lib/contract";
+import { getProjectNamesByIds } from "@/lib/listings";
 
 const MILESTONE_BADGE_VARIANT: Record<
   MilestoneStatus,
-  "pending" | "funded" | "released" | "disputed"
+  "pending" | "funded" | "completed" | "released" | "disputed"
 > = {
   Pending: "pending",
   Funded: "funded",
-  Completed: "released",
+  Completed: "completed",
   Released: "released",
   Disputed: "disputed",
 };
@@ -80,7 +81,9 @@ function MilestoneCard({
   const [fundConfirming, setFundConfirming] = useState(false);
   const [approveConfirming, setApproveConfirming] = useState(false);
   const showFundButton = canFund && milestone.status === "Pending";
-  const showApproveButton = canApprove && milestone.status === "Funded";
+  const showWaitingForFreelancer = milestone.status === "Funded";
+  const showApproveButton = canApprove && milestone.status === "Completed";
+  const showDisputed = milestone.status === "Disputed";
 
   return (
     <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
@@ -111,7 +114,6 @@ function MilestoneCard({
       {showFundButton && !fundConfirming && (
         <div className="border-t border-border pt-4">
           <Button variant="primary" size="sm" onClick={() => setFundConfirming(true)}>
-            <DollarSign className="h-4 w-4" aria-hidden="true" />
             Fund Milestone
           </Button>
         </div>
@@ -154,11 +156,19 @@ function MilestoneCard({
         </div>
       )}
 
+      {/* Waiting for freelancer */}
+      {showWaitingForFreelancer && (
+        <div className="border-t border-border pt-4">
+          <p className="text-xs text-muted-foreground">
+            Funds are in escrow — waiting for the freelancer to mark this milestone complete.
+          </p>
+        </div>
+      )}
+
       {/* Approve flow */}
       {showApproveButton && !approveConfirming && (
         <div className="border-t border-border pt-4">
           <Button variant="accent" size="sm" onClick={() => setApproveConfirming(true)}>
-            <CheckCircle className="h-4 w-4" aria-hidden="true" />
             Approve &amp; Release
           </Button>
         </div>
@@ -209,6 +219,17 @@ function MilestoneCard({
           </div>
         </div>
       )}
+
+      {/* Disputed state */}
+      {showDisputed && (
+        <div className="border-t border-border pt-4 flex items-start gap-2">
+          <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" aria-hidden="true" />
+          <p className="text-xs text-muted-foreground">
+            This milestone is disputed. Funds are locked in escrow pending resolution by the
+            platform. Contact support to proceed.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -218,6 +239,7 @@ export function ProjectManage({ projectId }: { projectId: number }) {
   const { notify } = useNotification();
 
   const [project, setProject] = useState<ContractProject | null>(null);
+  const [projectName, setProjectName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fundingIndex, setFundingIndex] = useState<number | null>(null);
@@ -227,9 +249,14 @@ export function ProjectManage({ projectId }: { projectId: number }) {
     setLoading(true);
     setError(null);
     try {
-      const data = await getProject(projectId);
+      const [data, names] = await Promise.all([
+        getProject(projectId),
+        getProjectNamesByIds([projectId]).catch(() => ({}) as Record<number, string>),
+      ]);
       setProject(data);
+      setProjectName(names[projectId] ?? null);
     } catch (err) {
+      console.error("[ProjectManage] fetchProject:", err);
       setError(err instanceof Error ? err.message : "Failed to load project");
     } finally {
       setLoading(false);
@@ -248,6 +275,7 @@ export function ProjectManage({ projectId }: { projectId: number }) {
       notify("Milestone funded — XLM is now held in escrow.", "success");
       await fetchProject();
     } catch (err) {
+      console.error("[ProjectManage] handleFund:", err);
       notify(err instanceof Error ? err.message : "Failed to fund milestone", "error");
     } finally {
       setFundingIndex(null);
@@ -262,6 +290,7 @@ export function ProjectManage({ projectId }: { projectId: number }) {
       notify("Milestone approved — XLM released to the freelancer.", "success");
       await fetchProject();
     } catch (err) {
+      console.error("[ProjectManage] handleApprove:", err);
       notify(err instanceof Error ? err.message : "Failed to approve milestone", "error");
     } finally {
       setApprovingIndex(null);
@@ -333,9 +362,11 @@ export function ProjectManage({ projectId }: { projectId: number }) {
             <div className="flex flex-col gap-8">
               {/* Header */}
               <div className="flex flex-col gap-1">
-                <h1 className="text-3xl font-bold text-primary">Project #{String(project.id)}</h1>
+                <h1 className="text-3xl font-bold text-primary">
+                  {projectName ?? `Project #${String(project.id)}`}
+                </h1>
                 <p className="text-sm text-muted-foreground">
-                  Created {formatDate(project.created_at)}
+                  #{String(project.id)} &middot; Created {formatDate(project.created_at)}
                 </p>
               </div>
 

@@ -13,6 +13,77 @@ pub struct MileStackContract;
 
 #[contractimpl]
 impl MileStackContract {
+    /// Set the dispute resolver address. Can only be called once after deployment.
+    pub fn initialize(env: Env, resolver: Address) {
+        assert!(
+            !env.storage().instance().has(&DataKey::Resolver),
+            "contract already initialized"
+        );
+        env.storage().instance().set(&DataKey::Resolver, &resolver);
+    }
+
+    /// Resolve a disputed milestone by releasing funds to either the freelancer or the client.
+    /// Only the address set via `initialize` may call this.
+    pub fn resolve_dispute(
+        env: Env,
+        caller: Address,
+        project_id: u64,
+        milestone_index: u32,
+        token_address: Address,
+        release_to_freelancer: bool,
+    ) -> bool {
+        caller.require_auth();
+
+        let resolver: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::Resolver)
+            .expect("contract not initialized");
+
+        assert!(caller == resolver, "only the resolver can resolve disputes");
+
+        let project = load_project(&env, project_id);
+
+        let milestone = project
+            .milestones
+            .get(milestone_index)
+            .expect("milestone index out of range");
+
+        assert!(
+            matches!(milestone.status, MilestoneStatus::Disputed),
+            "milestone must be Disputed to resolve"
+        );
+
+        let recipient = if release_to_freelancer {
+            milestone.freelancer.clone()
+        } else {
+            project.client.clone()
+        };
+
+        token::Client::new(&env, &token_address).transfer(
+            &env.current_contract_address(),
+            &recipient,
+            &milestone.amount,
+        );
+
+        let updated = Milestone {
+            status: MilestoneStatus::Released,
+            ..milestone
+        };
+        let project = update_milestone(&env, project, milestone_index, updated);
+        save_project(&env, &project);
+
+        log!(
+            &env,
+            "DisputeResolved: project_id={}, milestone_index={}, release_to_freelancer={}",
+            project_id,
+            milestone_index,
+            release_to_freelancer
+        );
+
+        true
+    }
+
     /// Initialise a new escrow project with a list of milestones.
     /// Returns the newly assigned project ID.
     pub fn create_project(
@@ -110,8 +181,54 @@ impl MileStackContract {
         true
     }
 
+    /// Signal that work on a funded milestone is complete.
+    /// Only the milestone's freelancer may call this. Milestone must be Funded.
+    /// Transitions status: Funded → Completed.
+    pub fn mark_complete(
+        env: Env,
+        caller: Address,
+        project_id: u64,
+        milestone_index: u32,
+    ) -> bool {
+        caller.require_auth();
+
+        let project = load_project(&env, project_id);
+
+        let milestone = project
+            .milestones
+            .get(milestone_index)
+            .expect("milestone index out of range");
+
+        assert!(
+            caller == milestone.freelancer,
+            "only the milestone freelancer can mark it complete"
+        );
+
+        assert!(
+            matches!(milestone.status, MilestoneStatus::Funded),
+            "milestone must be Funded to mark complete"
+        );
+
+        let updated = Milestone {
+            status: MilestoneStatus::Completed,
+            ..milestone
+        };
+        let project = update_milestone(&env, project, milestone_index, updated);
+        save_project(&env, &project);
+
+        log!(
+            &env,
+            "MilestoneCompleted: project_id={}, milestone_index={}, freelancer={}",
+            project_id,
+            milestone_index,
+            caller
+        );
+
+        true
+    }
+
     /// Release escrowed XLM to the freelancer.
-    /// Only the project client may call this. Milestone must be Funded.
+    /// Only the project client may call this. Milestone must be Completed.
     pub fn approve_milestone(
         env: Env,
         project_id: u64,
@@ -128,8 +245,8 @@ impl MileStackContract {
             .expect("milestone index out of range");
 
         assert!(
-            matches!(milestone.status, MilestoneStatus::Funded),
-            "milestone must be Funded to approve"
+            matches!(milestone.status, MilestoneStatus::Completed),
+            "milestone must be Completed to approve"
         );
 
         // Release escrowed XLM from the contract to the freelancer.

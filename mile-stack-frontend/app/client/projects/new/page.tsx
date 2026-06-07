@@ -2,12 +2,13 @@
 
 import { type FormEvent, useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Wallet, CheckCircle, ExternalLink } from "lucide-react";
+import { Plus, Trash2, CheckCircle, ExternalLink } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
 import { useNotification } from "@/components/Notification";
 import { useWallet } from "@/contexts/WalletContext";
+import { WalletGuard } from "@/components/WalletGuard";
 import { createProject } from "@/lib/contract";
 import { saveProjectName } from "@/lib/listings";
 
@@ -24,7 +25,7 @@ function newMilestone(): MilestoneInput {
 }
 
 export default function CreateProjectPage() {
-  const { address, isConnected, isFreighterInstalled, connect } = useWallet();
+  const { address, isConnected } = useWallet();
   const { notify } = useNotification();
 
   const [projectName, setProjectName] = useState("");
@@ -78,6 +79,7 @@ export default function CreateProjectPage() {
       setCreatedProjectId(projectId);
       notify(`Project #${projectId} created successfully.`, "success");
     } catch (err) {
+      console.error("[CreateProject] handleSubmit:", err);
       notify(err instanceof Error ? err.message : "Failed to create project", "error");
     } finally {
       setSubmitting(false);
@@ -104,34 +106,7 @@ export default function CreateProjectPage() {
             </p>
           </div>
 
-          {/* Wallet not connected */}
-          {!isConnected && (
-            <div className="rounded-2xl border border-border bg-card p-8 text-center mb-8">
-              <Wallet className="mx-auto h-9 w-9 text-muted-foreground mb-3" />
-              <h2 className="text-base font-semibold text-foreground">Connect your wallet</h2>
-              <p className="mt-1 text-sm text-muted-foreground mb-5">
-                {isFreighterInstalled === false
-                  ? "Install the Freighter extension to get started."
-                  : "Connect your Freighter wallet to create a project."}
-              </p>
-              {isFreighterInstalled === false ? (
-                <a
-                  href="https://www.freighter.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-                >
-                  Install Freighter
-                </a>
-              ) : (
-                <Button variant="primary" onClick={connect}>
-                  <Wallet className="h-4 w-4" />
-                  Connect Wallet
-                </Button>
-              )}
-            </div>
-          )}
-
+          <WalletGuard message="Connect your Freighter wallet to create a project.">
           {/* Success state */}
           {createdProjectId !== null && (
             <div className="rounded-2xl border border-border bg-card p-8 text-center">
@@ -321,6 +296,7 @@ export default function CreateProjectPage() {
               </div>
             </form>
           )}
+          </WalletGuard>
         </div>
       </main>
 

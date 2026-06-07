@@ -2,12 +2,13 @@
 
 import { type FormEvent, useState, useRef, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Wallet, X } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
 import { useNotification } from "@/components/Notification";
 import { useWallet } from "@/contexts/WalletContext";
+import { WalletGuard } from "@/components/WalletGuard";
 import { createListing } from "@/lib/listings";
 
 interface MilestoneInput {
@@ -22,7 +23,7 @@ function newMilestone(): MilestoneInput {
 
 export default function PostListingPage() {
   const router = useRouter();
-  const { address, isConnected, isFreighterInstalled, connect } = useWallet();
+  const { address, isConnected } = useWallet();
   const { notify } = useNotification();
 
   const [title, setTitle] = useState("");
@@ -99,6 +100,7 @@ export default function PostListingPage() {
       notify("Listing posted successfully.", "success");
       router.push("/client");
     } catch (err) {
+      console.error("[PostListing] handleSubmit:", err);
       notify(err instanceof Error ? err.message : "Failed to post listing", "error");
     } finally {
       setSubmitting(false);
@@ -121,34 +123,7 @@ export default function PostListingPage() {
             </p>
           </div>
 
-          {/* Wallet not connected */}
-          {!isConnected && (
-            <div className="rounded-2xl border border-border bg-card p-8 text-center mb-8">
-              <Wallet className="mx-auto h-9 w-9 text-muted-foreground mb-3" />
-              <h2 className="text-base font-semibold text-foreground">Connect your wallet</h2>
-              <p className="mt-1 text-sm text-muted-foreground mb-5">
-                {isFreighterInstalled === false
-                  ? "Install the Freighter extension to get started."
-                  : "Connect your Freighter wallet to post a listing."}
-              </p>
-              {isFreighterInstalled === false ? (
-                <a
-                  href="https://www.freighter.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-                >
-                  Install Freighter
-                </a>
-              ) : (
-                <Button variant="primary" onClick={connect}>
-                  <Wallet className="h-4 w-4" />
-                  Connect Wallet
-                </Button>
-              )}
-            </div>
-          )}
-
+          <WalletGuard message="Connect your Freighter wallet to post a listing.">
           {/* Form */}
           {isConnected && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-8">
@@ -343,6 +318,7 @@ export default function PostListingPage() {
               </div>
             </form>
           )}
+          </WalletGuard>
         </div>
       </main>
 

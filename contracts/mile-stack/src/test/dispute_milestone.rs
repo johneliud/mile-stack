@@ -161,6 +161,7 @@ fn test_dispute_milestone_rejects_already_released_milestone() {
     let token_address = setup_token(&env, &token_admin, &client_addr, 500_0000000);
     let project_id = funded_project(&env, &contract, &client_addr, &freelancer, &token_address);
 
+    contract.mark_complete(&freelancer, &project_id, &0);
     contract.approve_milestone(&project_id, &0, &token_address);
     contract.dispute_milestone(&client_addr, &project_id, &0);
 }

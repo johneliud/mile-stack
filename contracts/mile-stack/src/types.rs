@@ -32,4 +32,5 @@ pub struct Project {
 pub enum DataKey {
     Project(u64),
     ProjectCount,
+    Resolver,
 }

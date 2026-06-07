@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useRef, useState } from "react";
-import { X, CheckCircle, AlertCircle } from "lucide-react";
+import { X } from "lucide-react";
 
 type NotificationType = "success" | "error";
 
@@ -65,11 +65,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             isSuccess ? "bg-success text-white" : "bg-destructive text-white"
           } ${visible ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"}`}
         >
-          {isSuccess ? (
-            <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
-          ) : (
-            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
-          )}
           <p className="flex-1 text-sm font-medium leading-snug">{notification.message}</p>
           <button
             onClick={dismiss}

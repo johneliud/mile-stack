@@ -54,7 +54,7 @@ mile-stack-frontend/
 │   │   ├── page.tsx                            # Freelancer Dashboard — active projects
 │   │   └── projects/[id]/
 │   │       ├── page.tsx                        # Server Component — resolves dynamic params
-│   │       └── ProjectDetail.tsx               # Client Component — milestones + dispute flow
+│   │       └── ProjectDetail.tsx               # Client Component — milestones + mark complete + dispute
 │   ├── projects/
 │   │   ├── page.tsx                            # Public listings browser (no wallet required)
 │   │   └── [id]/
@@ -67,11 +67,12 @@ mile-stack-frontend/
 ├── components/
 │   ├── ui/
 │   │   ├── Button.tsx                          # primary / accent / outline / ghost / destructive variants
-│   │   └── Badge.tsx                           # Milestone status badges
+│   │   └── Badge.tsx                           # Milestone status badges (Pending/Funded/Completed/Released/Disputed)
 │   ├── Footer.tsx                              # Site footer
 │   ├── Navbar.tsx                              # Sticky nav with active link highlight + mobile menu
 │   ├── Notification.tsx                        # Toast notification provider + useNotification hook
-│   └── ScrollReveal.tsx                        # IntersectionObserver scroll animation wrapper
+│   ├── ScrollReveal.tsx                        # IntersectionObserver scroll animation wrapper
+│   └── WalletGuard.tsx                         # Wallet connection gate — wraps pages that require Freighter
 ├── contexts/
 │   └── WalletContext.tsx                       # Freighter wallet state — connect / disconnect / auto-restore
 ├── lib/
@@ -80,7 +81,7 @@ mile-stack-frontend/
 │   └── supabase.ts                             # Lazy Supabase client singleton
 ├── public/
 │   └── favicon.svg
-├── .env.local.example
+├── .env.example
 ├── .prettierrc
 └── next.config.ts
 ```
@@ -98,7 +99,7 @@ npm install
 ### 2. Set up environment variables
 
 ```bash
-cp .env.local.example .env.local
+cp .env.example .env.local
 ```
 
 The example file ships with the deployed testnet contract ID pre-filled. Fill in the Supabase and simulation source values.
@@ -144,16 +145,39 @@ create table project_metadata (
 -- RLS policies (anon key access)
 create policy "anon_select" on listings for select to anon using (true);
 create policy "anon_insert" on listings for insert to anon with check (true);
-create policy "anon_update" on listings for update to anon using (true) with check (true);
+create policy "anon_update_open_listings" on listings
+  for update to anon
+  using (status = 'open')
+  with check (status in ('open', 'filled', 'cancelled'));
 
 create policy "anon_select" on applications for select to anon using (true);
 create policy "anon_insert" on applications for insert to anon with check (true);
-create policy "anon_update" on applications for update to anon using (true) with check (true);
+create policy "anon_update_pending_applications" on applications
+  for update to anon
+  using (status = 'pending')
+  with check (status in ('pending', 'accepted', 'rejected'));
 
 create policy "anon_select" on project_metadata for select to anon using (true);
 create policy "anon_insert" on project_metadata for insert to anon with check (true);
-create policy "anon_update" on project_metadata for update to anon using (true) with check (true);
+create policy "anon_upsert_project_metadata" on project_metadata
+  for update to anon
+  using (true)
+  with check (length(trim(name)) > 0);
+
+-- Constraints
+alter table listings add constraint listings_status_valid
+  check (status in ('open', 'filled', 'cancelled'));
+alter table applications add constraint applications_status_valid
+  check (status in ('pending', 'accepted', 'rejected'));
+alter table project_metadata add constraint project_metadata_name_nonempty
+  check (length(trim(name)) > 0);
+
+-- Prevent duplicate applications
+create unique index applications_unique_per_listing
+  on applications (listing_id, freelancer_address);
 ```
+
+> If you have an existing Supabase project, apply [`supabase/migrations/20260607000000_tighten_rls_policies.sql`](../supabase/migrations/20260607000000_tighten_rls_policies.sql) to add the constraints and update the RLS policies.
 
 3. Copy your **Project URL** and **anon/public key** from **Project Settings > API** into `.env.local`
 
@@ -178,7 +202,8 @@ Open [http://localhost:3000](http://localhost:3000).
 5. Review applications at **Client > listings > applications**
 6. Accept one application — Freighter signs the on-chain `create_project` transaction
 7. Fund each milestone from the project management page
-8. Approve milestones as work is delivered — XLM is released to the freelancer
+8. Wait for the freelancer to mark the milestone complete (`mark_complete`)
+9. Approve the milestone — XLM is released to the freelancer
 
 ### Freelancer
 
@@ -186,7 +211,9 @@ Open [http://localhost:3000](http://localhost:3000).
 2. Browse open projects at **/projects** (no wallet required to view)
 3. Apply to a listing with an optional cover message
 4. Once accepted, the project appears on the **Freelancer** dashboard
-5. Dispute a milestone if needed
+5. After completing work on a `Funded` milestone, click **Mark as Complete**
+6. The client can now approve the milestone and release payment
+7. Dispute a milestone if needed
 
 ---
 
@@ -213,10 +240,11 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 
 | Status   | Style                                                   |
 | -------- | ------------------------------------------------------- |
-| Pending  | Gray — `bg-slate-100 text-slate-600`                    |
-| Funded   | Blue — `bg-blue-50 text-accent border-blue-200`         |
-| Released | Green — `bg-emerald-50 text-success border-emerald-200` |
-| Disputed | Red — `bg-red-50 text-destructive border-red-200`       |
+| Pending   | Gray — `bg-slate-100 text-slate-600`                    |
+| Funded    | Blue — `bg-blue-50 text-accent border-blue-200`         |
+| Completed | Amber — `bg-amber-50 text-amber-700 border-amber-200`   |
+| Released  | Green — `bg-emerald-50 text-success border-emerald-200` |
+| Disputed  | Red — `bg-red-50 text-destructive border-red-200`       |
 
 ### Rules
 
@@ -232,7 +260,7 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 | Variable                         | Value / Description                                             |
 | -------------------------------- | --------------------------------------------------------------- |
 | `NEXT_PUBLIC_STELLAR_RPC_URL`    | `https://soroban-testnet.stellar.org`                           |
-| `NEXT_PUBLIC_CONTRACT_ID`        | `CAHK5YTBEY7RGHYHIC4TJBWD7755IEMJVMYAKB7FJZWQJOLGMZ4W2EP7`      |
+| `NEXT_PUBLIC_CONTRACT_ID`        | `CAYB22PI2YRQPW4VGCX34XSCKMHNPERQYXIJ6Z2OZ3YKISW4XG2DSLIU`      |
 | `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015`                             |
 | `NEXT_PUBLIC_XLM_TOKEN_ID`       | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`      |
 | `NEXT_PUBLIC_SIMULATION_SOURCE`  | A funded testnet account public key (for read-only simulations) |
