@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePolling } from "@/hooks/usePolling";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -170,27 +171,36 @@ export default function ApplicationsPage() {
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [listingData, appsData] = await Promise.all([
-        getListing(listingId),
-        getApplications(listingId),
-      ]);
-      setListing(listingData);
-      setApplications(appsData);
-    } catch (err) {
-      console.error("[Applications] fetchData:", err);
-      setError(err instanceof Error ? err.message : "Failed to load data");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loadData = useCallback(
+    async (silent = false) => {
+      if (!silent) setLoading(true);
+      setError(null);
+      try {
+        const [listingData, appsData] = await Promise.all([
+          getListing(listingId),
+          getApplications(listingId),
+        ]);
+        setListing(listingData);
+        setApplications(appsData);
+      } catch (err) {
+        console.error("[Applications] loadData:", err);
+        if (!silent) setError(err instanceof Error ? err.message : "Failed to load data");
+      } finally {
+        if (!silent) setLoading(false);
+      }
+    },
+    [listingId],
+  );
 
   useEffect(() => {
-    fetchData();
-  }, [listingId]);
+    loadData();
+  }, [loadData]);
+
+  // Poll every 5s for new applications — paused while accepting/rejecting
+  const isBusy = acceptingId !== null || rejectingId !== null;
+  usePolling(() => loadData(true), 5000, isBusy);
+
+  const fetchData = () => loadData();
 
   const handleAccept = async (application: Application) => {
     if (!address || !listing) return;
