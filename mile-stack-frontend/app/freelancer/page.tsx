@@ -33,11 +33,11 @@ function formatDate(timestamp: bigint): string {
 
 const MILESTONE_BADGE_VARIANT: Record<
   MilestoneStatus,
-  "pending" | "funded" | "released" | "disputed"
+  "pending" | "funded" | "completed" | "released" | "disputed"
 > = {
   Pending: "pending",
   Funded: "funded",
-  Completed: "released",
+  Completed: "completed",
   Released: "released",
   Disputed: "disputed",
 };
@@ -135,6 +135,7 @@ export default function FreelancerDashboard() {
       const names = await getProjectNamesByIds(ids).catch(() => ({}) as Record<number, string>);
       setProjectNames(names);
     } catch (err) {
+      console.error("[FreelancerDashboard] fetchProjects:", err);
       setError(err instanceof Error ? err.message : "Failed to load projects");
     } finally {
       setLoading(false);
