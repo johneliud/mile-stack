@@ -210,7 +210,7 @@ async function run() {
     );
 
     projectId = result.returnValue ? Number(scValToNative(result.returnValue)) : -1;
-    ok(`Project created — ID: ${projectId}`);
+    ok(`Project created - ID: ${projectId}`);
   } catch (err) {
     fail("create_project succeeded", err);
     process.exit(1);
