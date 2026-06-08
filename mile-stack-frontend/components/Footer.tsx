@@ -1,13 +1,36 @@
+"use client";
+
 import Link from "next/link";
-import { Layers } from "lucide-react";
+import { useRole, type UserRole } from "@/contexts/RoleContext";
 
-const PLATFORM_LINKS = [
-  { label: "How it works", href: "/how-it-works" },
-  { label: "Browse projects", href: "/projects" },
-  { label: "Post a project", href: "/projects/new" },
-];
+interface FooterLink {
+  label: string;
+  href: string;
+}
 
-const RESOURCES_LINKS = [
+function getPlatformLinks(role: UserRole | null): FooterLink[] {
+  if (role === "client") {
+    return [
+      { label: "Dashboard", href: "/client" },
+      { label: "Browse Projects", href: "/projects" },
+      { label: "Find Talent", href: "/freelancers" },
+      { label: "Post a Listing", href: "/client/listings/new" },
+    ];
+  }
+  if (role === "freelancer") {
+    return [
+      { label: "Dashboard", href: "/freelancer" },
+      { label: "Browse Projects", href: "/projects" },
+      { label: "My Profile", href: "/freelancer/profile" },
+    ];
+  }
+  return [
+    { label: "Browse Projects", href: "/projects" },
+    { label: "Find Talent", href: "/freelancers" },
+  ];
+}
+
+const RESOURCES_LINKS: FooterLink[] = [
   {
     label: "Stellar testnet",
     href: "https://developers.stellar.org/docs/learn/fundamentals/networks",
@@ -19,18 +42,32 @@ const RESOURCES_LINKS = [
   },
 ];
 
-const LEGAL_LINKS = [
+const LEGAL_LINKS: FooterLink[] = [
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Terms of Service", href: "/terms" },
 ];
 
-const COLUMNS = [
-  { heading: "Platform", links: PLATFORM_LINKS },
-  { heading: "Resources", links: RESOURCES_LINKS },
-  { heading: "Legal", links: LEGAL_LINKS },
-];
+function LinkList({ links }: { links: FooterLink[] }) {
+  return (
+    <ul className="mt-4 space-y-3">
+      {links.map(({ label, href }) => (
+        <li key={href}>
+          <Link
+            href={href}
+            className="text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground"
+            {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          >
+            {label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function Footer() {
+  const { role } = useRole();
+
   return (
     <footer className="border-t border-border bg-background">
       <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
@@ -50,29 +87,29 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Link columns */}
-          {COLUMNS.map(({ heading, links }) => (
-            <div key={heading}>
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-foreground">
-                {heading}
-              </h3>
-              <ul className="mt-4 space-y-3">
-                {links.map(({ label, href }) => (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      className="text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground"
-                      {...(href.startsWith("http")
-                        ? { target: "_blank", rel: "noopener noreferrer" }
-                        : {})}
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Platform — role-adaptive */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-foreground">
+              Platform
+            </h3>
+            <LinkList links={getPlatformLinks(role)} />
+          </div>
+
+          {/* Resources — static */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-foreground">
+              Resources
+            </h3>
+            <LinkList links={RESOURCES_LINKS} />
+          </div>
+
+          {/* Legal — static */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-foreground">
+              Legal
+            </h3>
+            <LinkList links={LEGAL_LINKS} />
+          </div>
         </div>
 
         {/* Bottom bar */}
