@@ -5,14 +5,13 @@ import { createClient } from "@supabase/supabase-js";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const CLIENT_ADDRESS = process.env.DEMO_CLIENT_ADDRESS;
-const FREELANCER_ADDRESS = process.env.DEMO_FREELANCER_ADDRESS;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local");
   process.exit(1);
 }
-if (!CLIENT_ADDRESS || !FREELANCER_ADDRESS) {
-  console.error("Missing DEMO_CLIENT_ADDRESS or DEMO_FREELANCER_ADDRESS in .env.local");
+if (!CLIENT_ADDRESS) {
+  console.error("Missing DEMO_CLIENT_ADDRESS in .env.local");
   process.exit(1);
 }
 
@@ -99,17 +98,65 @@ const DEMO_LISTINGS: DemoListing[] = [
     total_xlm: 88,
     status: "open",
   },
+  {
+    client_address: CLIENT_ADDRESS,
+    title: "E-commerce Store Development",
+    description:
+      "Build a full-featured e-commerce storefront using Next.js and Stripe. Requirements include product listing, cart, checkout, order management, and an admin panel for inventory. The design will be provided as Figma files.",
+    skills: ["Next.js", "TypeScript", "Stripe", "PostgreSQL"],
+    milestones: [
+      { title: "Product catalogue & cart", amount_xlm: 35 },
+      { title: "Checkout & payments", amount_xlm: 40 },
+      { title: "Admin panel & order management", amount_xlm: 30 },
+    ],
+    total_xlm: 105,
+    status: "open",
+  },
+  {
+    client_address: CLIENT_ADDRESS,
+    title: "DevOps & CI/CD Pipeline Setup",
+    description:
+      "Set up a production-ready CI/CD pipeline for our monorepo. We need GitHub Actions workflows for testing, building, and deploying to AWS ECS. Include infrastructure-as-code using Terraform and a staging environment.",
+    skills: ["GitHub Actions", "Terraform", "AWS", "Docker"],
+    milestones: [
+      { title: "Terraform infra & ECS setup", amount_xlm: 40 },
+      { title: "CI/CD workflows & staging env", amount_xlm: 35 },
+      { title: "Monitoring & alerting", amount_xlm: 25 },
+    ],
+    total_xlm: 100,
+    status: "open",
+  },
+  {
+    client_address: CLIENT_ADDRESS,
+    title: "Technical Content Writing",
+    description:
+      "Write 8 in-depth technical blog posts covering Web3, Stellar, and smart contract development. Each post should be 1,500–2,500 words, developer-focused, and include code examples. SEO optimisation required.",
+    skills: ["Technical Writing", "Web3", "Stellar", "SEO"],
+    milestones: [
+      { title: "Posts 1–4 with code examples", amount_xlm: 28 },
+      { title: "Posts 5–8 with code examples", amount_xlm: 28 },
+      { title: "SEO review & final edits", amount_xlm: 14 },
+    ],
+    total_xlm: 70,
+    status: "open",
+  },
+  {
+    client_address: CLIENT_ADDRESS,
+    title: "Python Web Scraper & Data Pipeline",
+    description:
+      "Build a robust web scraper to extract product pricing data from 15 e-commerce websites daily. Data should be cleaned, normalised, and stored in a PostgreSQL database. Include a scheduler and alerting for failures.",
+    skills: ["Python", "Scrapy", "PostgreSQL", "Celery"],
+    milestones: [
+      { title: "Scraper for 15 sites", amount_xlm: 32 },
+      { title: "Data pipeline & normalisation", amount_xlm: 28 },
+      { title: "Scheduler, alerts & docs", amount_xlm: 20 },
+    ],
+    total_xlm: 80,
+    status: "open",
+  },
 ];
 
-const APPLICATION_MESSAGES = [
-  "I have 4 years of experience building production React apps and have completed 12 similar projects. I can start immediately and deliver the first milestone within 5 days.",
-  "Rust and Soroban are my primary stack. I have audited 3 contracts on testnet and can provide a detailed security report within a week.",
-  "I am a product designer with 5 years of fintech experience. My Figma work is clean, component-based, and developer-friendly.",
-  "Full-stack Node.js developer with 6 years of experience. I write clean, tested code and always deliver thorough API documentation.",
-  "I specialise in data dashboards using React and D3. I have built analytics tools for e-commerce and SaaS companies across Africa.",
-];
-
-async function seedListing(listing: DemoListing, appMessage: string): Promise<string> {
+async function seedListing(listing: DemoListing): Promise<void> {
   const { data: existing } = await sb
     .from("listings")
     .select("id, title")
@@ -117,44 +164,17 @@ async function seedListing(listing: DemoListing, appMessage: string): Promise<st
     .eq("title", listing.title)
     .maybeSingle();
 
-  let listingId: string;
-
   if (existing) {
     console.log(`  Already exists: "${existing.title}" (${existing.id})`);
-    listingId = existing.id;
-  } else {
-    const { data, error } = await sb.from("listings").insert(listing).select().single();
-    if (error) {
-      console.error(`  Failed to create "${listing.title}":`, error.message);
-      process.exit(1);
-    }
-    listingId = data.id;
-    console.log(`  Created: "${data.title}" (${listingId})`);
+    return;
   }
 
-  const { data: existingApp } = await sb
-    .from("applications")
-    .select("id")
-    .eq("listing_id", listingId)
-    .eq("freelancer_address", FREELANCER_ADDRESS!.toLowerCase())
-    .maybeSingle();
-
-  if (existingApp) {
-    console.log(`  Application already exists--. Skipping.`);
-  } else {
-    const { error: appError } = await sb.from("applications").insert({
-      listing_id: listingId,
-      freelancer_address: FREELANCER_ADDRESS!,
-      message: appMessage,
-    });
-    if (appError) {
-      console.error(`  Failed to create application:`, appError.message);
-      process.exit(1);
-    }
-    console.log(`  Application created.`);
+  const { data, error } = await sb.from("listings").insert(listing).select().single();
+  if (error) {
+    console.error(`  Failed to create "${listing.title}":`, error.message);
+    process.exit(1);
   }
-
-  return listingId;
+  console.log(`  Created: "${data.title}" (${data.id})`);
 }
 
 async function seed() {
@@ -162,7 +182,7 @@ async function seed() {
 
   for (let i = 0; i < DEMO_LISTINGS.length; i++) {
     console.log(`[${i + 1}/${DEMO_LISTINGS.length}] ${DEMO_LISTINGS[i].title}`);
-    await seedListing(DEMO_LISTINGS[i], APPLICATION_MESSAGES[i]);
+    await seedListing(DEMO_LISTINGS[i]);
   }
 
   console.log(`\nAll ${DEMO_LISTINGS.length} listings seeded.`);
