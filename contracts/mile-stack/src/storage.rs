@@ -1,4 +1,4 @@
-use soroban_sdk::{Env, Vec};
+use soroban_sdk::{Address, Env, Vec};
 
 use crate::types::{DataKey, Milestone, Project};
 
@@ -13,6 +13,21 @@ pub fn save_project(env: &Env, project: &Project) {
     env.storage()
         .instance()
         .set(&DataKey::Project(project.id), project);
+}
+
+pub fn get_reputation(env: &Env, freelancer: &Address) -> u32 {
+    env.storage()
+        .persistent()
+        .get(&DataKey::Reputation(freelancer.clone()))
+        .unwrap_or(0u32)
+}
+
+pub fn increment_reputation(env: &Env, freelancer: &Address) -> u32 {
+    let next = get_reputation(env, freelancer) + 1;
+    env.storage()
+        .persistent()
+        .set(&DataKey::Reputation(freelancer.clone()), &next);
+    next
 }
 
 /// Rebuild the milestones vec with `updated` swapped in at `index`.
