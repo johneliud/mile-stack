@@ -12,15 +12,18 @@ import {
   User,
   ArrowUpRight,
   Wallet,
+  Star,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
 import { useRole } from "@/contexts/RoleContext";
 import { getProfile, type FreelancerProfile as Profile } from "@/lib/profiles";
+import { getReputation } from "@/lib/contract";
 
 function truncateAddress(addr: string) {
-  return `${addr.slice(0, 6)}...${addr.slice(-6)}`;
+  const a = addr.toUpperCase();
+  return `${a.slice(0, 6)}...${a.slice(-6)}`;
 }
 
 function getInitials(name: string) {
@@ -35,6 +38,7 @@ function getInitials(name: string) {
 export function FreelancerProfile({ address }: { address: string }) {
   const { role } = useRole();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [reputation, setReputation] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -43,11 +47,15 @@ export function FreelancerProfile({ address }: { address: string }) {
     setLoading(true);
     setError(null);
     try {
-      const data = await getProfile(address);
+      const [data, score] = await Promise.all([
+        getProfile(address),
+        getReputation(address.toUpperCase()).catch(() => 0),
+      ]);
       if (!data || !data.name) {
         setNotFound(true);
       } else {
         setProfile(data);
+        setReputation(score);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load profile");
@@ -119,15 +127,23 @@ export function FreelancerProfile({ address }: { address: string }) {
                     </span>
                   </div>
 
-                  {/* Name + address */}
-                  <div className="flex flex-col gap-1.5 min-w-0">
+                  {/* Name + address + reputation */}
+                  <div className="flex flex-col gap-2 min-w-0">
                     <h1 className="text-2xl sm:text-3xl font-bold text-primary leading-tight">
                       {profile.name}
                     </h1>
-                    <span className="inline-flex items-center gap-1.5 w-fit bg-muted border border-border rounded-lg px-2.5 py-1 text-xs font-mono text-muted-foreground">
-                      <Wallet className="h-3.5 w-3.5 shrink-0" />
-                      {truncateAddress(profile.wallet_address)}
-                    </span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 bg-muted border border-border rounded-lg px-2.5 py-1 text-xs font-mono text-muted-foreground">
+                        <Wallet className="h-3.5 w-3.5 shrink-0" />
+                        {truncateAddress(profile.wallet_address)}
+                      </span>
+                      {reputation !== null && reputation > 0 && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 border border-accent/20 px-2.5 py-1 text-xs font-semibold text-accent">
+                          <Star className="h-3.5 w-3.5 fill-accent" />
+                          {reputation} milestone{reputation !== 1 ? "s" : ""} completed
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Hire CTA inline for clients (sm+) */}
@@ -201,6 +217,26 @@ export function FreelancerProfile({ address }: { address: string }) {
                     </div>
                   )}
 
+                  {/* Reputation */}
+                  {reputation !== null && (
+                    <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+                      <h2 className="text-xs font-semibold uppercase tracking-widest text-accent mb-4">
+                        On-Chain Reputation
+                      </h2>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-accent/10 border border-accent/20 shrink-0">
+                          <Star className="h-5 w-5 text-accent fill-accent" />
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-foreground">{reputation}</p>
+                          <p className="text-xs text-muted-foreground">
+                            milestone{reputation !== 1 ? "s" : ""} approved on Stellar
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Links */}
                   {(profile.github_url || profile.portfolio_url) && (
                     <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col gap-1">
@@ -240,7 +276,7 @@ export function FreelancerProfile({ address }: { address: string }) {
                       Stellar Address
                     </h2>
                     <p className="text-xs font-mono text-muted-foreground break-all bg-muted rounded-lg px-3 py-2.5">
-                      {profile.wallet_address}
+                      {profile.wallet_address.toUpperCase()}
                     </p>
                   </div>*/}
                 </div>
