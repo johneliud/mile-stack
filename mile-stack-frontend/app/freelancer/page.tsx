@@ -22,7 +22,8 @@ import {
 import { getProjectNamesByIds } from "@/lib/listings";
 
 function truncateAddress(addr: string) {
-  return `${addr.slice(0, 6)}...${addr.slice(-6)}`;
+  const a = addr.toUpperCase();
+  return `${a.slice(0, 6)}...${a.slice(-6)}`;
 }
 
 function formatDate(timestamp: bigint): string {
