@@ -5,14 +5,13 @@ import { createClient } from "@supabase/supabase-js";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const CLIENT_ADDRESS = process.env.DEMO_CLIENT_ADDRESS;
-const FREELANCER_ADDRESS = process.env.DEMO_FREELANCER_ADDRESS;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local");
   process.exit(1);
 }
-if (!CLIENT_ADDRESS || !FREELANCER_ADDRESS) {
-  console.error("Missing DEMO_CLIENT_ADDRESS or DEMO_FREELANCER_ADDRESS in .env.local");
+if (!CLIENT_ADDRESS) {
+  console.error("Missing DEMO_CLIENT_ADDRESS in .env.local");
   process.exit(1);
 }
 
@@ -157,20 +156,7 @@ const DEMO_LISTINGS: DemoListing[] = [
   },
 ];
 
-const APPLICATION_MESSAGES = [
-  "I have 4 years of experience building production React apps and have completed 12 similar projects. I can start immediately and deliver the first milestone within 5 days.",
-  "Rust and Soroban are my primary stack. I have audited 3 contracts on testnet and can provide a detailed security report within a week.",
-  "I am a product designer with 5 years of fintech experience. My Figma work is clean, component-based, and developer-friendly.",
-  "Full-stack Node.js developer with 6 years of experience. I write clean, tested code and always deliver thorough API documentation.",
-  "I specialise in data dashboards using React and D3. I have built analytics tools for e-commerce and SaaS companies across Africa.",
-  "I have shipped three Next.js e-commerce projects with Stripe integration. I follow accessibility best practices and always hit Lighthouse scores above 95.",
-  "DevOps engineer with 5 years on AWS and Terraform. I have set up ECS-based pipelines for teams of 20+ and can have your staging environment live within three days.",
-  "Technical writer with a computer science background. I have written documentation and blog content for Stellar ecosystem projects and always meet deadlines.",
-  "Python developer specialising in scraping and ETL pipelines. I have built scrapers for over 50 sites using Scrapy and Playwright with near-zero failure rates.",
-  "I am a full-stack engineer with strong TypeScript skills. I enjoy complex data modelling problems and always write migrations that are safe to roll back.",
-];
-
-async function seedListing(listing: DemoListing, appMessage: string): Promise<string> {
+async function seedListing(listing: DemoListing): Promise<void> {
   const { data: existing } = await sb
     .from("listings")
     .select("id, title")
@@ -178,44 +164,17 @@ async function seedListing(listing: DemoListing, appMessage: string): Promise<st
     .eq("title", listing.title)
     .maybeSingle();
 
-  let listingId: string;
-
   if (existing) {
     console.log(`  Already exists: "${existing.title}" (${existing.id})`);
-    listingId = existing.id;
-  } else {
-    const { data, error } = await sb.from("listings").insert(listing).select().single();
-    if (error) {
-      console.error(`  Failed to create "${listing.title}":`, error.message);
-      process.exit(1);
-    }
-    listingId = data.id;
-    console.log(`  Created: "${data.title}" (${listingId})`);
+    return;
   }
 
-  const { data: existingApp } = await sb
-    .from("applications")
-    .select("id")
-    .eq("listing_id", listingId)
-    .eq("freelancer_address", FREELANCER_ADDRESS!.toLowerCase())
-    .maybeSingle();
-
-  if (existingApp) {
-    console.log(`  Application already exists--. Skipping.`);
-  } else {
-    const { error: appError } = await sb.from("applications").insert({
-      listing_id: listingId,
-      freelancer_address: FREELANCER_ADDRESS!,
-      message: appMessage,
-    });
-    if (appError) {
-      console.error(`  Failed to create application:`, appError.message);
-      process.exit(1);
-    }
-    console.log(`  Application created.`);
+  const { data, error } = await sb.from("listings").insert(listing).select().single();
+  if (error) {
+    console.error(`  Failed to create "${listing.title}":`, error.message);
+    process.exit(1);
   }
-
-  return listingId;
+  console.log(`  Created: "${data.title}" (${data.id})`);
 }
 
 async function seed() {
@@ -223,7 +182,7 @@ async function seed() {
 
   for (let i = 0; i < DEMO_LISTINGS.length; i++) {
     console.log(`[${i + 1}/${DEMO_LISTINGS.length}] ${DEMO_LISTINGS[i].title}`);
-    await seedListing(DEMO_LISTINGS[i], APPLICATION_MESSAGES[i]);
+    await seedListing(DEMO_LISTINGS[i]);
   }
 
   console.log(`\nAll ${DEMO_LISTINGS.length} listings seeded.`);
