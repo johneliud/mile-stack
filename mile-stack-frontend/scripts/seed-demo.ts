@@ -99,6 +99,62 @@ const DEMO_LISTINGS: DemoListing[] = [
     total_xlm: 88,
     status: "open",
   },
+  {
+    client_address: CLIENT_ADDRESS,
+    title: "E-commerce Store Development",
+    description:
+      "Build a full-featured e-commerce storefront using Next.js and Stripe. Requirements include product listing, cart, checkout, order management, and an admin panel for inventory. The design will be provided as Figma files.",
+    skills: ["Next.js", "TypeScript", "Stripe", "PostgreSQL"],
+    milestones: [
+      { title: "Product catalogue & cart", amount_xlm: 35 },
+      { title: "Checkout & payments", amount_xlm: 40 },
+      { title: "Admin panel & order management", amount_xlm: 30 },
+    ],
+    total_xlm: 105,
+    status: "open",
+  },
+  {
+    client_address: CLIENT_ADDRESS,
+    title: "DevOps & CI/CD Pipeline Setup",
+    description:
+      "Set up a production-ready CI/CD pipeline for our monorepo. We need GitHub Actions workflows for testing, building, and deploying to AWS ECS. Include infrastructure-as-code using Terraform and a staging environment.",
+    skills: ["GitHub Actions", "Terraform", "AWS", "Docker"],
+    milestones: [
+      { title: "Terraform infra & ECS setup", amount_xlm: 40 },
+      { title: "CI/CD workflows & staging env", amount_xlm: 35 },
+      { title: "Monitoring & alerting", amount_xlm: 25 },
+    ],
+    total_xlm: 100,
+    status: "open",
+  },
+  {
+    client_address: CLIENT_ADDRESS,
+    title: "Technical Content Writing",
+    description:
+      "Write 8 in-depth technical blog posts covering Web3, Stellar, and smart contract development. Each post should be 1,500–2,500 words, developer-focused, and include code examples. SEO optimisation required.",
+    skills: ["Technical Writing", "Web3", "Stellar", "SEO"],
+    milestones: [
+      { title: "Posts 1–4 with code examples", amount_xlm: 28 },
+      { title: "Posts 5–8 with code examples", amount_xlm: 28 },
+      { title: "SEO review & final edits", amount_xlm: 14 },
+    ],
+    total_xlm: 70,
+    status: "open",
+  },
+  {
+    client_address: CLIENT_ADDRESS,
+    title: "Python Web Scraper & Data Pipeline",
+    description:
+      "Build a robust web scraper to extract product pricing data from 15 e-commerce websites daily. Data should be cleaned, normalised, and stored in a PostgreSQL database. Include a scheduler and alerting for failures.",
+    skills: ["Python", "Scrapy", "PostgreSQL", "Celery"],
+    milestones: [
+      { title: "Scraper for 15 sites", amount_xlm: 32 },
+      { title: "Data pipeline & normalisation", amount_xlm: 28 },
+      { title: "Scheduler, alerts & docs", amount_xlm: 20 },
+    ],
+    total_xlm: 80,
+    status: "open",
+  },
 ];
 
 const APPLICATION_MESSAGES = [
@@ -107,6 +163,11 @@ const APPLICATION_MESSAGES = [
   "I am a product designer with 5 years of fintech experience. My Figma work is clean, component-based, and developer-friendly.",
   "Full-stack Node.js developer with 6 years of experience. I write clean, tested code and always deliver thorough API documentation.",
   "I specialise in data dashboards using React and D3. I have built analytics tools for e-commerce and SaaS companies across Africa.",
+  "I have shipped three Next.js e-commerce projects with Stripe integration. I follow accessibility best practices and always hit Lighthouse scores above 95.",
+  "DevOps engineer with 5 years on AWS and Terraform. I have set up ECS-based pipelines for teams of 20+ and can have your staging environment live within three days.",
+  "Technical writer with a computer science background. I have written documentation and blog content for Stellar ecosystem projects and always meet deadlines.",
+  "Python developer specialising in scraping and ETL pipelines. I have built scrapers for over 50 sites using Scrapy and Playwright with near-zero failure rates.",
+  "I am a full-stack engineer with strong TypeScript skills. I enjoy complex data modelling problems and always write migrations that are safe to roll back.",
 ];
 
 async function seedListing(listing: DemoListing, appMessage: string): Promise<string> {
