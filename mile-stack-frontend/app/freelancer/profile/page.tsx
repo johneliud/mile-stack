@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
-import { Save, X, GitBranch, Globe, CheckCircle, ArrowUpRight, User } from "lucide-react";
+import { X, GitBranch, Globe, ArrowUpRight, User } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
@@ -127,7 +127,7 @@ export default function EditProfilePage() {
                           rows={4}
                           value={bio}
                           onChange={(e) => setBio(e.target.value)}
-                          placeholder="Brief intro. Your experience, what you build, what you're looking for..."
+                          placeholder="Brief intro, your experience, what you build, what you're looking for..."
                           className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors resize-none"
                         />
                       </div>
@@ -222,17 +222,7 @@ export default function EditProfilePage() {
                         Your profile is visible to any client browsing talent.
                       </p>
                       <Button type="submit" variant="primary" size="lg" loading={saving}>
-                        {saved ? (
-                          <>
-                            <CheckCircle className="h-4 w-4" />
-                            Saved
-                          </>
-                        ) : (
-                          <>
-                            <Save className="h-4 w-4" />
-                            {saving ? "Saving..." : "Save Profile"}
-                          </>
-                        )}
+                        {saved ? <>Saved</> : <>{saving ? "Saving..." : "Save Profile"}</>}
                       </Button>
                     </div>
 
