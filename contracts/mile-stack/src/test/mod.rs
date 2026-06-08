@@ -6,6 +6,7 @@ mod dispute_milestone;
 mod fund_milestone;
 mod lifecycle;
 mod mark_complete;
+mod reputation;
 mod resolve_dispute;
 mod types;
 mod view_functions;

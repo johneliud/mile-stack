@@ -33,4 +33,5 @@ pub enum DataKey {
     Project(u64),
     ProjectCount,
     Resolver,
+    Reputation(Address),
 }

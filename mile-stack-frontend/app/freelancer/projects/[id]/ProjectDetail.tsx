@@ -40,7 +40,8 @@ const MILESTONE_BADGE_VARIANT: Record<
 };
 
 function truncateAddress(addr: string) {
-  return `${addr.slice(0, 6)}...${addr.slice(-6)}`;
+  const a = addr.toUpperCase();
+  return `${a.slice(0, 6)}...${a.slice(-6)}`;
 }
 
 function formatDate(timestamp: bigint): string {
@@ -188,7 +189,7 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
     setMarkingCompleteIndex(milestoneIndex);
     try {
       await markComplete(address, projectId, milestoneIndex);
-      notify("Milestone marked as complete--. Waiting for client approval.", "success");
+      notify("Milestone marked as complete. Waiting for client approval.", "success");
       await fetchProject();
     } catch (err) {
       console.error("[ProjectDetail] handleMarkComplete:", err);
@@ -203,7 +204,7 @@ export function ProjectDetail({ projectId }: { projectId: number }) {
     setDisputingIndex(milestoneIndex);
     try {
       await disputeMilestone(address, projectId, milestoneIndex);
-      notify("Dispute raised--. Funds are now locked until resolved.", "success");
+      notify("Dispute raised. Funds are now locked until resolved.", "success");
       await fetchProject();
     } catch (err) {
       console.error("[ProjectDetail] handleDispute:", err);

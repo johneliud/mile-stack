@@ -2,29 +2,55 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, Users, RefreshCw, AlertCircle, GitBranch, Globe, X } from "lucide-react";
+import {
+  Search,
+  Users,
+  RefreshCw,
+  AlertCircle,
+  GitBranch,
+  Globe,
+  X,
+  ArrowRight,
+  Star,
+} from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
 import { getAllProfiles, type FreelancerProfile } from "@/lib/profiles";
+import { getReputation } from "@/lib/contract";
 
 function truncateAddress(addr: string) {
-  return `${addr.slice(0, 6)}...${addr.slice(-6)}`;
+  const a = addr.toUpperCase();
+  return `${a.slice(0, 6)}...${a.slice(-6)}`;
 }
 
-function FreelancerCard({ profile }: { profile: FreelancerProfile }) {
+function FreelancerCard({
+  profile,
+  reputation,
+}: {
+  profile: FreelancerProfile;
+  reputation?: number;
+}) {
   return (
     <Link
       href={`/freelancers/${profile.wallet_address}`}
       className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4 shadow-sm hover:border-accent/40 transition-colors duration-150 cursor-pointer"
     >
-      <div className="flex flex-col gap-1">
-        <p className="text-base font-semibold text-foreground">
-          {profile.name ?? truncateAddress(profile.wallet_address)}
-        </p>
-        <p className="text-xs font-mono text-muted-foreground">
-          {truncateAddress(profile.wallet_address)}
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-1 min-w-0">
+          <p className="text-base font-semibold text-foreground truncate">
+            {profile.name ?? truncateAddress(profile.wallet_address)}
+          </p>
+          <p className="inline-block w-fit text-xs font-mono text-muted-foreground bg-muted rounded-md px-2 py-0.5">
+            {truncateAddress(profile.wallet_address)}
+          </p>
+        </div>
+        {reputation !== undefined && reputation > 0 && (
+          <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-accent/10 border border-accent/20 px-2 py-0.5 text-xs font-semibold text-accent">
+            <Star className="h-3 w-3 fill-accent" />
+            {reputation}
+          </span>
+        )}
       </div>
 
       {profile.bio && <p className="text-sm text-muted-foreground line-clamp-2">{profile.bio}</p>}
@@ -60,7 +86,10 @@ function FreelancerCard({ profile }: { profile: FreelancerProfile }) {
             Portfolio
           </span>
         )}
-        <span className="ml-auto text-xs font-medium text-accent">View profile →</span>
+        <span className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-accent">
+          View profile
+          <ArrowRight className="h-3.5 w-3.5" />
+        </span>
       </div>
     </Link>
   );
@@ -68,6 +97,7 @@ function FreelancerCard({ profile }: { profile: FreelancerProfile }) {
 
 export default function FreelancersPage() {
   const [profiles, setProfiles] = useState<FreelancerProfile[]>([]);
+  const [reputations, setReputations] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -79,6 +109,14 @@ export default function FreelancersPage() {
     try {
       const data = await getAllProfiles();
       setProfiles(data);
+      const scores = await Promise.all(
+        data.map((p) => getReputation(p.wallet_address.toUpperCase()).catch(() => 0)),
+      );
+      const repMap: Record<string, number> = {};
+      data.forEach((p, i) => {
+        repMap[p.wallet_address] = scores[i];
+      });
+      setReputations(repMap);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load talent");
     } finally {
@@ -243,7 +281,11 @@ export default function FreelancersPage() {
               </p>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filtered.map((profile) => (
-                  <FreelancerCard key={profile.wallet_address} profile={profile} />
+                  <FreelancerCard
+                    key={profile.wallet_address}
+                    profile={profile}
+                    reputation={reputations[profile.wallet_address]}
+                  />
                 ))}
               </div>
             </>

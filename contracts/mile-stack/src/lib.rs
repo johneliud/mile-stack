@@ -5,7 +5,7 @@ mod types;
 
 use soroban_sdk::{contract, contractimpl, log, token, Address, Env, String, Vec};
 
-use storage::{load_project, save_project, update_milestone};
+use storage::{get_reputation, increment_reputation, load_project, save_project, update_milestone};
 use types::{DataKey, Milestone, MilestoneStatus, Project};
 
 #[contract]
@@ -250,9 +250,10 @@ impl MileStackContract {
         );
 
         // Release escrowed XLM from the contract to the freelancer.
+        let freelancer_addr = milestone.freelancer.clone();
         token::Client::new(&env, &token_address).transfer(
             &env.current_contract_address(),
-            &milestone.freelancer,
+            &freelancer_addr,
             &milestone.amount,
         );
 
@@ -263,11 +264,14 @@ impl MileStackContract {
         let project = update_milestone(&env, project, milestone_index, updated);
         save_project(&env, &project);
 
+        let score = increment_reputation(&env, &freelancer_addr);
+
         log!(
             &env,
-            "MilestoneReleased: project_id={}, milestone_index={}",
+            "MilestoneReleased: project_id={}, milestone_index={}, freelancer_score={}",
             project_id,
-            milestone_index
+            milestone_index,
+            score
         );
 
         true
@@ -319,6 +323,10 @@ impl MileStackContract {
         );
 
         true
+    }
+
+    pub fn get_reputation(env: Env, freelancer: Address) -> u32 {
+        get_reputation(&env, &freelancer)
     }
 
     pub fn get_project_count(env: Env) -> u64 {

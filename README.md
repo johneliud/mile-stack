@@ -28,8 +28,8 @@ Built on **Stellar** + **Soroban** for the hackathon.
 │   └── mile-stack/
 │       ├── src/
 │       │   ├── lib.rs          # Contract entry point & function implementations
-│       │   ├── types.rs        # Data types: MilestoneStatus, Milestone, Project, DataKey
-│       │   ├── storage.rs      # Storage helpers: load_project, save_project, update_milestone
+│       │   ├── types.rs        # Data types: MilestoneStatus, Milestone, Project, DataKey (+ Reputation)
+│       │   ├── storage.rs      # Storage helpers: load/save project, update_milestone, get/increment_reputation
 │       │   └── test/
 │       │       ├── mod.rs              # Shared test helpers
 │       │       ├── types.rs            # Data structure tests
@@ -40,7 +40,8 @@ Built on **Stellar** + **Soroban** for the hackathon.
 │       │       ├── mark_complete.rs    # mark_complete tests
 │       │       ├── resolve_dispute.rs  # resolve_dispute + initialize tests
 │       │       ├── view_functions.rs
-│       │       └── lifecycle.rs        # Auth guards + end-to-end lifecycle test
+│       │       ├── lifecycle.rs        # Auth guards + end-to-end lifecycle test
+│       │       └── reputation.rs       # On-chain reputation score tests (4 tests)
 │       └── Cargo.toml
 ├── mile-stack-frontend/        # Next.js 16 frontend
 ├── supabase/
@@ -97,7 +98,7 @@ cargo test
 Expected output:
 
 ```
-running 50 tests
+running 54 tests
 test test::approve_milestone::test_approve_milestone_records_client_auth ... ok
 test test::approve_milestone::test_approve_milestone_rejects_already_released_milestone ... ok
 test test::approve_milestone::test_approve_milestone_rejects_funded_milestone ... ok
@@ -130,6 +131,10 @@ test test::mark_complete::test_mark_complete_rejects_non_freelancer ... ok
 test test::mark_complete::test_mark_complete_rejects_pending_milestone ... ok
 test test::mark_complete::test_mark_complete_records_freelancer_auth ... ok
 test test::mark_complete::test_mark_complete_updates_status_to_completed ... ok
+test test::reputation::test_reputation_accumulates_across_milestones ... ok
+test test::reputation::test_reputation_increments_on_approve_milestone ... ok
+test test::reputation::test_reputation_is_per_freelancer ... ok
+test test::reputation::test_reputation_starts_at_zero ... ok
 test test::resolve_dispute::test_initialize_double_init_rejected ... ok
 test test::resolve_dispute::test_initialize_sets_resolver ... ok
 test test::resolve_dispute::test_resolve_dispute_auth_required ... ok
@@ -147,7 +152,7 @@ test test::view_functions::test_get_project_panics_for_unknown_id ... ok
 test test::view_functions::test_get_project_returns_correct_fields ... ok
 test test::view_functions::test_view_functions_do_not_require_auth ... ok
 
-test result: ok. 50 passed; 0 failed
+test result: ok. 54 passed; 0 failed
 ```
 
 ### 3. Build the contract
@@ -217,7 +222,7 @@ The freelancer calls `mark_complete` after finishing work on a `Funded` mileston
 | `MilestoneStatus` | `Pending` → `Funded` → `Completed` → `Released` or `Disputed` |
 | `Milestone` | Title, XLM amount, status, freelancer address |
 | `Project` | ID, client address, milestone list, creation timestamp |
-| `DataKey` | Storage keys: `Project(id)`, `ProjectCount`, `Resolver` |
+| `DataKey` | Storage keys: `Project(id)`, `ProjectCount`, `Resolver`, `Reputation(address)` |
 
 ### Contract Functions
 
@@ -227,12 +232,13 @@ The freelancer calls `mark_complete` after finishing work on a `Funded` mileston
 | `create_project(client, freelancer, titles, amounts)` | Client | Creates a new escrow project; returns project ID |
 | `fund_milestone(project_id, milestone_index, token)` | Client | Locks milestone XLM in contract escrow (must be `Pending`) |
 | `mark_complete(caller, project_id, milestone_index)` | Freelancer | Signals work is done; transitions `Funded` → `Completed` |
-| `approve_milestone(project_id, milestone_index, token)` | Client | Releases escrowed XLM to the freelancer (must be `Completed`) |
+| `approve_milestone(project_id, milestone_index, token)` | Client | Releases escrowed XLM to the freelancer; increments the freelancer's on-chain reputation score |
 | `dispute_milestone(caller, project_id, milestone_index)` | Client or Freelancer | Flags milestone as `Disputed`, funds stay locked |
 | `resolve_dispute(caller, project_id, milestone_index, token, release_to_freelancer)` | Resolver | Settles a `Disputed` milestone - pays winner, marks `Released` |
 | `get_project_count()` | None | Returns total number of projects |
 | `get_project(project_id)` | None | Fetch a full project by ID |
 | `get_milestone(project_id, milestone_index)` | None | Fetch a single milestone |
+| `get_reputation(freelancer)` | None | Returns the number of milestones successfully approved for the given address |
 
 ---
 
@@ -250,6 +256,12 @@ cp .env.example .env.local
 
 # Start the development server
 npm run dev
+
+# Seed 10 demo listings into Supabase (requires DEMO_CLIENT_ADDRESS in .env.local)
+npm run seed
+
+# Run the headless E2E integration test (funds accounts via Friendbot, exercises the full flow)
+npm run test:e2e
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
@@ -267,12 +279,15 @@ Create `.env.local` inside `mile-stack-frontend/` using `.env.example` as a temp
 | Variable | Value / Description |
 |----------|---------------------|
 | `NEXT_PUBLIC_STELLAR_RPC_URL` | `https://soroban-testnet.stellar.org` |
-| `NEXT_PUBLIC_CONTRACT_ID` | `CAYB22PI2YRQPW4VGCX34XSCKMHNPERQYXIJ6Z2OZ3YKISW4XG2DSLIU` |
+| `NEXT_PUBLIC_CONTRACT_ID` | `CAGH37UE6W66FDEI7HPWLGMSWQD4Z7SRZVW3AJLBVL6CUN47UYRUBIFN` |
 | `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015` |
 | `NEXT_PUBLIC_XLM_TOKEN_ID` | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
 | `NEXT_PUBLIC_SIMULATION_SOURCE` | A funded testnet account public key (for read-only contract simulations) |
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL (Project Settings > API) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon/public key (Project Settings > API) |
+| `DEMO_CLIENT_ADDRESS` | Client public key used by `npm run seed` to author demo listings |
+| `INTEGRATION_CLIENT_SECRET` | *(optional)* Persistent testnet secret for the E2E test client account; leave blank to auto-generate via Friendbot |
+| `INTEGRATION_FREELANCER_SECRET` | *(optional)* Persistent testnet secret for the E2E test freelancer account |
 
 ---
 
@@ -293,7 +308,7 @@ Import each secret key into Freighter (set to Testnet), then run `npm run seed` 
 
 | Network | Contract ID |
 |---------|-------------|
-| Testnet | [`CAYB22PI2YRQPW4VGCX34XSCKMHNPERQYXIJ6Z2OZ3YKISW4XG2DSLIU`](https://stellar.expert/explorer/testnet/contract/CAYB22PI2YRQPW4VGCX34XSCKMHNPERQYXIJ6Z2OZ3YKISW4XG2DSLIU) |
+| Testnet | [`CAGH37UE6W66FDEI7HPWLGMSWQD4Z7SRZVW3AJLBVL6CUN47UYRUBIFN`](https://stellar.expert/explorer/testnet/contract/CAGH37UE6W66FDEI7HPWLGMSWQD4Z7SRZVW3AJLBVL6CUN47UYRUBIFN) |
 
 **Deployer / Resolver:** `GCQQCRKG3C5DPPWTVTYYWEJLIPHUVBKQYT6HIOBX7I37UVSY7DNMNFZR`
 
