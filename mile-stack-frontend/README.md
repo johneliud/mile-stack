@@ -22,7 +22,8 @@ Next.js 16 frontend for [MileStack](../README.md) - a Soroban-powered milestone-
 | Next.js 16 (App Router)  | Framework                                           |
 | TypeScript               | Language                                            |
 | Tailwind CSS v4          | Styling                                             |
-| Plus Jakarta Sans        | Typography                                          |
+| Plus Jakarta Sans        | Body typography                                     |
+| Sora                     | Heading typography (h1/h2/h3, weights 600–800)      |
 | Lucide React             | Icons                                               |
 | `@stellar/stellar-sdk`   | Soroban contract interaction                        |
 | `@stellar/freighter-api` | Freighter wallet connection                         |
@@ -91,6 +92,9 @@ mile-stack-frontend/
 │   ├── listings.ts                             # Supabase CRUD - listings, applications, project metadata
 │   ├── profiles.ts                             # Supabase CRUD - freelancer profiles (get, upsert, list)
 │   └── supabase.ts                             # Lazy Supabase client singleton
+├── scripts/
+│   ├── seed-demo.ts                            # Seeds 10 demo listings into Supabase (no applications)
+│   └── integration-test.ts                     # Headless E2E test: funds accounts, runs full milestone lifecycle
 ├── public/
 │   └── favicon.svg
 ├── .env.example
@@ -245,7 +249,8 @@ Open [http://localhost:3000](http://localhost:3000).
 5. Once accepted, the project appears on the **Freelancer** dashboard
 6. After completing work on a `Funded` milestone, click **Mark as Complete**
 7. The client can now approve the milestone and release payment
-8. Dispute a milestone if needed
+8. Each approved milestone increments the on-chain reputation score, shown as a badge on the Freelancer Dashboard
+9. Dispute a milestone if needed
 
 > **Switching roles:** The navbar shows a role chip (e.g. `Freelancer ⇄`) that re-opens the role selector so you can switch without disconnecting your wallet.
 
@@ -255,20 +260,33 @@ Open [http://localhost:3000](http://localhost:3000).
 
 The design system lives in `app/globals.css` as CSS custom properties, mapped to Tailwind utilities via `@theme inline`.
 
+### Typography
+
+Two Google Fonts are loaded via `next/font/google` in `app/layout.tsx`:
+
+| Font              | CSS variable     | Usage                                       |
+| ----------------- | ---------------- | ------------------------------------------- |
+| Plus Jakarta Sans | `--font-sans`    | Body text, UI labels, interactive elements  |
+| Sora              | `--font-heading` | All h1/h2/h3 headings (weights 600/700/800) |
+
+The global heading rule in `app/globals.css` applies Sora automatically to all `h1`, `h2`, and `h3` elements without needing per-element class names.
+
 ### Color Tokens
 
-| Token                | Hex       | Usage                       |
-| -------------------- | --------- | --------------------------- |
-| `--primary`          | `#1E3A5F` | Brand navy - headings, logo |
-| `--accent`           | `#0369A1` | CTA buttons, links          |
-| `--success`          | `#059669` | Released milestone state    |
-| `--destructive`      | `#DC2626` | Disputed state, errors      |
-| `--background`       | `#F8FAFC` | Page background             |
-| `--card`             | `#FFFFFF` | Card surfaces               |
-| `--foreground`       | `#0F172A` | Body text                   |
-| `--muted`            | `#F1F5F9` | Section backgrounds         |
-| `--muted-foreground` | `#64748B` | Secondary text              |
-| `--border`           | `#E2E8F0` | Dividers, card borders      |
+| Token                | Hex       | Usage                                                    |
+| -------------------- | --------- | -------------------------------------------------------- |
+| `--primary`          | `#1E3A5F` | Brand navy - headings, logo                              |
+| `--accent`           | `#0369A1` | CTA buttons, skill chips, XLM amounts, milestone numbers |
+| `--success`          | `#059669` | Released milestone state                                 |
+| `--destructive`      | `#DC2626` | Disputed state, errors                                   |
+| `--background`       | `#F8FAFC` | Page background                                          |
+| `--card`             | `#FFFFFF` | Card surfaces                                            |
+| `--foreground`       | `#0F172A` | Body text                                                |
+| `--muted`            | `#F1F5F9` | Section backgrounds                                      |
+| `--muted-foreground` | `#64748B` | Secondary text                                           |
+| `--border`           | `#E2E8F0` | Dividers, card borders                                   |
+
+The accent color is applied consistently across the UI using Tailwind's opacity modifier syntax (`bg-accent/10`, `border-accent/20`, `text-accent`) for skill chips, XLM values, milestone number circles, and the on-chain reputation badge.
 
 ### Milestone Status Colors
 
@@ -291,24 +309,29 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 
 ## Environment Variables
 
-| Variable                         | Value / Description                                             |
-| -------------------------------- | --------------------------------------------------------------- |
-| `NEXT_PUBLIC_STELLAR_RPC_URL`    | `https://soroban-testnet.stellar.org`                           |
-| `NEXT_PUBLIC_CONTRACT_ID`        | `CAYB22PI2YRQPW4VGCX34XSCKMHNPERQYXIJ6Z2OZ3YKISW4XG2DSLIU`      |
-| `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015`                             |
-| `NEXT_PUBLIC_XLM_TOKEN_ID`       | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`      |
-| `NEXT_PUBLIC_SIMULATION_SOURCE`  | A funded testnet account public key (for read-only simulations) |
-| `NEXT_PUBLIC_SUPABASE_URL`       | Your Supabase project URL (Project Settings > API)              |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`  | Your Supabase anon/public key (Project Settings > API)          |
+| Variable                         | Value / Description                                                               |
+| -------------------------------- | --------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_STELLAR_RPC_URL`    | `https://soroban-testnet.stellar.org`                                             |
+| `NEXT_PUBLIC_CONTRACT_ID`        | `CAGH37UE6W66FDEI7HPWLGMSWQD4Z7SRZVW3AJLBVL6CUN47UYRUBIFN`                        |
+| `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015`                                               |
+| `NEXT_PUBLIC_XLM_TOKEN_ID`       | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`                        |
+| `NEXT_PUBLIC_SIMULATION_SOURCE`  | A funded testnet account public key (for read-only simulations)                   |
+| `NEXT_PUBLIC_SUPABASE_URL`       | Your Supabase project URL (Project Settings > API)                                |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`  | Your Supabase anon/public key (Project Settings > API)                            |
+| `DEMO_CLIENT_ADDRESS`            | Client public key used by `npm run seed` to author demo listings                  |
+| `INTEGRATION_CLIENT_SECRET`      | _(optional)_ Persistent testnet secret for E2E test client; blank = Friendbot     |
+| `INTEGRATION_FREELANCER_SECRET`  | _(optional)_ Persistent testnet secret for E2E test freelancer; blank = Friendbot |
 
 ---
 
 ## Available Scripts
 
-| Script           | Description                         |
-| ---------------- | ----------------------------------- |
-| `npm run dev`    | Start development server            |
-| `npm run build`  | Production build with type checking |
-| `npm run start`  | Start production server             |
-| `npm run lint`   | Run ESLint                          |
-| `npm run format` | Run Prettier across all files       |
+| Script             | Description                                                          |
+| ------------------ | -------------------------------------------------------------------- |
+| `npm run dev`      | Start development server                                             |
+| `npm run build`    | Production build with type checking                                  |
+| `npm run start`    | Start production server                                              |
+| `npm run lint`     | Run ESLint                                                           |
+| `npm run format`   | Run Prettier across all files                                        |
+| `npm run seed`     | Seed 10 demo listings into Supabase (requires `DEMO_CLIENT_ADDRESS`) |
+| `npm run test:e2e` | Run headless E2E integration test against Stellar testnet            |
