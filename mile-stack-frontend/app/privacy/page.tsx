@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
@@ -167,7 +168,8 @@ export default function PrivacyPage() {
 
           <div className="mt-12 border-t border-border pt-8">
             <Link href="/terms" className="text-sm text-accent hover:underline">
-              Read our Terms of Service →
+              Read our Terms of Service
+              <ArrowRight className="inline h-3.5 w-3.5 ml-1" />
             </Link>
           </div>
         </div>
