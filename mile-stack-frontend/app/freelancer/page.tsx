@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FolderOpen, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
+import { FolderOpen, ChevronRight, AlertCircle, RefreshCw, Star } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/Badge";
@@ -11,6 +11,7 @@ import { useWallet } from "@/contexts/WalletContext";
 import { WalletGuard } from "@/components/WalletGuard";
 import {
   getFreelancerProjects,
+  getReputation,
   stroopsToXlm,
   totalProjectValue,
   projectOverallStatus,
@@ -123,6 +124,7 @@ export default function FreelancerDashboard() {
   const { address, isConnected } = useWallet();
   const [projects, setProjects] = useState<ContractProject[]>([]);
   const [projectNames, setProjectNames] = useState<Record<number, string>>({});
+  const [reputation, setReputation] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -130,8 +132,12 @@ export default function FreelancerDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getFreelancerProjects(addr);
+      const [data, score] = await Promise.all([
+        getFreelancerProjects(addr),
+        getReputation(addr).catch(() => 0),
+      ]);
       setProjects(data);
+      setReputation(score);
       const ids = data.map((p) => Number(p.id));
       const names = await getProjectNamesByIds(ids).catch(() => ({}) as Record<number, string>);
       setProjectNames(names);
@@ -156,11 +162,22 @@ export default function FreelancerDashboard() {
       <main className="flex-1 bg-background py-12">
         <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           {/* Page header */}
-          <div className="mb-10">
-            <h1 className="text-3xl font-bold text-primary">Freelancer Dashboard</h1>
-            <p className="mt-2 text-muted-foreground">
-              All projects where your wallet is assigned as a freelancer.
-            </p>
+          <div className="mb-10 flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="text-3xl font-bold text-primary">Freelancer Dashboard</h1>
+              <p className="mt-2 text-muted-foreground">
+                All projects where your wallet is assigned as a freelancer.
+              </p>
+            </div>
+            {isConnected && reputation !== null && (
+              <div
+                title={`${reputation} milestone${reputation !== 1 ? "s" : ""} successfully completed on-chain`}
+                className="inline-flex items-center gap-2 rounded-full bg-accent/10 border border-accent/20 px-4 py-2 text-sm font-semibold text-accent shrink-0"
+              >
+                <Star className="h-4 w-4 fill-accent" />
+                {reputation} milestone{reputation !== 1 ? "s" : ""} completed
+              </div>
+            )}
           </div>
 
           <WalletGuard message="Connect your Freighter wallet to view your active projects.">
