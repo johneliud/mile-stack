@@ -113,6 +113,11 @@ function parseProject(raw: Record<string, unknown>): ContractProject {
   };
 }
 
+export async function getReputation(freelancerAddress: string): Promise<number> {
+  const raw = await simulateView("get_reputation", new Address(freelancerAddress).toScVal());
+  return Number(raw);
+}
+
 export async function getProjectCount(): Promise<number> {
   const raw = await simulateView("get_project_count");
   return Number(raw);
