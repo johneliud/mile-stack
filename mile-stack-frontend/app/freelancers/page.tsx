@@ -2,7 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, Users, RefreshCw, AlertCircle, GitBranch, Globe, X } from "lucide-react";
+import {
+  Search,
+  Users,
+  RefreshCw,
+  AlertCircle,
+  GitBranch,
+  Globe,
+  X,
+  ArrowRight,
+} from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
@@ -22,7 +31,7 @@ function FreelancerCard({ profile }: { profile: FreelancerProfile }) {
         <p className="text-base font-semibold text-foreground">
           {profile.name ?? truncateAddress(profile.wallet_address)}
         </p>
-        <p className="text-xs font-mono text-muted-foreground">
+        <p className="inline-block text-xs font-mono text-muted-foreground bg-muted rounded-md px-2 py-0.5">
           {truncateAddress(profile.wallet_address)}
         </p>
       </div>
@@ -60,7 +69,10 @@ function FreelancerCard({ profile }: { profile: FreelancerProfile }) {
             Portfolio
           </span>
         )}
-        <span className="ml-auto text-xs font-medium text-accent">View profile →</span>
+        <span className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-accent">
+          View profile
+          <ArrowRight className="h-3.5 w-3.5" />
+        </span>
       </div>
     </Link>
   );
