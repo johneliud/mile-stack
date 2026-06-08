@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, Suspense, useEffect, useState } from "react";
+import { type FormEvent, Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Plus, Trash2, CheckCircle, ExternalLink } from "lucide-react";
@@ -31,12 +31,9 @@ function CreateProjectForm() {
   const searchParams = useSearchParams();
 
   const [projectName, setProjectName] = useState("");
-  const [freelancerAddress, setFreelancerAddress] = useState("");
-
-  useEffect(() => {
-    const prefill = searchParams.get("freelancer");
-    if (prefill) setFreelancerAddress(prefill);
-  }, [searchParams]);
+  const [freelancerAddress, setFreelancerAddress] = useState(() =>
+    (searchParams.get("freelancer") ?? "").toUpperCase(),
+  );
   const [milestones, setMilestones] = useState<MilestoneInput[]>([newMilestone()]);
   const [submitting, setSubmitting] = useState(false);
   const [createdProjectId, setCreatedProjectId] = useState<number | null>(null);
@@ -125,7 +122,7 @@ function CreateProjectForm() {
                   Your project is on-chain. Fund a milestone to move it forward.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <a
+                  {/*<a
                     href={`https://stellar.expert/explorer/testnet/contract/${process.env.NEXT_PUBLIC_CONTRACT_ID}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -133,7 +130,7 @@ function CreateProjectForm() {
                   >
                     <ExternalLink className="h-4 w-4" />
                     View on Stellar Expert
-                  </a>
+                  </a>*/}
                   <Button variant="primary" onClick={resetForm}>
                     <Plus className="h-4 w-4" />
                     Create Another
@@ -174,7 +171,7 @@ function CreateProjectForm() {
                       id="freelancer"
                       type="text"
                       value={freelancerAddress}
-                      onChange={(e) => setFreelancerAddress(e.target.value)}
+                      onChange={(e) => setFreelancerAddress(e.target.value.toUpperCase())}
                       placeholder="GXXXX..."
                       spellCheck={false}
                       className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm font-mono text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
