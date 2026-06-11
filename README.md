@@ -4,6 +4,8 @@
 
 Built on **Stellar** + **Soroban** for the hackathon.
 
+![MileStack Landing Page](./mile-stack-frontend/public/imgs/landing-page.png)
+
 ---
 
 ## Table of Contents
