@@ -322,6 +322,16 @@ Import each secret key into Freighter (set to Testnet), then run `npm run seed` 
 
 ---
 
+## Contributors
+
+| Name | GitHub |
+|------|--------|
+| John Eliud Odhiambo | [@johneliud](https://github.com/johneliud) |
+| Abigael Nyangasi | [@IjayAbby](https://github.com/IjayAbby) |
+| Praise Nyuthe | [@PraiseNyuthe](https://github.com/PraiseNyuthe) |
+
+---
+
 ## Contributing
 
 1. Pick an open issue from the [issue tracker](https://github.com/johneliud/mile-stack/issues)
