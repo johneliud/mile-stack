@@ -16,6 +16,7 @@ import {
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
+import { FreelancerCardSkeleton } from "@/components/ui/Skeleton";
 import { getAllProfiles, type FreelancerProfile } from "@/lib/profiles";
 import { getReputation } from "@/lib/contract";
 
@@ -34,44 +35,50 @@ function FreelancerCard({
   return (
     <Link
       href={`/freelancers/${profile.wallet_address}`}
-      className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4 shadow-sm hover:border-accent/40 transition-colors duration-150 cursor-pointer"
+      className="bg-card border border-border rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-xs hover:border-slate-300 hover:shadow-md transition-all duration-200 cursor-pointer group"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-1 min-w-0">
-          <p className="text-base font-semibold text-foreground truncate">
-            {profile.name ?? truncateAddress(profile.wallet_address)}
-          </p>
-          <p className="inline-block w-fit text-xs font-mono text-muted-foreground bg-muted rounded-md px-2 py-0.5">
-            {truncateAddress(profile.wallet_address)}
-          </p>
-        </div>
-        {reputation !== undefined && reputation > 0 && (
-          <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-accent/10 border border-accent/20 px-2 py-0.5 text-xs font-semibold text-accent">
-            <Star className="h-3 w-3 fill-accent" />
-            {reputation}
-          </span>
-        )}
-      </div>
-
-      {profile.bio && <p className="text-sm text-muted-foreground line-clamp-2">{profile.bio}</p>}
-
-      {profile.skills.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {profile.skills.slice(0, 6).map((skill) => (
-            <span
-              key={skill}
-              className="rounded-full border border-accent/20 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent"
-            >
-              {skill}
-            </span>
-          ))}
-          {profile.skills.length > 6 && (
-            <span className="rounded-full border border-accent/20 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent">
-              +{profile.skills.length - 6}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-col gap-1 min-w-0">
+            <p className="text-base font-bold text-foreground truncate group-hover:text-primary transition-colors">
+              {profile.name ?? truncateAddress(profile.wallet_address)}
+            </p>
+            <p className="inline-block w-fit text-xs font-poppins text-muted-foreground bg-muted rounded-md px-2 py-0.5">
+              {truncateAddress(profile.wallet_address)}
+            </p>
+          </div>
+          {reputation !== undefined && reputation > 0 && (
+            <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-700">
+              <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+              {reputation}
             </span>
           )}
         </div>
-      )}
+
+        {profile.bio && (
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+            {profile.bio}
+          </p>
+        )}
+
+        {profile.skills.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {profile.skills.slice(0, 6).map((skill) => (
+              <span
+                key={skill}
+                className="rounded-full border border-blue-200/70 bg-blue-50/80 px-2.5 py-0.5 text-xs font-medium text-blue-700"
+              >
+                {skill}
+              </span>
+            ))}
+            {profile.skills.length > 6 && (
+              <span className="rounded-full border border-blue-200/70 bg-blue-50/80 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                +{profile.skills.length - 6}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
 
       <div className="flex items-center gap-3 border-t border-border pt-4">
         {profile.github_url && (
@@ -224,9 +231,10 @@ export default function FreelancersPage() {
 
           {/* Loading */}
           {loading && (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
-              <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
-              <p className="text-sm text-muted-foreground">Loading talent...</p>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <FreelancerCardSkeleton key={i} />
+              ))}
             </div>
           )}
 
