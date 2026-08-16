@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, AlertCircle, RefreshCw, FolderOpen, Wallet, CheckCircle } from "lucide-react";
+import { ArrowLeft, AlertCircle, RefreshCw, FolderOpen, CheckCircle } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
+import { ListingDetailSkeleton } from "@/components/ui/Skeleton";
 import { useNotification } from "@/components/Notification";
 import { useWallet } from "@/contexts/WalletContext";
 import { getListing, applyToListing, hasApplied, type Listing } from "@/lib/listings";
@@ -91,12 +92,7 @@ export function ListingDetail({ listingId }: { listingId: string }) {
           </Link>
 
           {/* Loading */}
-          {loading && (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
-              <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
-              <p className="text-sm text-muted-foreground">Loading project...</p>
-            </div>
-          )}
+          {loading && <ListingDetailSkeleton />}
 
           {/* Error */}
           {!loading && error && (
@@ -200,10 +196,6 @@ export function ListingDetail({ listingId }: { listingId: string }) {
                   <p className="text-3xl font-bold text-accent">
                     {listing.total_xlm.toLocaleString("en-US", { maximumFractionDigits: 2 })} XLM
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    across {listing.milestones.length} milestone
-                    {listing.milestones.length !== 1 ? "s" : ""}
-                  </p>
                 </div>
 
                 {/* Apply panel */}
@@ -235,7 +227,6 @@ export function ListingDetail({ listingId }: { listingId: string }) {
                     {!isConnected && (
                       <div className="rounded-2xl border border-border bg-card p-6 flex flex-col gap-4">
                         <div className="flex items-center gap-3">
-                          <Wallet className="h-5 w-5 text-muted-foreground shrink-0" />
                           <p className="text-sm text-muted-foreground">
                             {isFreighterInstalled === false
                               ? "Install Freighter to apply."
@@ -244,7 +235,6 @@ export function ListingDetail({ listingId }: { listingId: string }) {
                         </div>
                         {isFreighterInstalled !== false && (
                           <Button variant="primary" onClick={connect}>
-                            <Wallet className="h-4 w-4" />
                             Connect Wallet
                           </Button>
                         )}
