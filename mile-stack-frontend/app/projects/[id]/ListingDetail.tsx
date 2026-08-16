@@ -81,15 +81,23 @@ export function ListingDetail({ listingId }: { listingId: string }) {
     <div className="flex min-h-screen flex-col">
       <Navbar />
 
-      <main className="flex-1 bg-background py-12">
-        <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/projects"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground mb-8"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Projects
-          </Link>
+      <main className="flex-1 bg-background">
+        {/* Sticky back button */}
+        <div className="sticky top-[57px] z-20 bg-background border-b border-border">
+          <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+            <div className="py-3">
+              <Link
+                href="/projects"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Projects
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
 
           {/* Loading */}
           {loading && <ListingDetailSkeleton />}
