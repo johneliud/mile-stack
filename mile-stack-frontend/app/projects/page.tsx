@@ -155,211 +155,211 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
 
-      <main className="flex flex-1 flex-col overflow-hidden bg-background">
-        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-          {/* ── Sticky header + search ── */}
-          <div className="py-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-primary">Open Projects</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Browse projects posted by clients and apply with your Stellar wallet.
-              </p>
-            </div>
+      <main className="flex-1 bg-background">
+        {/* ── Sticky title + search – pins just below the navbar ── */}
+        <div className="sticky top-[57px] z-20 bg-background border-b border-border">
+          <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+            <div className="py-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-primary">Open Projects</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Browse projects posted by clients and apply with your Stellar wallet.
+                </p>
+              </div>
 
-            {/* Embedded Search + Skills Filter */}
-            {!loading && !error && listings.length > 0 && (
-              <div ref={searchContainerRef} className="relative w-full sm:w-80 md:w-123">
-                <div className="relative flex items-center">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onFocus={() => setDropdownOpen(true)}
-                    placeholder="Search projects..."
-                    className="w-full rounded-xl border border-border bg-card pl-10 pr-24 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all shadow-xs"
-                  />
-                  <div className="absolute right-2 flex items-center gap-1">
-                    {search && (
-                      <button
-                        type="button"
-                        onClick={() => setSearch("")}
-                        aria-label="Clear search input"
-                        className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                    {allSkills.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setDropdownOpen((prev) => !prev)}
-                        aria-label="Toggle skills filter"
-                        aria-expanded={dropdownOpen}
-                        className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
-                          activeSkills.size > 0
-                            ? "bg-accent text-white"
-                            : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
-                        }`}
-                      >
-                        <SlidersHorizontal className="h-3.5 w-3.5" />
-                        {activeSkills.size > 0 ? (
-                          <span className="font-bold">{activeSkills.size}</span>
-                        ) : (
-                          <span>Skills</span>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Embedded Skills Popover Dropdown */}
-                {dropdownOpen && allSkills.length > 0 && (
-                  <div className="absolute right-0 top-full mt-2 z-30 w-full sm:w-96 rounded-2xl border border-border bg-card p-4 shadow-xl animate-fade-in">
-                    <div className="flex items-center justify-between pb-3 mb-3 border-b border-border">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                          Filter by Skills
-                        </span>
-                        {activeSkills.size > 0 && (
-                          <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-semibold text-accent">
-                            {activeSkills.size} selected
-                          </span>
-                        )}
-                      </div>
-                      {activeSkills.size > 0 && (
+              {/* Embedded Search + Skills Filter */}
+              {!loading && !error && listings.length > 0 && (
+                <div ref={searchContainerRef} className="relative w-full sm:w-80 md:w-123">
+                  <div className="relative flex items-center">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      onFocus={() => setDropdownOpen(true)}
+                      placeholder="Search projects..."
+                      className="w-full rounded-xl border border-border bg-card pl-10 pr-24 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all shadow-xs"
+                    />
+                    <div className="absolute right-2 flex items-center gap-1">
+                      {search && (
                         <button
                           type="button"
-                          onClick={() => setActiveSkills(new Set())}
-                          className="text-xs font-medium text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                          onClick={() => setSearch("")}
+                          aria-label="Clear search input"
+                          className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                         >
-                          Reset
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                      {allSkills.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setDropdownOpen((prev) => !prev)}
+                          aria-label="Toggle skills filter"
+                          aria-expanded={dropdownOpen}
+                          className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+                            activeSkills.size > 0
+                              ? "bg-accent text-white"
+                              : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          <SlidersHorizontal className="h-3.5 w-3.5" />
+                          {activeSkills.size > 0 ? (
+                            <span className="font-bold">{activeSkills.size}</span>
+                          ) : (
+                            <span>Skills</span>
+                          )}
                         </button>
                       )}
                     </div>
-
-                    <div className="flex flex-wrap gap-1.5 max-h-56 overflow-y-auto pr-1">
-                      {allSkills.map((skill) => {
-                        const isSelected = activeSkills.has(skill);
-                        return (
-                          <button
-                            key={skill}
-                            type="button"
-                            onClick={() => toggleSkill(skill)}
-                            className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium transition-all cursor-pointer ${
-                              isSelected
-                                ? "border-accent bg-accent/10 text-accent font-semibold shadow-xs"
-                                : "border-border bg-muted/60 text-muted-foreground hover:border-slate-300 hover:text-foreground"
-                            }`}
-                          >
-                            {isSelected && <Check className="h-3 w-3" />}
-                            {skill}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">
-                        {activeSkills.size === 0
-                          ? "All skills included"
-                          : `${activeSkills.size} skill filter${activeSkills.size > 1 ? "s" : ""} active`}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setDropdownOpen(false)}
-                        className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-slate-800 transition-colors cursor-pointer"
-                      >
-                        Done
-                      </button>
-                    </div>
                   </div>
-                )}
-              </div>
-            )}
+
+                  {/* Embedded Skills Popover Dropdown */}
+                  {dropdownOpen && allSkills.length > 0 && (
+                    <div className="absolute right-0 top-full mt-2 z-30 w-full sm:w-96 rounded-2xl border border-border bg-card p-4 shadow-xl animate-fade-in">
+                      <div className="flex items-center justify-between pb-3 mb-3 border-b border-border">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                            Filter by Skills
+                          </span>
+                          {activeSkills.size > 0 && (
+                            <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-semibold text-accent">
+                              {activeSkills.size} selected
+                            </span>
+                          )}
+                        </div>
+                        {activeSkills.size > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setActiveSkills(new Set())}
+                            className="text-xs font-medium text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                          >
+                            Reset
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap gap-1.5 max-h-56 overflow-y-auto pr-1">
+                        {allSkills.map((skill) => {
+                          const isSelected = activeSkills.has(skill);
+                          return (
+                            <button
+                              key={skill}
+                              type="button"
+                              onClick={() => toggleSkill(skill)}
+                              className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium transition-all cursor-pointer ${
+                                isSelected
+                                  ? "border-accent bg-accent/10 text-accent font-semibold shadow-xs"
+                                  : "border-border bg-muted/60 text-muted-foreground hover:border-slate-300 hover:text-foreground"
+                              }`}
+                            >
+                              {isSelected && <Check className="h-3 w-3" />}
+                              {skill}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          {activeSkills.size === 0
+                            ? "All skills included"
+                            : `${activeSkills.size} skill filter${activeSkills.size > 1 ? "s" : ""} active`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setDropdownOpen(false)}
+                          className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-slate-800 transition-colors cursor-pointer"
+                        >
+                          Done
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* ── Scrollable content area ── */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 pb-12">
-            {/* Loading */}
-            {loading && (
+        {/* ── Project grid – window scrolls, Lenis drives it ── */}
+        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
+          {/* Loading */}
+          {loading && (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ListingCardSkeleton key={i} />
+              ))}
+            </div>
+          )}
+
+          {/* Error */}
+          {!loading && error && (
+            <div className="rounded-2xl border border-border bg-card p-10 text-center">
+              <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">Failed to load projects</h2>
+              <p className="mt-1 text-sm text-muted-foreground mb-6">
+                {error === "SUPABASE_NOT_CONFIGURED"
+                  ? "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local."
+                  : error}
+              </p>
+              <Button variant="outline" onClick={fetchListings}>
+                <RefreshCw className="h-4 w-4" />
+                Retry
+              </Button>
+            </div>
+          )}
+
+          {/* Empty (no listings at all) */}
+          {!loading && !error && listings.length === 0 && (
+            <div className="rounded-2xl border border-border bg-card p-10 text-center">
+              <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">No open projects</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                No projects have been posted yet. Check back soon.
+              </p>
+            </div>
+          )}
+
+          {/* No results after filtering */}
+          {!loading && !error && listings.length > 0 && filtered.length === 0 && (
+            <div className="rounded-2xl border border-border bg-card p-10 text-center">
+              <Search className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+              <h2 className="text-lg font-semibold text-foreground">No matches</h2>
+              <p className="mt-1 text-sm text-muted-foreground mb-4">
+                Try different keywords or remove some skill filters.
+              </p>
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="text-sm text-accent hover:underline cursor-pointer"
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
+
+          {/* Grid */}
+          {!loading && !error && filtered.length > 0 && (
+            <>
+              <p className="text-sm text-muted-foreground mb-6">
+                {filtered.length} open project{filtered.length !== 1 ? "s" : ""}
+                {hasFilters ? " matching your filters" : ""}
+              </p>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <ListingCardSkeleton key={i} />
+                {filtered.map((listing) => (
+                  <ListingCard key={listing.id} listing={listing} />
                 ))}
               </div>
-            )}
-
-            {/* Error */}
-            {!loading && error && (
-              <div className="rounded-2xl border border-border bg-card p-10 text-center">
-                <AlertCircle className="mx-auto h-10 w-10 text-destructive mb-4" />
-                <h2 className="text-lg font-semibold text-foreground">Failed to load projects</h2>
-                <p className="mt-1 text-sm text-muted-foreground mb-6">
-                  {error === "SUPABASE_NOT_CONFIGURED"
-                    ? "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local."
-                    : error}
-                </p>
-                <Button variant="outline" onClick={fetchListings}>
-                  <RefreshCw className="h-4 w-4" />
-                  Retry
-                </Button>
-              </div>
-            )}
-
-            {/* Empty (no listings at all) */}
-            {!loading && !error && listings.length === 0 && (
-              <div className="rounded-2xl border border-border bg-card p-10 text-center">
-                <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
-                <h2 className="text-lg font-semibold text-foreground">No open projects</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  No projects have been posted yet. Check back soon.
-                </p>
-              </div>
-            )}
-
-            {/* No results after filtering */}
-            {!loading && !error && listings.length > 0 && filtered.length === 0 && (
-              <div className="rounded-2xl border border-border bg-card p-10 text-center">
-                <Search className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
-                <h2 className="text-lg font-semibold text-foreground">No matches</h2>
-                <p className="mt-1 text-sm text-muted-foreground mb-4">
-                  Try different keywords or remove some skill filters.
-                </p>
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="text-sm text-accent hover:underline cursor-pointer"
-                >
-                  Clear filters
-                </button>
-              </div>
-            )}
-
-            {/* Grid */}
-            {!loading && !error && filtered.length > 0 && (
-              <>
-                <p className="text-sm text-muted-foreground mb-6">
-                  {filtered.length} open project{filtered.length !== 1 ? "s" : ""}
-                  {hasFilters ? " matching your filters" : ""}
-                </p>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {filtered.map((listing) => (
-                    <ListingCard key={listing.id} listing={listing} />
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
-          <Footer />
+            </>
+          )}
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }
