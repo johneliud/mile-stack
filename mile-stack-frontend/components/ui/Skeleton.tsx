@@ -225,3 +225,23 @@ export function ListingDetailSkeleton() {
     </div>
   );
 }
+
+/** Skeleton for an application card */
+export function ApplicationCardSkeleton() {
+  return (
+    <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Skeleton className="h-4 w-28 rounded-md" />
+          <Skeleton className="h-3.5 w-16 rounded-md" />
+        </div>
+        <Skeleton className="h-6 w-16 rounded-full shrink-0" />
+      </div>
+      <div className="border-t border-border pt-4 flex flex-col gap-1.5">
+        <Skeleton className="h-3.5 w-full rounded-md" />
+        <Skeleton className="h-3.5 w-full rounded-md" />
+        <Skeleton className="h-3.5 w-3/5 rounded-md" />
+      </div>
+    </div>
+  );
+}
