@@ -22,9 +22,10 @@ Next.js 16 frontend for [MileStack](../README.md) - a Soroban-powered milestone-
 | Next.js 16 (App Router)  | Framework                                           |
 | TypeScript               | Language                                            |
 | Tailwind CSS v4          | Styling                                             |
-| Plus Jakarta Sans        | Body typography                                     |
-| Sora                     | Heading typography (h1/h2/h3, weights 600–800)      |
+| Poppins                  | Body typography                                     |
+| Fraunces                 | Heading typography                                  |
 | Lucide React             | Icons                                               |
+| Lenis                    | Smooth scroll (window + touch inertia)              |
 | `@stellar/stellar-sdk`   | Soroban contract interaction                        |
 | `@stellar/freighter-api` | Freighter wallet connection                         |
 | `@supabase/supabase-js`  | Off-chain marketplace data (listings, applications) |
@@ -36,70 +37,72 @@ Next.js 16 frontend for [MileStack](../README.md) - a Soroban-powered milestone-
 
 ```text
 mile-stack-frontend/
-├── app/
-│   ├── client/
-│   │   ├── page.tsx                            # Client Dashboard - listings + escrow projects
-│   │   ├── listings/
-│   │   │   ├── new/
-│   │   │   │   └── page.tsx                    # Post a new project listing
-│   │   │   └── [id]/
-│   │   │       └── applications/
-│   │   │           └── page.tsx                # Review freelancer applications (address links to profile)
-│   │   └── projects/
-│   │       ├── new/
-│   │       │   └── page.tsx                    # Direct project creation; accepts ?freelancer= query param
-│   │       └── [id]/
-│   │           ├── page.tsx                    # Server Component - resolves dynamic params
-│   │           └── ProjectManage.tsx           # Client Component - fund / approve / dispute
-│   ├── freelancer/
-│   │   ├── page.tsx                            # Freelancer Dashboard - active projects
-│   │   ├── profile/
-│   │   │   └── page.tsx                        # Freelancer profile editor (name, bio, skills, links)
-│   │   └── projects/[id]/
-│   │       ├── page.tsx                        # Server Component - resolves dynamic params
-│   │       └── ProjectDetail.tsx               # Client Component - milestones + mark complete + dispute
-│   ├── freelancers/
-│   │   ├── page.tsx                            # Talent browse - search + skill filter across all profiles
-│   │   └── [address]/
-│   │       ├── page.tsx                        # Server Component - resolves dynamic params
-│   │       └── FreelancerProfile.tsx           # Public profile view - bio, skills, links, hire CTA
-│   ├── projects/
-│   │   ├── page.tsx                            # Public listings browser with search + skill filter chips
-│   │   └── [id]/
-│   │       ├── page.tsx                        # Server Component - resolves dynamic params
-│   │       └── ListingDetail.tsx               # Client Component - listing detail + apply
-│   ├── globals.css                             # Design system tokens, animations, base styles
-│   ├── icon.svg                                # App favicon
-│   ├── layout.tsx                              # Root layout - font, providers, metadata
-│   └── page.tsx                                # Landing page (hero, features, how it works, CTA)
-├── components/
-│   ├── ui/
-│   │   ├── Button.tsx                          # primary / accent / outline / ghost / destructive variants
-│   │   └── Badge.tsx                           # Milestone status badges (Pending/Funded/Completed/Released/Disputed)
-│   ├── Footer.tsx                              # Site footer
-│   ├── Navbar.tsx                              # Sticky nav with role-adaptive links, role chip, and mobile menu
-│   ├── Notification.tsx                        # Toast notification provider + useNotification hook
-│   ├── ScrollReveal.tsx                        # IntersectionObserver scroll animation wrapper
-│   ├── WalletGuard.tsx                         # Wallet connection gate - wraps pages that require Freighter
-│   ├── RoleSelector.tsx                        # Role selection modal shown after wallet connect (client / freelancer)
-│   ├── LandingHeroCta.tsx                      # Role-adaptive hero CTA buttons
-│   └── LandingBottomCta.tsx                    # Role-adaptive bottom CTA section
-├── contexts/
-│   ├── WalletContext.tsx                       # Freighter wallet state - connect / disconnect / auto-restore
-│   └── RoleContext.tsx                         # Role state ("client" | "freelancer") with localStorage persistence
-├── lib/
-│   ├── contract.ts                             # Soroban contract queries and transactions
-│   ├── listings.ts                             # Supabase CRUD - listings, applications, project metadata
-│   ├── profiles.ts                             # Supabase CRUD - freelancer profiles (get, upsert, list)
-│   └── supabase.ts                             # Lazy Supabase client singleton
-├── scripts/
-│   ├── seed-demo.ts                            # Seeds 10 demo listings into Supabase (no applications)
-│   └── integration-test.ts                     # Headless E2E test: funds accounts, runs full milestone lifecycle
-├── public/
-│   └── favicon.svg
-├── .env.example
-├── .prettierrc
-└── next.config.ts
+├- app/
+│   ├- client/
+│   │   ├- page.tsx                            # Client Dashboard - listings + escrow projects
+│   │   ├- listings/
+│   │   │   ├- new/
+│   │   │   │   └- page.tsx                    # Post a new project listing
+│   │   │   └- [id]/
+│   │   │       └- applications/
+│   │   │           └- page.tsx                # Review freelancer applications (address links to profile)
+│   │   └- projects/
+│   │       ├- new/
+│   │       │   └- page.tsx                    # Direct project creation; accepts ?freelancer= query param
+│   │       └- [id]/
+│   │           ├- page.tsx                    # Server Component - resolves dynamic params
+│   │           └- ProjectManage.tsx           # Client Component - fund / approve / dispute
+│   ├- freelancer/
+│   │   ├- page.tsx                            # Freelancer Dashboard - active projects
+│   │   ├- profile/
+│   │   │   └- page.tsx                        # Freelancer profile editor (name, bio, skills, links)
+│   │   └- projects/[id]/
+│   │       ├- page.tsx                        # Server Component - resolves dynamic params
+│   │       └- ProjectDetail.tsx               # Client Component - milestones + mark complete + dispute
+│   ├- freelancers/
+│   │   ├- page.tsx                            # Talent browse - search + skill filter across all profiles
+│   │   └- [address]/
+│   │       ├- page.tsx                        # Server Component - resolves dynamic params
+│   │       └- FreelancerProfile.tsx           # Public profile view - bio, skills, links, hire CTA
+│   ├- projects/
+│   │   ├- page.tsx                            # Public listings browser - sticky search bar, window scroll
+│   │   └- [id]/
+│   │       ├- page.tsx                        # Server Component - resolves dynamic params
+│   │       └- ListingDetail.tsx               # Client Component - listing detail + apply
+│   ├- globals.css                             # Design system tokens, animations, base styles
+│   ├- icon.svg                                # App favicon
+│   ├- layout.tsx                              # Root layout - font, providers, metadata
+│   └- page.tsx                                # Landing page (hero, features, how it works, CTA)
+├- components/
+│   ├- ui/
+│   │   ├- Button.tsx                          # primary / accent / outline / ghost / destructive variants
+│   │   ├- Badge.tsx                           # Milestone status badges (Pending/Funded/Completed/Released/Disputed)
+│   │   └- Skeleton.tsx                        # Shimmer skeleton components for all loading states
+│   ├- Footer.tsx                              # Site footer
+│   ├- Navbar.tsx                              # Sticky nav with role-adaptive links, role chip, and mobile menu
+│   ├- Notification.tsx                        # Toast notification provider + useNotification hook
+│   ├- ScrollReveal.tsx                        # IntersectionObserver scroll animation wrapper
+│   ├- WalletGuard.tsx                         # Wallet connection gate - wraps pages that require Freighter
+│   ├- RoleSelector.tsx                        # Role selection modal shown after wallet connect (client / freelancer)
+│   ├- LandingHeroCta.tsx                      # Role-adaptive hero CTA buttons
+│   └- LandingBottomCta.tsx                    # Role-adaptive bottom CTA section
+├- contexts/
+│   ├- WalletContext.tsx                       # Freighter wallet state - connect / disconnect / auto-restore
+│   ├- RoleContext.tsx                         # Role state ("client" | "freelancer") with localStorage persistence
+│   └- LenisContext.tsx                        # App-wide Lenis smooth scroll instance + lenisStop/lenisStart for modals
+├- lib/
+│   ├- contract.ts                             # Soroban contract queries and transactions
+│   ├- listings.ts                             # Supabase CRUD - listings, applications, project metadata
+│   ├- profiles.ts                             # Supabase CRUD - freelancer profiles (get, upsert, list)
+│   └- supabase.ts                             # Lazy Supabase client singleton
+├- scripts/
+│   ├- seed-demo.ts                            # Seeds 10 demo listings into Supabase (no applications)
+│   └- integration-test.ts                     # Headless E2E test: funds accounts, runs full milestone lifecycle
+├- public/
+│   └- favicon.svg
+├- .env.example
+├- .prettierrc
+└- next.config.ts
 ```
 
 ---
@@ -231,20 +234,20 @@ Open [http://localhost:3000](http://localhost:3000).
 ### Client
 
 1. Connect Freighter wallet → select **I want to hire** in the role selector
-2. Browse **/freelancers** to discover talent- search by name, bio, or skill; filter by skill chips
+2. Browse **/freelancers** to discover talent - search by name, bio, or skill; filter by skill chips
 3. Click a freelancer card to view their public profile; click **Start a Project** to hire them directly
 4. Or go to **Client** dashboard → **New Listing** to post a project and receive applications
 5. Review applications at **Client > Listings > Applications** (each applicant name links to their profile)
-6. Accept one application- Freighter signs the on-chain `create_project` transaction
+6. Accept one application - Freighter signs the on-chain `create_project` transaction
 7. Fund each milestone from the project management page
 8. Wait for the freelancer to mark the milestone complete (`mark_complete`)
-9. Approve the milestone- XLM is released to the freelancer
+9. Approve the milestone - XLM is released to the freelancer
 
 ### Freelancer
 
 1. Connect Freighter wallet → select **I want to work** in the role selector
 2. Go to **My Profile** in the navbar and fill in your name, bio, skills, GitHub, and portfolio URL
-3. Browse open projects at **/projects**- search by title/description or filter by skill chips (no wallet required to view)
+3. Browse open projects at **/projects** - search by title/description or filter by skill chips (no wallet required to view)
 4. Apply to a listing with an optional cover message
 5. Once accepted, the project appears on the **Freelancer** dashboard
 6. After completing work on a `Funded` milestone, click **Mark as Complete**
@@ -264,29 +267,60 @@ The design system lives in `app/globals.css` as CSS custom properties, mapped to
 
 Two Google Fonts are loaded via `next/font/google` in `app/layout.tsx`:
 
-| Font              | CSS variable     | Usage                                       |
-| ----------------- | ---------------- | ------------------------------------------- |
-| Plus Jakarta Sans | `--font-sans`    | Body text, UI labels, interactive elements  |
-| Sora              | `--font-heading` | All h1/h2/h3 headings (weights 600/700/800) |
+| Font     | CSS variable     | Usage                                      |
+| -------- | ---------------- | ------------------------------------------ |
+| Poppins  | `--font-sans`    | Body text, UI labels, interactive elements |
+| Fraunces | `--font-heading` | All `h1`, `h2`, `h3` elements              |
 
-The global heading rule in `app/globals.css` applies Sora automatically to all `h1`, `h2`, and `h3` elements without needing per-element class names.
+The global heading rule in `app/globals.css` applies Fraunces automatically to all `h1`, `h2`, and `h3` elements without needing per-element class names.
 
 ### Color Tokens
 
 | Token                | Hex       | Usage                                                    |
 | -------------------- | --------- | -------------------------------------------------------- |
-| `--primary`          | `#1E3A5F` | Brand navy - headings, logo                              |
-| `--accent`           | `#0369A1` | CTA buttons, skill chips, XLM amounts, milestone numbers |
+| `--primary`          | `#0F172A` | Brand navy - headings, logo                              |
+| `--accent`           | `#2563EB` | CTA buttons, skill chips, XLM amounts, milestone numbers |
 | `--success`          | `#059669` | Released milestone state                                 |
-| `--destructive`      | `#DC2626` | Disputed state, errors                                   |
+| `--destructive`      | `#E11D48` | Disputed state, errors                                   |
 | `--background`       | `#F8FAFC` | Page background                                          |
 | `--card`             | `#FFFFFF` | Card surfaces                                            |
 | `--foreground`       | `#0F172A` | Body text                                                |
-| `--muted`            | `#F1F5F9` | Section backgrounds                                      |
+| `--muted`            | `#F1F5F9` | Section backgrounds, skeleton base                       |
 | `--muted-foreground` | `#64748B` | Secondary text                                           |
 | `--border`           | `#E2E8F0` | Dividers, card borders                                   |
 
 The accent color is applied consistently across the UI using Tailwind's opacity modifier syntax (`bg-accent/10`, `border-accent/20`, `text-accent`) for skill chips, XLM values, milestone number circles, and the on-chain reputation badge.
+
+### Skeleton Loading States
+
+All data-fetching pages show skeleton placeholders instead of spinners while loading. Skeletons are defined in `components/ui/Skeleton.tsx` and mirror the exact shape of the real cards to prevent layout shift.
+
+| Component                   | Used on                                           |
+| --------------------------- | ------------------------------------------------- |
+| `ListingCardSkeleton`       | `/projects`, client dashboard (listings)          |
+| `ProjectCardSkeleton`       | Client dashboard (projects), freelancer dashboard |
+| `FreelancerCardSkeleton`    | `/freelancers`                                    |
+| `FreelancerProfileSkeleton` | `/freelancers/[address]`                          |
+| `ListingDetailSkeleton`     | `/projects/[id]`                                  |
+| `ApplicationCardSkeleton`   | `/client/listings/[id]/applications`              |
+
+### Smooth Scroll
+
+Lenis is initialised once at the app root via `LenisContext` and drives all window scrolling with an exponential easing curve. Touch devices get native-feeling inertia via `syncTouch`.
+
+To freeze background scroll when a modal is open, use the `useLenis` hook:
+
+```tsx
+import { useLenis } from "@/contexts/LenisContext";
+
+const { lenisStop, lenisStart } = useLenis();
+
+useEffect(() => {
+  if (isOpen) lenisStop();
+  else lenisStart();
+  return () => lenisStart();
+}, [isOpen, lenisStop, lenisStart]);
+```
 
 ### Milestone Status Colors
 

@@ -26,34 +26,34 @@ Built on **Stellar** + **Soroban** for the hackathon.
 
 ```text
 .
-├── contracts/
-│   └── mile-stack/
-│       ├── src/
-│       │   ├── lib.rs          # Contract entry point & function implementations
-│       │   ├── types.rs        # Data types: MilestoneStatus, Milestone, Project, DataKey (+ Reputation)
-│       │   ├── storage.rs      # Storage helpers: load/save project, update_milestone, get/increment_reputation
-│       │   └── test/
-│       │       ├── mod.rs              # Shared test helpers
-│       │       ├── types.rs            # Data structure tests
-│       │       ├── create_project.rs   # create_project tests
-│       │       ├── fund_milestone.rs   # fund_milestone tests
-│       │       ├── approve_milestone.rs
-│       │       ├── dispute_milestone.rs
-│       │       ├── mark_complete.rs    # mark_complete tests
-│       │       ├── resolve_dispute.rs  # resolve_dispute + initialize tests
-│       │       ├── view_functions.rs
-│       │       ├── lifecycle.rs        # Auth guards + end-to-end lifecycle test
-│       │       └── reputation.rs       # On-chain reputation score tests (4 tests)
-│       └── Cargo.toml
-├── mile-stack-frontend/        # Next.js 16 frontend
-├── supabase/
-│   └── migrations/             # SQL migration files
-│       ├── 20260604000000_create_listings_and_applications.sql
-│       ├── 20260604000001_create_project_metadata.sql
-│       ├── 20260607000000_tighten_rls_policies.sql
-│       └── 20260607000001_create_freelancer_profiles.sql
-├── Cargo.toml
-└── README.md
+├- contracts/
+│   └- mile-stack/
+│       ├- src/
+│       │   ├- lib.rs          # Contract entry point & function implementations
+│       │   ├- types.rs        # Data types: MilestoneStatus, Milestone, Project, DataKey (+ Reputation)
+│       │   ├- storage.rs      # Storage helpers: load/save project, update_milestone, get/increment_reputation
+│       │   └- test/
+│       │       ├- mod.rs              # Shared test helpers
+│       │       ├- types.rs            # Data structure tests
+│       │       ├- create_project.rs   # create_project tests
+│       │       ├- fund_milestone.rs   # fund_milestone tests
+│       │       ├- approve_milestone.rs
+│       │       ├- dispute_milestone.rs
+│       │       ├- mark_complete.rs    # mark_complete tests
+│       │       ├- resolve_dispute.rs  # resolve_dispute + initialize tests
+│       │       ├- view_functions.rs
+│       │       ├- lifecycle.rs        # Auth guards + end-to-end lifecycle test
+│       │       └- reputation.rs       # On-chain reputation score tests (4 tests)
+│       └- Cargo.toml
+├- mile-stack-frontend/        # Next.js 16 frontend
+├- supabase/
+│   └- migrations/             # SQL migration files
+│       ├- 20260604000000_create_listings_and_applications.sql
+│       ├- 20260604000001_create_project_metadata.sql
+│       ├- 20260607000000_tighten_rls_policies.sql
+│       └- 20260607000001_create_freelancer_profiles.sql
+├- Cargo.toml
+└- README.md
 ```
 
 ---
@@ -212,7 +212,7 @@ Replace `<CONTRACT_ID>` with the ID from the previous step and `<RESOLVER_ADDRES
 
 ```
 Pending → Funded → Completed → Released
-                ↘ Disputed ──────────────→ Released (via resolver)
+                ↘ Disputed -------→ Released (via resolver)
 ```
 
 The freelancer calls `mark_complete` after finishing work on a `Funded` milestone. Only then can the client call `approve_milestone` to release payment. Either party can call `dispute_milestone` at any time while funds are escrowed; a designated resolver account settles the dispute by calling `resolve_dispute`.
