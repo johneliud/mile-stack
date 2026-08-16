@@ -103,3 +103,65 @@ export function FreelancerCardSkeleton() {
     </div>
   );
 }
+
+/** Skeleton for the freelancer public profile page */
+export function FreelancerProfileSkeleton() {
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Header card */}
+      <div className="bg-card border border-border rounded-2xl shadow-sm p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+        <Skeleton className="h-16 w-16 rounded-2xl shrink-0" />
+        <div className="flex flex-col gap-3 flex-1">
+          <Skeleton className="h-8 w-48 rounded-md" />
+          <div className="flex gap-2">
+            <Skeleton className="h-6 w-32 rounded-lg" />
+            <Skeleton className="h-6 w-28 rounded-full" />
+          </div>
+        </div>
+        <Skeleton className="h-9 w-32 rounded-lg shrink-0" />
+      </div>
+
+      {/* Body */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col gap-3">
+            <Skeleton className="h-3.5 w-12 rounded-md" />
+            <Skeleton className="h-4 w-full rounded-md" />
+            <Skeleton className="h-4 w-full rounded-md" />
+            <Skeleton className="h-4 w-3/4 rounded-md" />
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col gap-3">
+            <Skeleton className="h-3.5 w-12 rounded-md" />
+            <div className="flex flex-wrap gap-2">
+              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-6 w-20 rounded-full" />
+              <Skeleton className="h-6 w-14 rounded-full" />
+              <Skeleton className="h-6 w-24 rounded-full" />
+              <Skeleton className="h-6 w-18 rounded-full" />
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="flex flex-col gap-4">
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col gap-3">
+            <Skeleton className="h-3.5 w-20 rounded-md" />
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
+              <div className="flex flex-col gap-1.5">
+                <Skeleton className="h-6 w-8 rounded-md" />
+                <Skeleton className="h-3.5 w-28 rounded-md" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col gap-2">
+            <Skeleton className="h-3.5 w-10 rounded-md mb-1" />
+            <Skeleton className="h-9 w-full rounded-lg" />
+            <Skeleton className="h-9 w-full rounded-lg" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
