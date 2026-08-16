@@ -165,3 +165,63 @@ export function FreelancerProfileSkeleton() {
     </div>
   );
 }
+
+/** Skeleton for the listing detail page */
+export function ListingDetailSkeleton() {
+  return (
+    <div className="grid lg:grid-cols-3 gap-8">
+      {/* Main */}
+      <div className="lg:col-span-2 flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-9 w-2/3 rounded-md" />
+          <Skeleton className="h-4 w-24 rounded-md" />
+        </div>
+        {/* Description card */}
+        <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-3">
+          <Skeleton className="h-3.5 w-20 rounded-md" />
+          <Skeleton className="h-4 w-full rounded-md" />
+          <Skeleton className="h-4 w-full rounded-md" />
+          <Skeleton className="h-4 w-4/5 rounded-md" />
+        </div>
+        {/* Skills card */}
+        <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-3">
+          <Skeleton className="h-3.5 w-28 rounded-md" />
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-7 w-16 rounded-full" />
+            <Skeleton className="h-7 w-20 rounded-full" />
+            <Skeleton className="h-7 w-14 rounded-full" />
+          </div>
+        </div>
+        {/* Milestones card */}
+        <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-3">
+          <Skeleton className="h-3.5 w-20 rounded-md" />
+          <div className="divide-y divide-border">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center justify-between gap-4 py-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-6 w-6 rounded-full shrink-0" />
+                  <Skeleton className="h-4 w-36 rounded-md" />
+                </div>
+                <Skeleton className="h-4 w-16 rounded-md" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Sidebar */}
+      <div className="flex flex-col gap-4">
+        <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-2">
+          <Skeleton className="h-3.5 w-20 rounded-md" />
+          <Skeleton className="h-9 w-28 rounded-md" />
+          <Skeleton className="h-4 w-24 rounded-md" />
+        </div>
+        <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4">
+          <Skeleton className="h-5 w-32 rounded-md" />
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-9 w-full rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
