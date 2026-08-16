@@ -93,7 +93,7 @@ export default function Home() {
                   style={{ animationDelay: "80ms" }}
                 >
                   Unlocking Global Opportunities for Talent in the{" "}
-                  <span className="text-accent">Global South</span>
+                  <span className="text-accent font-heading">Global South</span>
                 </h1>
 
                 <p

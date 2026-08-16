@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Poppins, Fraunces } from "next/font/google";
 import { NotificationProvider } from "@/components/Notification";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { RoleProvider } from "@/contexts/RoleContext";
@@ -8,6 +8,13 @@ import "./globals.css";
 
 const poppins = Poppins({
   variable: "--font-poppins",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
   display: "swap",
   weight: ["300", "400", "500", "600", "700"],
@@ -25,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${poppins.variable} h-full`}>
+    <html lang="en" className={`${poppins.variable} ${fraunces.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
         <NotificationProvider>
           <WalletProvider>
