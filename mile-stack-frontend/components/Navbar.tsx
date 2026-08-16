@@ -245,17 +245,17 @@ export function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1">
+          <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1.5">
             {navLinks.map(({ label, href }) => {
               const active = isActive(href, pathname);
               return (
                 <Link
                   key={href}
                   href={href}
-                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150 ${
+                  className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-150 ${
                     active
-                      ? "bg-primary text-background"
-                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
                   {label}

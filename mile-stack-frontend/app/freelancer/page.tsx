@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ProjectCardSkeleton } from "@/components/ui/Skeleton";
 import { useWallet } from "@/contexts/WalletContext";
 import { WalletGuard } from "@/components/WalletGuard";
 import {
@@ -108,7 +109,7 @@ function ProjectCard({ project, name }: { project: ContractProject; name?: strin
       <div className="border-t border-border pt-4 flex items-center justify-between gap-4">
         <div>
           <p className="text-xs text-muted-foreground">Total Value</p>
-          <p className="text-lg font-bold text-accent">{stroopsToXlm(total)} XLM</p>
+          <p className="text-lg font-bold text-amber-700 font-poppins">{stroopsToXlm(total)} XLM</p>
         </div>
         <Link href={`/freelancer/projects/${String(project.id)}`}>
           <Button variant="outline" size="sm">
@@ -173,9 +174,9 @@ export default function FreelancerDashboard() {
             {isConnected && reputation !== null && (
               <div
                 title={`${reputation} milestone${reputation !== 1 ? "s" : ""} successfully completed on-chain`}
-                className="inline-flex items-center gap-2 rounded-full bg-accent/10 border border-accent/20 px-4 py-2 text-sm font-semibold text-accent shrink-0"
+                className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-4 py-2 text-sm font-bold text-amber-700 shrink-0"
               >
-                <Star className="h-4 w-4 fill-accent" />
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
                 {reputation} milestone{reputation !== 1 ? "s" : ""} completed
               </div>
             )}
@@ -184,9 +185,10 @@ export default function FreelancerDashboard() {
           <WalletGuard message="Connect your Freighter wallet to view your active projects.">
             {/* Loading */}
             {isConnected && loading && (
-              <div className="flex flex-col items-center justify-center py-24 gap-3">
-                <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
-                <p className="text-sm text-muted-foreground">Loading your projects...</p>
+              <div className="grid gap-6 sm:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <ProjectCardSkeleton key={i} />
+                ))}
               </div>
             )}
 

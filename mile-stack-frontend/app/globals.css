@@ -1,15 +1,17 @@
 @import "tailwindcss";
 
-/* MileStack Design System - Professional Navy Light Theme */
+/* MileStack Design System - Nordic Slate & Stellar Amber Theme */
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
-  --primary: #1e3a5f;
+  --primary: #0f172a;
   --primary-foreground: #ffffff;
   --secondary: #334155;
   --secondary-foreground: #ffffff;
-  --accent: #0369a1;
+  --accent: #2563eb;
   --accent-foreground: #ffffff;
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
   --success: #059669;
   --success-foreground: #ffffff;
   --muted: #f1f5f9;
@@ -17,9 +19,9 @@
   --border: #e2e8f0;
   --card: #ffffff;
   --card-foreground: #0f172a;
-  --destructive: #dc2626;
+  --destructive: #e11d48;
   --destructive-foreground: #ffffff;
-  --ring: #1e3a5f;
+  --ring: #2563eb;
 }
 
 @theme inline {
@@ -31,6 +33,8 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-muted: var(--muted);
@@ -41,19 +45,18 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-ring: var(--ring);
-  --font-sans: var(--font-plus-jakarta-sans);
-  --font-heading: var(--font-sora);
+  --font-sans: var(--font-poppins);
+  --font-heading: var(--font-fraunces);
 }
 
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 4rem; /* offset for sticky header */
+  scroll-padding-top: 4rem;
 }
 
 h1,
 h2,
 h3 {
-  font-family: var(--font-heading, var(--font-sans));
+  font-family: var(--font-heading);
 }
 
 body {

@@ -174,7 +174,7 @@ function CreateProjectForm() {
                       onChange={(e) => setFreelancerAddress(e.target.value.toUpperCase())}
                       placeholder="GXXXX..."
                       spellCheck={false}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm font-mono text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm font-poppins text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
                     />
                     <p className="text-xs text-muted-foreground">
                       The Stellar public key of the freelancer you are hiring.

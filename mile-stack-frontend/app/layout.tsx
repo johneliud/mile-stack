@@ -1,23 +1,24 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Sora } from "next/font/google";
+import { Poppins, Fraunces } from "next/font/google";
 import { NotificationProvider } from "@/components/Notification";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { RoleProvider } from "@/contexts/RoleContext";
 import { RoleSelector } from "@/components/RoleSelector";
+import { LenisProvider } from "@/contexts/LenisContext";
 import "./globals.css";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
   display: "swap",
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const sora = Sora({
-  variable: "--font-sora",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
   display: "swap",
-  weight: ["600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -32,13 +33,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plusJakartaSans.variable} ${sora.variable} h-full`}>
+    <html lang="en" className={`${poppins.variable} ${fraunces.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
         <NotificationProvider>
           <WalletProvider>
             <RoleProvider>
-              <RoleSelector />
-              {children}
+              <LenisProvider>
+                <RoleSelector />
+                {children}
+              </LenisProvider>
             </RoleProvider>
           </WalletProvider>
         </NotificationProvider>

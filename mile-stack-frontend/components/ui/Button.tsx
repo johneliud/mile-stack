@@ -12,13 +12,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-primary text-primary-foreground hover:bg-[#162d4a] focus-visible:ring-primary",
-  accent: "bg-accent text-accent-foreground hover:bg-[#025d8f] focus-visible:ring-accent",
+  primary:
+    "bg-primary text-primary-foreground hover:bg-slate-800 focus-visible:ring-primary shadow-xs",
+  accent: "bg-accent text-accent-foreground hover:bg-blue-700 focus-visible:ring-accent shadow-xs",
   outline:
-    "border border-border bg-transparent text-foreground hover:bg-muted focus-visible:ring-ring",
+    "border border-border bg-card text-foreground hover:bg-muted focus-visible:ring-ring shadow-xs",
   ghost: "bg-transparent text-foreground hover:bg-muted focus-visible:ring-ring",
   destructive:
-    "bg-destructive text-destructive-foreground hover:bg-[#b91c1c] focus-visible:ring-destructive",
+    "bg-destructive text-destructive-foreground hover:bg-rose-700 focus-visible:ring-destructive shadow-xs",
 };
 
 const sizeClasses: Record<Size, string> = {

@@ -85,32 +85,32 @@ export default function TermsPage() {
               <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
                 <li>
                   Funds are locked in the contract when a client calls{" "}
-                  <code className="bg-muted rounded px-1 py-0.5 text-xs font-mono">
+                  <code className="bg-muted rounded px-1 py-0.5 text-xs font-poppins">
                     fund_milestone
                   </code>
                   .
                 </li>
                 <li>
                   The freelancer signals completion via{" "}
-                  <code className="bg-muted rounded px-1 py-0.5 text-xs font-mono">
+                  <code className="bg-muted rounded px-1 py-0.5 text-xs font-poppins">
                     mark_complete
                   </code>
                   .
                 </li>
                 <li>
                   The client releases payment via{" "}
-                  <code className="bg-muted rounded px-1 py-0.5 text-xs font-mono">
+                  <code className="bg-muted rounded px-1 py-0.5 text-xs font-poppins">
                     approve_milestone
                   </code>
                   .
                 </li>
                 <li>
                   Either party may raise a dispute via{" "}
-                  <code className="bg-muted rounded px-1 py-0.5 text-xs font-mono">
+                  <code className="bg-muted rounded px-1 py-0.5 text-xs font-poppins">
                     dispute_milestone
                   </code>
                   , locking funds until a designated resolver calls{" "}
-                  <code className="bg-muted rounded px-1 py-0.5 text-xs font-mono">
+                  <code className="bg-muted rounded px-1 py-0.5 text-xs font-poppins">
                     resolve_dispute
                   </code>
                   .
@@ -137,7 +137,7 @@ export default function TermsPage() {
               <p className="text-muted-foreground">
                 Disputes between clients and freelancers are resolved by the platform&apos;s
                 designated resolver account via the{" "}
-                <code className="bg-muted rounded px-1 py-0.5 text-xs font-mono">
+                <code className="bg-muted rounded px-1 py-0.5 text-xs font-poppins">
                   resolve_dispute
                 </code>{" "}
                 contract function. The resolver&apos;s decision is final and executed on-chain.

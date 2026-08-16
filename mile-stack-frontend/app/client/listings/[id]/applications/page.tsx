@@ -16,6 +16,7 @@ import {
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
+import { ApplicationCardSkeleton } from "@/components/ui/Skeleton";
 import { useNotification } from "@/components/Notification";
 import { useWallet } from "@/contexts/WalletContext";
 import {
@@ -73,7 +74,7 @@ function ApplicationCard({
         <div className="flex flex-col gap-0.5">
           <a
             href={`/freelancers/${application.freelancer_address}`}
-            className="text-sm font-semibold text-foreground font-mono hover:text-accent transition-colors"
+            className="text-sm font-semibold text-foreground font-poppins hover:text-accent transition-colors"
           >
             {truncateAddress(application.freelancer_address)}
           </a>
@@ -249,9 +250,10 @@ export default function ApplicationsPage() {
 
           {/* Loading */}
           {loading && (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
-              <RefreshCw className="h-7 w-7 text-muted-foreground animate-spin" />
-              <p className="text-sm text-muted-foreground">Loading applications...</p>
+            <div className="flex flex-col gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <ApplicationCardSkeleton key={i} />
+              ))}
             </div>
           )}
 
@@ -355,7 +357,7 @@ export default function ApplicationsPage() {
                     <h3 className="text-base font-semibold text-foreground">No applications yet</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Share your listing at{" "}
-                      <span className="font-mono text-xs">/projects/{listingId}</span> to attract
+                      <span className="font-poppins text-xs">/projects/{listingId}</span> to attract
                       freelancers.
                     </p>
                   </div>

@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ListingCardSkeleton, ProjectCardSkeleton } from "@/components/ui/Skeleton";
 import { useWallet } from "@/contexts/WalletContext";
 import { WalletGuard } from "@/components/WalletGuard";
 import {
@@ -69,10 +70,10 @@ function ListingCard({ listing }: { listing: ListingWithCount }) {
           <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{listing.description}</p>
         </div>
         <span
-          className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${
+          className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${
             isOpen
-              ? "bg-blue-50 text-accent border-blue-200"
-              : "bg-muted text-muted-foreground border-border"
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200/80"
+              : "bg-blue-50 text-blue-700 border-blue-200/80"
           }`}
         >
           {listing.status}
@@ -81,7 +82,7 @@ function ListingCard({ listing }: { listing: ListingWithCount }) {
 
       <div className="flex items-center gap-4 text-sm text-muted-foreground">
         <span>
-          <span className="font-semibold text-accent">
+          <span className="font-bold text-amber-700 font-poppins">
             {listing.total_xlm.toLocaleString("en-US", { maximumFractionDigits: 2 })} XLM
           </span>
         </span>
@@ -187,7 +188,7 @@ function ProjectCard({ project, name }: { project: ContractProject; name?: strin
       <div className="border-t border-border pt-4 flex items-center justify-between gap-4">
         <div>
           <p className="text-xs text-muted-foreground">Total Value</p>
-          <p className="text-lg font-bold text-accent">{stroopsToXlm(total)} XLM</p>
+          <p className="text-lg font-bold text-amber-700 font-poppins">{stroopsToXlm(total)} XLM</p>
         </div>
         <Link href={`/client/projects/${String(project.id)}`}>
           <Button variant="outline" size="sm">
@@ -284,14 +285,15 @@ export default function ClientDashboard() {
           <WalletGuard message="Connect your Freighter wallet to view your dashboard.">
             {isConnected && (
               <div className="flex flex-col gap-12">
-                {/* ── My Listings ── */}
+                {/* - My Listings - */}
                 <section>
                   <h2 className="text-xl font-semibold text-foreground mb-6">My Projects</h2>
 
                   {listingsLoading && (
-                    <div className="flex items-center gap-3 py-8 text-muted-foreground">
-                      <RefreshCw className="h-5 w-5 animate-spin" />
-                      <span className="text-sm">Loading listings...</span>
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <ListingCardSkeleton key={i} />
+                      ))}
                     </div>
                   )}
 
@@ -333,14 +335,15 @@ export default function ClientDashboard() {
                   )}
                 </section>
 
-                {/* ── Active Projects ── */}
+                {/* - Active Projects - */}
                 <section>
                   <h2 className="text-xl font-semibold text-foreground mb-6">Active Projects</h2>
 
                   {projectsLoading && (
-                    <div className="flex items-center gap-3 py-8 text-muted-foreground">
-                      <RefreshCw className="h-5 w-5 animate-spin" />
-                      <span className="text-sm">Loading projects...</span>
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      {Array.from({ length: 2 }).map((_, i) => (
+                        <ProjectCardSkeleton key={i} />
+                      ))}
                     </div>
                   )}
 
