@@ -1,16 +1,33 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Briefcase, Code2 } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
 import { useRole, type UserRole } from "@/contexts/RoleContext";
+import { useLenis } from "@/contexts/LenisContext";
 
 export function RoleSelector() {
   const { isConnected } = useWallet();
   const { role, setRole } = useRole();
+  const { lenisStop, lenisStart } = useLenis();
   const router = useRouter();
 
-  if (!isConnected || role !== null) return null;
+  const isOpen = isConnected && role === null;
+
+  // Freeze background scroll while the modal is open
+  useEffect(() => {
+    if (isOpen) {
+      lenisStop();
+    } else {
+      lenisStart();
+    }
+    return () => {
+      lenisStart();
+    };
+  }, [isOpen, lenisStop, lenisStart]);
+
+  if (!isOpen) return null;
 
   function choose(r: UserRole) {
     setRole(r);

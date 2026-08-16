@@ -4,6 +4,7 @@ import { NotificationProvider } from "@/components/Notification";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { RoleProvider } from "@/contexts/RoleContext";
 import { RoleSelector } from "@/components/RoleSelector";
+import { LenisProvider } from "@/contexts/LenisContext";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -37,8 +38,10 @@ export default function RootLayout({
         <NotificationProvider>
           <WalletProvider>
             <RoleProvider>
-              <RoleSelector />
-              {children}
+              <LenisProvider>
+                <RoleSelector />
+                {children}
+              </LenisProvider>
             </RoleProvider>
           </WalletProvider>
         </NotificationProvider>
