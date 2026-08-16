@@ -285,7 +285,7 @@ export default function ClientDashboard() {
           <WalletGuard message="Connect your Freighter wallet to view your dashboard.">
             {isConnected && (
               <div className="flex flex-col gap-12">
-                {/* ── My Listings ── */}
+                {/* - My Listings - */}
                 <section>
                   <h2 className="text-xl font-semibold text-foreground mb-6">My Projects</h2>
 
@@ -335,7 +335,7 @@ export default function ClientDashboard() {
                   )}
                 </section>
 
-                {/* ── Active Projects ── */}
+                {/* - Active Projects - */}
                 <section>
                   <h2 className="text-xl font-semibold text-foreground mb-6">Active Projects</h2>
 

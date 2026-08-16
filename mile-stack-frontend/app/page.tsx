@@ -79,7 +79,7 @@ export default function Home() {
       <Navbar />
 
       <main className="flex-1">
-        {/* ── Hero ── */}
+        {/* - Hero - */}
         <section className="relative overflow-hidden border-b border-border bg-background">
           {/* Subtle ambient light glow */}
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_70%_50%_at_50%_-10%,rgba(37,99,235,0.06),transparent_80%)]" />
@@ -119,7 +119,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Features ── */}
+        {/* - Features - */}
         <section id="features" className="border-b border-border bg-background py-16 md:py-24">
           <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
             <ScrollReveal>
@@ -168,7 +168,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── How it works ── */}
+        {/* - How it works - */}
         <section id="how-it-works" className="border-b border-border bg-card py-16 md:py-24">
           <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
             <ScrollReveal>
@@ -209,7 +209,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── CTA ── */}
+        {/* - CTA - */}
         <section className="relative overflow-hidden bg-primary py-20 text-center text-white">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.15),transparent_70%)]" />
           <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
