@@ -53,9 +53,21 @@ const PHASE_STATUSES: Status[][] = [
 const PHASE_DURATIONS = [2000, 3500, 3500, 3500, 3000];
 
 const STATUS_CONFIG: Record<Status, { label: string; text: string; bg: string }> = {
-  released: { label: "Released", text: "text-success", bg: "bg-emerald-50 border-emerald-200" },
-  funded: { label: "Funded", text: "text-accent", bg: "bg-blue-50 border-blue-200" },
-  pending: { label: "Pending", text: "text-muted-foreground", bg: "bg-muted border-border" },
+  released: {
+    label: "Released",
+    text: "text-emerald-700 font-semibold",
+    bg: "bg-emerald-50/90 border-emerald-200/80",
+  },
+  funded: {
+    label: "Funded (Escrowed)",
+    text: "text-amber-800 font-semibold",
+    bg: "bg-amber-50/90 border-amber-200/80",
+  },
+  pending: {
+    label: "Pending",
+    text: "text-slate-500 font-medium",
+    bg: "bg-slate-50 border-slate-200",
+  },
 };
 
 function useAnimatedNumber(target: number, duration = 800) {
@@ -123,7 +135,7 @@ export function AnimatedProjectCard() {
       className={`w-full rounded-2xl border border-border bg-card shadow-lg overflow-hidden transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0"}`}
     >
       {/* Header */}
-      <div className="px-8 pt-8 pb-6 border-b border-border">
+      <div className="px-8 py-10 md:py-12 border-b border-border">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
@@ -131,7 +143,7 @@ export function AnimatedProjectCard() {
             </p>
           </div>
           <div>
-            <h3 className="text-xl font-bold text-foreground">{project.title}</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-foreground">{project.title}</h3>
             <p className="text-sm text-muted-foreground mt-1">{project.skills}</p>
           </div>
         </div>
@@ -167,13 +179,13 @@ export function AnimatedProjectCard() {
         <div className="rounded-xl bg-muted/60 border border-border px-5 py-4 flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground mb-0.5">Total released</p>
-            <p className="text-2xl font-black text-success tabular-nums">
+            <p className="text-xl md:text-2xl font-black text-success tabular-nums">
               {animatedReleased.toLocaleString()} XLM
             </p>
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground mb-0.5">Project value</p>
-            <p className="text-2xl font-black text-primary tabular-nums">
+            <p className="text-xl md:text-2xl font-black text-accent tabular-nums">
               {animatedTotal.toLocaleString()} XLM
             </p>
           </div>

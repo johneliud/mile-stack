@@ -148,7 +148,7 @@ export default function Home() {
                             <Icon className="h-5 w-5" aria-hidden="true" />
                           </div>
                           <span
-                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${badgeClass}`}
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-semibold ${badgeClass}`}
                           >
                             {badge}
                           </span>
@@ -195,7 +195,7 @@ export default function Home() {
                         {number}
                       </span>
                       <span
-                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tagClass}`}
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-sm font-semibold ${tagClass}`}
                       >
                         {tag}
                       </span>

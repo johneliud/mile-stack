@@ -55,17 +55,17 @@ export function LandingHeroCta() {
       className="animate-fade-up mt-10 flex flex-wrap items-center gap-4"
       style={{ animationDelay: "240ms" }}
     >
-      <Link href="/projects">
-        <Button variant="primary" size="lg">
+      <Link href="/projects" className="w-full">
+        <Button variant="primary" size="lg" className="w-full">
           Browse open projects
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Button>
       </Link>
-      <Link href="/client">
+      {/*<Link href="/client">
         <Button variant="outline" size="lg">
           Hire talent
         </Button>
-      </Link>
+      </Link>*/}
     </div>
   );
 }
