@@ -30,18 +30,6 @@ function getPlatformLinks(role: UserRole | null): FooterLink[] {
   ];
 }
 
-const RESOURCES_LINKS: FooterLink[] = [
-  {
-    label: "Stellar testnet",
-    href: "https://developers.stellar.org/docs/learn/fundamentals/networks",
-  },
-  { label: "Freighter wallet", href: "https://www.freighter.app" },
-  {
-    label: "Soroban docs",
-    href: "https://developers.stellar.org/docs/build/smart-contracts/overview",
-  },
-];
-
 const LEGAL_LINKS: FooterLink[] = [
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Terms of Service", href: "/terms" },
@@ -93,14 +81,6 @@ export function Footer() {
               Platform
             </h3>
             <LinkList links={getPlatformLinks(role)} />
-          </div>
-
-          {/* Resources — static */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-foreground">
-              Resources
-            </h3>
-            <LinkList links={RESOURCES_LINKS} />
           </div>
 
           {/* Legal — static */}
