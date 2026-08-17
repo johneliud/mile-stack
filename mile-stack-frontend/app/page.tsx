@@ -171,13 +171,13 @@ export default function Home() {
                     aria-hidden="true"
                     className={`pointer-events-none absolute -bottom-6 right-4 select-none font-heading text-8xl font-black leading-none tracking-tighter ${
                       filled ? "text-white/20" : "text-slate-900/10"
-                    }`}
+                    } font-heading`}
                   >
                     {String(index + 1).padStart(2, "0")}
                   </span>
 
                   <div className="relative z-10">
-                    <div className="flex items-center justify-between gap-2 mb-5">
+                    {/*<div className="flex items-center justify-between gap-2 mb-5">
                       <div
                         className={`rounded-xl p-3 w-fit ${filled ? "bg-white/15 text-white" : iconBg}`}
                       >
@@ -190,7 +190,7 @@ export default function Home() {
                       >
                         {badge}
                       </span>
-                    </div>
+                    </div>*/}
                     <h3
                       className={`text-lg font-bold mb-2 ${
                         filled ? "text-white" : "text-foreground"
@@ -246,13 +246,13 @@ export default function Home() {
                     aria-hidden="true"
                     className={`pointer-events-none absolute -bottom-6 right-4 select-none font-heading text-8xl font-black leading-none tracking-tighter ${
                       filled ? "text-white/20" : "text-slate-900/10"
-                    }`}
+                    } font-heading`}
                   >
                     {number}
                   </span>
 
                   <div className="relative z-10">
-                    <div className="flex items-center justify-between gap-2 mb-4">
+                    {/*<div className="flex items-center justify-between gap-2 mb-4">
                       <span
                         className={`text-2xl font-black tabular-nums font-poppins ${
                           filled ? "text-white" : numClass
@@ -267,7 +267,7 @@ export default function Home() {
                       >
                         {tag}
                       </span>
-                    </div>
+                    </div>*/}
                     <h3
                       className={`text-lg font-bold mb-2 ${
                         filled ? "text-white" : "text-foreground"

@@ -44,8 +44,8 @@ function SequentialScrollCard<T>({
 
   const ease = useTransform(cardProgress, (t) => 1 - Math.pow(1 - t, 3));
 
-  const y = useTransform(ease, (e) => (index === 0 ? 0 : (1 - e) * 160));
-  const scale = useTransform(ease, (e) => (index === 0 ? 1 : 0.95 + 0.05 * e));
+  const y = useTransform(ease, (e) => (index === 0 ? 0 : (1 - e) * 140));
+  const scale = useTransform(ease, (e) => (index === 0 ? 1 : 0.96 + 0.04 * e));
   const opacity = useTransform(cardProgress, (t) => (index === 0 ? 1 : Math.min(1, t * 2.5)));
 
   return (
@@ -95,10 +95,11 @@ export function StackedScrollCards<T>({
 
     const measure = () => {
       const rect = el.getBoundingClientRect();
-      const travel = rect.height - window.innerHeight;
+      const navbarHeight = 64;
+      const travel = rect.height - (window.innerHeight - navbarHeight);
       if (travel > 0) {
-        const current = -rect.top / travel;
-        progress.set(Math.min(1, Math.max(0, current)));
+        const scrolled = navbarHeight - rect.top;
+        progress.set(Math.min(1, Math.max(0, scrolled / travel)));
       }
     };
 
@@ -116,11 +117,11 @@ export function StackedScrollCards<T>({
   const count = items.length;
   if (count === 0) return null;
 
-  // Mobile / tablet / reduced-motion fallback
+  // Mobile / tablet / reduced-motion fallback (matches hero padding py-16 md:py-12 lg:py-14)
   if (!pinned) {
     return (
-      <div className={`py-16 md:py-24 ${className}`}>
-        {header && <div className="mb-10">{header}</div>}
+      <div className={`py-16 md:py-12 lg:py-14 ${className}`}>
+        {header && <div className="mb-8 md:mb-10">{header}</div>}
         <div className={`grid grid-cols-1 gap-6 ${gridClassName}`}>
           {items.map((item, index) => (
             <ScrollReveal key={index} delay={index * revealStaggerMs} className="h-full">
@@ -136,12 +137,12 @@ export function StackedScrollCards<T>({
     <div
       ref={rootRef}
       className={`relative ${className}`}
-      style={{ height: `calc(100vh + ${(count - 1) * 50}vh)` }}
+      style={{ height: `calc(100vh + ${(count - 1) * 45}vh)` }}
     >
-      <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center py-8 sm:py-12">
+      <div className="sticky top-16 overflow-hidden py-16 md:py-12 lg:py-14 flex flex-col justify-center">
         <div className="mx-auto max-w-screen-2xl w-full px-4 sm:px-6 lg:px-8 flex flex-col">
           {/* Top: Section Heading & Subheading */}
-          {header && <div className="mb-10 sm:mb-12">{header}</div>}
+          {header && <div className="mb-8 md:mb-10">{header}</div>}
 
           {/* Full-width spaced grid occupying the entire section view width */}
           <div className={`w-full grid gap-6 ${gridClassName}`}>
