@@ -25,44 +25,38 @@ const LenisContext = createContext<LenisContextValue>({
 
 export function LenisProvider({ children }: { children: ReactNode }) {
   const [lenis, setLenis] = useState<Lenis | null>(null);
-  const rafRef = useRef<number | null>(null);
+  const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
     const instance = new Lenis({
-      // Natural exponential ease – quick start, gentle finish
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      // Mirror native touch inertia so mobile feels authentic
-      syncTouch: true,
-      syncTouchLerp: 0.075,
-      // Slightly reduced multipliers for a controlled feel
-      wheelMultiplier: 0.9,
-      touchMultiplier: 1.2,
-      // Always resize automatically
+      autoRaf: true,
       autoResize: true,
+      smoothWheel: true,
+      syncTouch: false,
     });
 
-    // Drive Lenis from requestAnimationFrame
-    function raf(time: number) {
-      instance.raf(time);
-      rafRef.current = requestAnimationFrame(raf);
-    }
-    rafRef.current = requestAnimationFrame(raf);
-
+    lenisRef.current = instance;
     setLenis(instance);
 
     return () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       instance.destroy();
+      lenisRef.current = null;
+      setLenis(null);
     };
   }, []);
 
   const lenisStop = useCallback(() => {
-    lenis?.stop();
-  }, [lenis]);
+    lenisRef.current?.stop();
+    document.body.style.overflow = "hidden";
+  }, []);
 
   const lenisStart = useCallback(() => {
-    lenis?.start();
-  }, [lenis]);
+    lenisRef.current?.start();
+    document.body.style.overflow = "";
+  }, []);
 
   return (
     <LenisContext.Provider value={{ lenis, lenisStop, lenisStart }}>
@@ -71,7 +65,6 @@ export function LenisProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** Access the Lenis instance and modal helpers from any client component. */
 export function useLenis() {
   return useContext(LenisContext);
 }
