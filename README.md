@@ -4,7 +4,7 @@
 
 Built on **Stellar** + **Soroban** for the hackathon.
 
-![MileStack Landing Page](./mile-stack-frontend/public/imgs/landing-page.png)
+![MileStack Landing Page](./frontend/public/imgs/landing-page.png)
 
 ---
 
@@ -45,7 +45,7 @@ Built on **Stellar** + **Soroban** for the hackathon.
 │       │       ├- lifecycle.rs        # Auth guards + end-to-end lifecycle test
 │       │       └- reputation.rs       # On-chain reputation score tests (4 tests)
 │       └- Cargo.toml
-├- mile-stack-frontend/        # Next.js 16 frontend
+├- frontend/        # Next.js 16 frontend
 ├- supabase/
 │   └- migrations/             # SQL migration files
 │       ├- 20260604000000_create_listings_and_applications.sql
@@ -60,14 +60,14 @@ Built on **Stellar** + **Soroban** for the hackathon.
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Smart Contracts | Rust + Soroban SDK 25 |
-| Blockchain | Stellar (Testnet) |
-| Payments | XLM (native Stellar token) |
-| Frontend | Next.js 16, Tailwind CSS v4, TypeScript |
-| Wallet | Freighter browser extension |
-| Database | Supabase (off-chain marketplace data) |
+| Layer           | Technology                                             |
+| --------------- | ------------------------------------------------------ |
+| Smart Contracts | Rust + Soroban SDK 25                                  |
+| Blockchain      | Stellar (Testnet)                                      |
+| Payments        | XLM (native Stellar token)                             |
+| Frontend        | Next.js 16, Tailwind CSS v4, TypeScript, Framer Motion |
+| Wallet          | Freighter browser extension                            |
+| Database        | Supabase (off-chain marketplace data)                  |
 
 ---
 
@@ -219,35 +219,35 @@ The freelancer calls `mark_complete` after finishing work on a `Funded` mileston
 
 ### Data Types
 
-| Type | Description |
-|------|-------------|
-| `MilestoneStatus` | `Pending` → `Funded` → `Completed` → `Released` or `Disputed` |
-| `Milestone` | Title, XLM amount, status, freelancer address |
-| `Project` | ID, client address, milestone list, creation timestamp |
-| `DataKey` | Storage keys: `Project(id)`, `ProjectCount`, `Resolver`, `Reputation(address)` |
+| Type              | Description                                                                    |
+| ----------------- | ------------------------------------------------------------------------------ |
+| `MilestoneStatus` | `Pending` → `Funded` → `Completed` → `Released` or `Disputed`                  |
+| `Milestone`       | Title, XLM amount, status, freelancer address                                  |
+| `Project`         | ID, client address, milestone list, creation timestamp                         |
+| `DataKey`         | Storage keys: `Project(id)`, `ProjectCount`, `Resolver`, `Reputation(address)` |
 
 ### Contract Functions
 
-| Function | Auth | Description |
-|----------|------|-------------|
-| `initialize(resolver)` | Deployer (one-time) | Sets the dispute resolver address; panics if called again |
-| `create_project(client, freelancer, titles, amounts)` | Client | Creates a new escrow project; returns project ID |
-| `fund_milestone(project_id, milestone_index, token)` | Client | Locks milestone XLM in contract escrow (must be `Pending`) |
-| `mark_complete(caller, project_id, milestone_index)` | Freelancer | Signals work is done; transitions `Funded` → `Completed` |
-| `approve_milestone(project_id, milestone_index, token)` | Client | Releases escrowed XLM to the freelancer; increments the freelancer's on-chain reputation score |
-| `dispute_milestone(caller, project_id, milestone_index)` | Client or Freelancer | Flags milestone as `Disputed`, funds stay locked |
-| `resolve_dispute(caller, project_id, milestone_index, token, release_to_freelancer)` | Resolver | Settles a `Disputed` milestone - pays winner, marks `Released` |
-| `get_project_count()` | None | Returns total number of projects |
-| `get_project(project_id)` | None | Fetch a full project by ID |
-| `get_milestone(project_id, milestone_index)` | None | Fetch a single milestone |
-| `get_reputation(freelancer)` | None | Returns the number of milestones successfully approved for the given address |
+| Function                                                                             | Auth                 | Description                                                                                    |
+| ------------------------------------------------------------------------------------ | -------------------- | ---------------------------------------------------------------------------------------------- |
+| `initialize(resolver)`                                                               | Deployer (one-time)  | Sets the dispute resolver address; panics if called again                                      |
+| `create_project(client, freelancer, titles, amounts)`                                | Client               | Creates a new escrow project; returns project ID                                               |
+| `fund_milestone(project_id, milestone_index, token)`                                 | Client               | Locks milestone XLM in contract escrow (must be `Pending`)                                     |
+| `mark_complete(caller, project_id, milestone_index)`                                 | Freelancer           | Signals work is done; transitions `Funded` → `Completed`                                       |
+| `approve_milestone(project_id, milestone_index, token)`                              | Client               | Releases escrowed XLM to the freelancer; increments the freelancer's on-chain reputation score |
+| `dispute_milestone(caller, project_id, milestone_index)`                             | Client or Freelancer | Flags milestone as `Disputed`, funds stay locked                                               |
+| `resolve_dispute(caller, project_id, milestone_index, token, release_to_freelancer)` | Resolver             | Settles a `Disputed` milestone - pays winner, marks `Released`                                 |
+| `get_project_count()`                                                                | None                 | Returns total number of projects                                                               |
+| `get_project(project_id)`                                                            | None                 | Fetch a full project by ID                                                                     |
+| `get_milestone(project_id, milestone_index)`                                         | None                 | Fetch a single milestone                                                                       |
+| `get_reputation(freelancer)`                                                         | None                 | Returns the number of milestones successfully approved for the given address                   |
 
 ---
 
 ## Frontend Setup
 
 ```bash
-cd mile-stack-frontend
+cd frontend
 
 # Install dependencies
 npm install
@@ -270,26 +270,26 @@ Open [http://localhost:3000](http://localhost:3000).
 
 On first use, connect your Freighter wallet and select your role (**I want to hire** or **I want to work**). The role is saved in `localStorage` and determines your navigation, dashboard, and landing page CTAs. You can switch roles at any time via the role chip in the navbar.
 
-See [`mile-stack-frontend/README.md`](./mile-stack-frontend/README.md) for full frontend documentation including Supabase setup.
+See [`frontend/README.md`](./frontend/README.md) for full frontend documentation including Supabase setup.
 
 ---
 
 ## Environment Variables
 
-Create `.env.local` inside `mile-stack-frontend/` using `.env.example` as a template:
+Create `.env.local` inside `frontend/` using `.env.example` as a template:
 
-| Variable | Value / Description |
-|----------|---------------------|
-| `NEXT_PUBLIC_STELLAR_RPC_URL` | `https://soroban-testnet.stellar.org` |
-| `NEXT_PUBLIC_CONTRACT_ID` | `CAGH37UE6W66FDEI7HPWLGMSWQD4Z7SRZVW3AJLBVL6CUN47UYRUBIFN` |
-| `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015` |
-| `NEXT_PUBLIC_XLM_TOKEN_ID` | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
-| `NEXT_PUBLIC_SIMULATION_SOURCE` | A funded testnet account public key (for read-only contract simulations) |
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL (Project Settings > API) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon/public key (Project Settings > API) |
-| `DEMO_CLIENT_ADDRESS` | Client public key used by `npm run seed` to author demo listings |
-| `INTEGRATION_CLIENT_SECRET` | *(optional)* Persistent testnet secret for the E2E test client account; leave blank to auto-generate via Friendbot |
-| `INTEGRATION_FREELANCER_SECRET` | *(optional)* Persistent testnet secret for the E2E test freelancer account |
+| Variable                         | Value / Description                                                                                                |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_STELLAR_RPC_URL`    | `https://soroban-testnet.stellar.org`                                                                              |
+| `NEXT_PUBLIC_CONTRACT_ID`        | `CAGH37UE6W66FDEI7HPWLGMSWQD4Z7SRZVW3AJLBVL6CUN47UYRUBIFN`                                                         |
+| `NEXT_PUBLIC_NETWORK_PASSPHRASE` | `Test SDF Network ; September 2015`                                                                                |
+| `NEXT_PUBLIC_XLM_TOKEN_ID`       | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`                                                         |
+| `NEXT_PUBLIC_SIMULATION_SOURCE`  | A funded testnet account public key (for read-only contract simulations)                                           |
+| `NEXT_PUBLIC_SUPABASE_URL`       | Your Supabase project URL (Project Settings > API)                                                                 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`  | Your Supabase anon/public key (Project Settings > API)                                                             |
+| `DEMO_CLIENT_ADDRESS`            | Client public key used by `npm run seed` to author demo listings                                                   |
+| `INTEGRATION_CLIENT_SECRET`      | _(optional)_ Persistent testnet secret for the E2E test client account; leave blank to auto-generate via Friendbot |
+| `INTEGRATION_FREELANCER_SECRET`  | _(optional)_ Persistent testnet secret for the E2E test freelancer account                                         |
 
 ---
 
@@ -297,19 +297,19 @@ Create `.env.local` inside `mile-stack-frontend/` using `.env.example` as a temp
 
 Pre-created and funded testnet accounts for testing and live demos. Testnet only - no real value.
 
-| Role | Public Key | Secret Key |
-|------|-----------|------------|
-| Client | `GBRDKWQ4RB4JNIB3JUJXXNC2D4SAPUILUPLJAQIUVOLDYQYSHOHYOFMX` | `SBPC4PYKLSCQVYA3HBDTLDFPCMKVQ4B6YQV3X2QFPOKPG5ZWDNOBCTBW` |
+| Role       | Public Key                                                 | Secret Key                                                 |
+| ---------- | ---------------------------------------------------------- | ---------------------------------------------------------- |
+| Client     | `GBRDKWQ4RB4JNIB3JUJXXNC2D4SAPUILUPLJAQIUVOLDYQYSHOHYOFMX` | `SBPC4PYKLSCQVYA3HBDTLDFPCMKVQ4B6YQV3X2QFPOKPG5ZWDNOBCTBW` |
 | Freelancer | `GCJTJMXZ43MF6W5SJVWOOJKPFCP7K4AURSBNLTTMWNABMU6T4DW2ERHF` | `SBMGNNTQRHV2KIARRXKJRPZU35VBJFMWAEJTJNPOJ52SRIWWSD3AHQEY` |
 
-Import each secret key into Freighter (set to Testnet), then run `npm run seed` inside `mile-stack-frontend/` to populate the demo listing. See [`docs/DEMO.md`](./docs/DEMO.md) for the full walkthrough.
+Import each secret key into Freighter (set to Testnet), then run `npm run seed` inside `frontend/` to populate the demo listing.
 
 ---
 
 ## Deployed Contract
 
-| Network | Contract ID |
-|---------|-------------|
+| Network | Contract ID                                                                                                                                                             |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Testnet | [`CAGH37UE6W66FDEI7HPWLGMSWQD4Z7SRZVW3AJLBVL6CUN47UYRUBIFN`](https://stellar.expert/explorer/testnet/contract/CAGH37UE6W66FDEI7HPWLGMSWQD4Z7SRZVW3AJLBVL6CUN47UYRUBIFN) |
 
 **Deployer / Resolver:** `GCQQCRKG3C5DPPWTVTYYWEJLIPHUVBKQYT6HIOBX7I37UVSY7DNMNFZR`
@@ -324,11 +324,11 @@ Import each secret key into Freighter (set to Testnet), then run `npm run seed` 
 
 ## Contributors
 
-| Name | GitHub |
-|------|--------|
-| John Eliud Odhiambo | [@johneliud](https://github.com/johneliud) |
-| Abigael Nyangasi | [@IjayAbby](https://github.com/IjayAbby) |
-| Praise Nyuthe | [@PraiseNyuthe](https://github.com/PraiseNyuthe) |
+| Name                | GitHub                                           |
+| ------------------- | ------------------------------------------------ |
+| John Eliud Odhiambo | [@johneliud](https://github.com/johneliud)       |
+| Abigael Nyangasi    | [@IjayAbby](https://github.com/IjayAbby)         |
+| Praise Nyuthe       | [@PraiseNyuthe](https://github.com/PraiseNyuthe) |
 
 ---
 

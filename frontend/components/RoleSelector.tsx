@@ -15,16 +15,14 @@ export function RoleSelector() {
 
   const isOpen = isConnected && role === null;
 
-  // Freeze background scroll while the modal is open
+  // Freeze background scroll ONLY while the modal is open
   useEffect(() => {
     if (isOpen) {
       lenisStop();
-    } else {
-      lenisStart();
+      return () => {
+        lenisStart();
+      };
     }
-    return () => {
-      lenisStart();
-    };
   }, [isOpen, lenisStop, lenisStart]);
 
   if (!isOpen) return null;

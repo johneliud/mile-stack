@@ -30,8 +30,8 @@ function timeAgo(dateStr: string): string {
 
 function ListingCard({ listing }: { listing: Listing }) {
   return (
-    <div className="bg-card border border-border rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-xs hover:border-slate-300 hover:shadow-md transition-all duration-200 group">
-      <div className="flex flex-col gap-3">
+    <div className="bg-card border border-border rounded-2xl p-7 min-h-[16rem] flex flex-col justify-between gap-5 shadow-xs hover:border-slate-300 hover:shadow-md transition-all duration-200 group">
+      <div className="flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
           <h3 className="text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
             {listing.title}
@@ -41,7 +41,7 @@ function ListingCard({ listing }: { listing: Listing }) {
           </span>
         </div>
 
-        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
           {listing.description}
         </p>
 

@@ -17,26 +17,27 @@ Next.js 16 frontend for [MileStack](../README.md) - a Soroban-powered milestone-
 
 ## Tech Stack
 
-| Technology               | Purpose                                             |
-| ------------------------ | --------------------------------------------------- |
-| Next.js 16 (App Router)  | Framework                                           |
-| TypeScript               | Language                                            |
-| Tailwind CSS v4          | Styling                                             |
-| Poppins                  | Body typography                                     |
-| Fraunces                 | Heading typography                                  |
-| Lucide React             | Icons                                               |
-| Lenis                    | Smooth scroll (window + touch inertia)              |
-| `@stellar/stellar-sdk`   | Soroban contract interaction                        |
-| `@stellar/freighter-api` | Freighter wallet connection                         |
-| `@supabase/supabase-js`  | Off-chain marketplace data (listings, applications) |
-| Prettier                 | Code formatting                                     |
+| Technology               | Purpose                                              |
+| ------------------------ | ---------------------------------------------------- |
+| Next.js 16 (App Router)  | Framework                                            |
+| TypeScript               | Language                                             |
+| Tailwind CSS v4          | Styling                                              |
+| Poppins                  | Body typography                                      |
+| Fraunces                 | Heading typography                                   |
+| Lucide React             | Icons                                                |
+| Lenis                    | Smooth window scroll (autoRaf, reduced-motion aware) |
+| Framer Motion            | Scroll-driven UI animations (pinned card cascade)    |
+| `@stellar/stellar-sdk`   | Soroban contract interaction                         |
+| `@stellar/freighter-api` | Freighter wallet connection                          |
+| `@supabase/supabase-js`  | Off-chain marketplace data (listings, applications)  |
+| Prettier                 | Code formatting                                      |
 
 ---
 
 ## Project Structure
 
 ```text
-mile-stack-frontend/
+frontend/
 ├- app/
 │   ├- client/
 │   │   ├- page.tsx                            # Client Dashboard - listings + escrow projects
@@ -72,8 +73,9 @@ mile-stack-frontend/
 │   ├- globals.css                             # Design system tokens, animations, base styles
 │   ├- icon.svg                                # App favicon
 │   ├- layout.tsx                              # Root layout - font, providers, metadata
-│   └- page.tsx                                # Landing page (hero, features, how it works, CTA)
+│   └- page.tsx                                # Landing page (hero, scroll-pinned features/steps cascade, CTA)
 ├- components/
+│   ├- AnimatedProjectCard.tsx                 # Hero card mock-up with hover/scroll entrance animation
 │   ├- ui/
 │   │   ├- Button.tsx                          # primary / accent / outline / ghost / destructive variants
 │   │   ├- Badge.tsx                           # Milestone status badges (Pending/Funded/Completed/Released/Disputed)
@@ -82,6 +84,7 @@ mile-stack-frontend/
 │   ├- Navbar.tsx                              # Sticky nav with role-adaptive links, role chip, and mobile menu
 │   ├- Notification.tsx                        # Toast notification provider + useNotification hook
 │   ├- ScrollReveal.tsx                        # IntersectionObserver scroll animation wrapper
+│   ├- StackedScrollCards.tsx                  # Scroll-driven pinned card cascade (features/steps sections)
 │   ├- WalletGuard.tsx                         # Wallet connection gate - wraps pages that require Freighter
 │   ├- RoleSelector.tsx                        # Role selection modal shown after wallet connect (client / freelancer)
 │   ├- LandingHeroCta.tsx                      # Role-adaptive hero CTA buttons
@@ -92,8 +95,10 @@ mile-stack-frontend/
 │   └- LenisContext.tsx                        # App-wide Lenis smooth scroll instance + lenisStop/lenisStart for modals
 ├- lib/
 │   ├- contract.ts                             # Soroban contract queries and transactions
+│   ├- freighter.ts                            # Freighter wallet connection helpers
 │   ├- listings.ts                             # Supabase CRUD - listings, applications, project metadata
 │   ├- profiles.ts                             # Supabase CRUD - freelancer profiles (get, upsert, list)
+│   ├- stellar.ts                              # Stellar network / asset helpers
 │   └- supabase.ts                             # Lazy Supabase client singleton
 ├- scripts/
 │   ├- seed-demo.ts                            # Seeds 10 demo listings into Supabase (no applications)
@@ -306,7 +311,7 @@ All data-fetching pages show skeleton placeholders instead of spinners while loa
 
 ### Smooth Scroll
 
-Lenis is initialised once at the app root via `LenisContext` and drives all window scrolling with an exponential easing curve. Touch devices get native-feeling inertia via `syncTouch`.
+Lenis is instantiated once at the app root via `LenisContext` with `autoRaf: true` (self-driving scroll loop), `autoResize`, and `smoothWheel`. `syncTouch` is off, so touch scrolling stays native. When the OS reports `prefers-reduced-motion: reduce`, Lenis is not created at all and the page scrolls natively.
 
 To freeze background scroll when a modal is open, use the `useLenis` hook:
 
@@ -321,6 +326,10 @@ useEffect(() => {
   return () => lenisStart();
 }, [isOpen, lenisStop, lenisStart]);
 ```
+
+### Scroll-Driven Card Cascade
+
+`components/StackedScrollCards.tsx` powers the landing page **features** and **milestone lifecycle** sections. On large screens (`≥1280px`, `≥800px` tall) the section pins full-screen and cards stack into a shingled cascade as you scroll; each card slides up the stack on its own scroll window. The animation drives off the actual scroll progress from Lenis (with a native `window` scroll fallback), and outside the large-screen gate it renders the plain responsive grid. Framer Motion's `useMotionValue`/`useTransform` move the cards rather than re-rendering React on every scroll frame.
 
 ### Milestone Status Colors
 
