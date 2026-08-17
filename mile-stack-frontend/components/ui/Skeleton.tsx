@@ -5,7 +5,7 @@ export function Skeleton({ className }: { className?: string }) {
 /** Skeleton for a listing card (projects page & client dashboard) */
 export function ListingCardSkeleton() {
   return (
-    <div className="bg-card border border-border rounded-2xl p-6 flex flex-col gap-4 shadow-sm">
+    <div className="bg-card border border-border rounded-2xl p-7 min-h-[16rem] flex flex-col gap-5 shadow-sm">
       {/* title + badge */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-2 flex-1">
