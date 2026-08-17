@@ -147,24 +147,18 @@ export default function Home() {
                     Built for clarity and trust
                   </h2>
                   <p className="mt-4 text-base sm:text-lg leading-relaxed text-muted-foreground">
-                    Smart contract infrastructure that removes friction between global talent and the
-                    opportunities they deserve.
+                    Smart contract infrastructure that removes friction between global talent and
+                    the opportunities they deserve.
                   </p>
                 </div>
               }
               items={FEATURES}
               gridClassName="md:grid-cols-3"
               revealStaggerMs={100}
-              renderCard={({
-                icon: Icon,
-                title,
-                badge,
-                badgeClass,
-                iconBg,
-                fillClass,
-                filled,
-                description,
-              }, index) => (
+              renderCard={(
+                { icon: Icon, title, badge, badgeClass, iconBg, fillClass, filled, description },
+                index,
+              ) => (
                 <div
                   className={`relative flex h-[270px] flex-col justify-between overflow-hidden rounded-2xl border p-7 shadow-xl transition-all duration-200 ${
                     filled

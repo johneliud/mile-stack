@@ -17,7 +17,7 @@ interface StackedScrollCardsProps<T> {
   className?: string;
 }
 
-interface StackedScrollCardProps<T> {
+interface SequentialScrollCardProps<T> {
   item: T;
   index: number;
   count: number;
@@ -25,19 +25,13 @@ interface StackedScrollCardProps<T> {
   renderCard: (item: T, index: number) => ReactNode;
 }
 
-function StackedScrollCard<T>({
+function SequentialScrollCard<T>({
   item,
   index,
   count,
   progress,
   renderCard,
-}: StackedScrollCardProps<T>) {
-  const OFFSET_X = count > 3 ? 56 : 68;
-  const OFFSET_Y = count > 3 ? 24 : 28;
-
-  const targetX = index * OFFSET_X;
-  const targetY = index * OFFSET_Y;
-
+}: SequentialScrollCardProps<T>) {
   const start = index === 0 ? 0 : (index - 0.88) / (count - 0.15);
   const end = index === 0 ? 0.01 : index / (count - 0.15);
 
@@ -50,22 +44,17 @@ function StackedScrollCard<T>({
 
   const ease = useTransform(cardProgress, (t) => 1 - Math.pow(1 - t, 3));
 
-  const y = useTransform(ease, (e) => (index === 0 ? 0 : (1 - e) * 320 + targetY));
-  const x = useTransform(ease, (e) => (index === 0 ? 0 : (1 - e) * 24 + targetX));
+  const y = useTransform(ease, (e) => (index === 0 ? 0 : (1 - e) * 160));
   const scale = useTransform(ease, (e) => (index === 0 ? 1 : 0.95 + 0.05 * e));
   const opacity = useTransform(cardProgress, (t) => (index === 0 ? 1 : Math.min(1, t * 2.5)));
-  const rotate = useTransform(ease, (e) => (index === 0 ? 0 : (1 - e) * 2));
 
   return (
     <motion.div
-      className="absolute top-0 left-0 w-full max-w-[460px] will-change-transform"
+      className="w-full h-full will-change-transform"
       style={{
-        zIndex: 10 + index,
-        x,
         y,
         scale,
         opacity,
-        rotate,
       }}
     >
       {renderCard(item, index)}
@@ -143,44 +132,30 @@ export function StackedScrollCards<T>({
     );
   }
 
-  const OFFSET_X = count > 3 ? 56 : 68;
-  const OFFSET_Y = count > 3 ? 24 : 28;
-  const CARD_WIDTH = 460;
-  const CARD_HEIGHT = 250;
-  const stageWidth = CARD_WIDTH + (count - 1) * OFFSET_X;
-  const stageHeight = CARD_HEIGHT + (count - 1) * OFFSET_Y;
-
   return (
     <div
       ref={rootRef}
       className={`relative ${className}`}
-      style={{ height: `calc(100vh + ${(count - 1) * 60}vh)` }}
+      style={{ height: `calc(100vh + ${(count - 1) * 50}vh)` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center py-8 sm:py-12">
         <div className="mx-auto max-w-screen-2xl w-full px-4 sm:px-6 lg:px-8 flex flex-col">
           {/* Top: Section Heading & Subheading */}
-          {header && <div className="mb-8 sm:mb-10">{header}</div>}
+          {header && <div className="mb-10 sm:mb-12">{header}</div>}
 
-          {/* Bottom: Diagonal Cascading Card Stack below the Header */}
-          <div className="relative w-full flex items-center justify-start">
-            <div
-              className="relative w-full"
-              style={{
-                height: `${stageHeight}px`,
-                maxWidth: `${stageWidth}px`,
-              }}
-            >
-              {items.map((item, index) => (
-                <StackedScrollCard
-                  key={index}
+          {/* Full-width spaced grid occupying the entire section view width */}
+          <div className={`w-full grid gap-6 ${gridClassName}`}>
+            {items.map((item, index) => (
+              <div key={index} className="w-full h-full">
+                <SequentialScrollCard
                   item={item}
                   index={index}
                   count={count}
                   progress={progress}
                   renderCard={renderCard}
                 />
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
