@@ -112,22 +112,42 @@ export function AnimatedProjectCard() {
   const animatedTotal = useAnimatedNumber(total, 700);
 
   useEffect(() => {
-    const duration = PHASE_DURATIONS[phaseIndex];
-    const timer = setTimeout(() => {
-      const isLastPhase = phaseIndex === PHASE_STATUSES.length - 1;
-      if (isLastPhase) {
-        // Fade out, switch project, fade in
-        setVisible(false);
-        setTimeout(() => {
-          setProjectIndex((i) => (i + 1) % PROJECTS.length);
-          setPhaseIndex(0);
-          setVisible(true);
-        }, 500);
+    let timer: NodeJS.Timeout | null = null;
+
+    const startTimer = () => {
+      if (document.hidden) return;
+      const duration = PHASE_DURATIONS[phaseIndex];
+      timer = setTimeout(() => {
+        const isLastPhase = phaseIndex === PHASE_STATUSES.length - 1;
+        if (isLastPhase) {
+          setVisible(false);
+          setTimeout(() => {
+            setProjectIndex((i) => (i + 1) % PROJECTS.length);
+            setPhaseIndex(0);
+            setVisible(true);
+          }, 500);
+        } else {
+          setPhaseIndex((p) => p + 1);
+        }
+      }, duration);
+    };
+
+    startTimer();
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (timer) clearTimeout(timer);
       } else {
-        setPhaseIndex((p) => p + 1);
+        startTimer();
       }
-    }, duration);
-    return () => clearTimeout(timer);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [phaseIndex]);
 
   return (
