@@ -93,21 +93,31 @@ export function StackedScrollCards<T>({
     const el = rootRef.current;
     if (!el) return;
 
+    let rafId: number | null = null;
+
     const measure = () => {
-      const rect = el.getBoundingClientRect();
-      const navbarHeight = 64;
-      const travel = rect.height - (window.innerHeight - navbarHeight);
-      if (travel > 0) {
-        const scrolled = navbarHeight - rect.top;
-        progress.set(Math.min(1, Math.max(0, scrolled / travel)));
-      }
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const navbarHeight = 64;
+        const travel = rect.height - (window.innerHeight - navbarHeight);
+        if (travel > 0) {
+          const scrolled = navbarHeight - rect.top;
+          progress.set(Math.min(1, Math.max(0, scrolled / travel)));
+        }
+      });
     };
 
     measure();
-    const offLenis = lenis ? lenis.on("scroll", measure) : null;
+
     window.addEventListener("scroll", measure, { passive: true });
     window.addEventListener("resize", measure);
+    const offLenis = lenis?.on("scroll", measure);
+
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       offLenis?.();
       window.removeEventListener("scroll", measure);
       window.removeEventListener("resize", measure);
