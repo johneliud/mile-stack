@@ -135,27 +135,26 @@ export default function Home() {
         </section>
 
         {/* - Features - */}
-        <section id="features" className="border-b border-border bg-background py-8 md:py-12">
+        <section id="features" className="border-b border-border bg-background">
           <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-            <ScrollReveal>
-              <div className="max-w-2xl mb-12">
-                <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-3">
-                  Core Architecture
-                </p>
-                <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                  Built for clarity and trust
-                </h2>
-                <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-                  Smart contract infrastructure that removes friction between global talent and the
-                  opportunities they deserve.
-                </p>
-              </div>
-            </ScrollReveal>
-
             <StackedScrollCards
+              header={
+                <div className="max-w-2xl">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-3">
+                    Core Architecture
+                  </p>
+                  <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+                    Built for clarity and trust
+                  </h2>
+                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-muted-foreground">
+                    Smart contract infrastructure that removes friction between global talent and the
+                    opportunities they deserve.
+                  </p>
+                </div>
+              }
               items={FEATURES}
-              gridClassName="sm:grid-cols-3"
-              revealStaggerMs={80}
+              gridClassName="md:grid-cols-3"
+              revealStaggerMs={100}
               renderCard={({
                 icon: Icon,
                 title,
@@ -165,13 +164,25 @@ export default function Home() {
                 fillClass,
                 filled,
                 description,
-              }) => (
+              }, index) => (
                 <div
-                  className={`relative flex h-full flex-col justify-between rounded-2xl border p-7 shadow-xs transition-all duration-200 group ${
-                    filled ? fillClass : `${fillClass} hover:border-slate-300 hover:shadow-md`
+                  className={`relative flex h-[270px] flex-col justify-between overflow-hidden rounded-2xl border p-7 shadow-xl transition-all duration-200 ${
+                    filled
+                      ? `${fillClass} shadow-2xl shadow-slate-900/20`
+                      : `${fillClass} hover:border-slate-300 hover:shadow-2xl shadow-slate-900/10`
                   }`}
                 >
-                  <div>
+                  {/* Faint background watermark number */}
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none absolute -bottom-6 right-4 select-none font-heading text-8xl font-black leading-none tracking-tighter ${
+                      filled ? "text-white/20" : "text-slate-900/10"
+                    }`}
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+
+                  <div className="relative z-10">
                     <div className="flex items-center justify-between gap-2 mb-5">
                       <div
                         className={`rounded-xl p-3 w-fit ${filled ? "bg-white/15 text-white" : iconBg}`}
@@ -188,15 +199,15 @@ export default function Home() {
                     </div>
                     <h3
                       className={`text-lg font-bold mb-2 ${
-                        filled
-                          ? "text-white"
-                          : "text-foreground group-hover:text-primary transition-colors"
+                        filled ? "text-white" : "text-foreground"
                       }`}
                     >
                       {title}
                     </h3>
                     <p
-                      className={`text-sm leading-relaxed ${filled ? "text-white/85" : "text-muted-foreground"}`}
+                      className={`text-sm leading-relaxed ${
+                        filled ? "text-white/85" : "text-muted-foreground"
+                      }`}
                     >
                       {description}
                     </p>
@@ -208,57 +219,76 @@ export default function Home() {
         </section>
 
         {/* - How it works - */}
-        <section id="how-it-works" className="border-b border-border bg-card py-16 md:py-24">
+        <section id="how-it-works" className="border-b border-border bg-card">
           <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-            <ScrollReveal>
-              <div className="max-w-2xl mb-12">
-                <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-3">
-                  Milestone Lifecycle
-                </p>
-                <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                  How payments flow
-                </h2>
-                <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-                  Each milestone is secured by a Soroban smart contract. Funds move only when work
-                  is confirmed without intermediaries.
-                </p>
-              </div>
-            </ScrollReveal>
-
             <StackedScrollCards
+              header={
+                <div className="max-w-2xl">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-3">
+                    Milestone Lifecycle
+                  </p>
+                  <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+                    How payments flow
+                  </h2>
+                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-muted-foreground">
+                    Each milestone is secured by a Soroban smart contract. Funds move only when work
+                    is confirmed without intermediaries.
+                  </p>
+                </div>
+              }
               items={STEPS}
-              gridClassName="md:grid-cols-4"
+              gridClassName="sm:grid-cols-2 lg:grid-cols-4"
               revealStaggerMs={100}
               renderCard={({ number, tag, tagClass, numClass, fillClass, filled, title, body }) => (
                 <div
-                  className={`relative flex h-full flex-col gap-3 rounded-2xl border p-6 shadow-xs transition-all duration-200 ${
-                    filled ? fillClass : `${fillClass} hover:border-slate-300`
+                  className={`relative flex h-[270px] flex-col justify-between overflow-hidden rounded-2xl border p-7 shadow-xl transition-all duration-200 ${
+                    filled
+                      ? `${fillClass} shadow-2xl shadow-slate-900/20`
+                      : `${fillClass} hover:border-slate-300 hover:shadow-2xl shadow-slate-900/10`
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`text-3xl font-black tabular-nums font-poppins ${filled ? "text-white" : numClass}`}
-                    >
-                      {number}
-                    </span>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-sm font-semibold ${
-                        filled ? "bg-white/15 text-white border-white/25" : tagClass
+                  {/* Faint background watermark number */}
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none absolute -bottom-6 right-4 select-none font-heading text-8xl font-black leading-none tracking-tighter ${
+                      filled ? "text-white/20" : "text-slate-900/10"
+                    }`}
+                  >
+                    {number}
+                  </span>
+
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <span
+                        className={`text-2xl font-black tabular-nums font-poppins ${
+                          filled ? "text-white" : numClass
+                        }`}
+                      >
+                        {number}
+                      </span>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-semibold ${
+                          filled ? "bg-white/15 text-white border-white/25" : tagClass
+                        }`}
+                      >
+                        {tag}
+                      </span>
+                    </div>
+                    <h3
+                      className={`text-lg font-bold mb-2 ${
+                        filled ? "text-white" : "text-foreground"
                       }`}
                     >
-                      {tag}
-                    </span>
+                      {title}
+                    </h3>
+                    <p
+                      className={`text-sm leading-relaxed ${
+                        filled ? "text-white/85" : "text-muted-foreground"
+                      }`}
+                    >
+                      {body}
+                    </p>
                   </div>
-                  <h3
-                    className={`text-base font-bold mt-2 ${filled ? "text-white" : "text-foreground"}`}
-                  >
-                    {title}
-                  </h3>
-                  <p
-                    className={`text-sm leading-relaxed ${filled ? "text-white/85" : "text-muted-foreground"}`}
-                  >
-                    {body}
-                  </p>
                 </div>
               )}
             />
