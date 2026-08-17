@@ -8,6 +8,31 @@ interface ScrollRevealProps {
   className?: string;
 }
 
+let sharedObserver: IntersectionObserver | null = null;
+const observerCallbacks = new Map<Element, () => void>();
+
+function getSharedObserver(): IntersectionObserver | null {
+  if (typeof window === "undefined") return null;
+  if (!sharedObserver) {
+    sharedObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const cb = observerCallbacks.get(entry.target);
+            if (cb) {
+              cb();
+              observerCallbacks.delete(entry.target);
+              sharedObserver?.unobserve(entry.target);
+            }
+          }
+        }
+      },
+      { threshold: 0.12 },
+    );
+  }
+  return sharedObserver;
+}
+
 export function ScrollReveal({ children, delay = 0, className = "" }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -15,19 +40,20 @@ export function ScrollReveal({ children, delay = 0, className = "" }: ScrollReve
     const el = ref.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.style.transitionDelay = `${delay}ms`;
-          el.classList.add("revealed");
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.12 },
-    );
+    const observer = getSharedObserver();
+    if (!observer) return;
+
+    observerCallbacks.set(el, () => {
+      el.style.transitionDelay = `${delay}ms`;
+      el.classList.add("revealed");
+    });
 
     observer.observe(el);
-    return () => observer.disconnect();
+
+    return () => {
+      observerCallbacks.delete(el);
+      observer.unobserve(el);
+    };
   }, [delay]);
 
   return (
