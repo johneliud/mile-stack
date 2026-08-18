@@ -74,7 +74,7 @@ function ApplicationCard({
         <div className="flex flex-col gap-0.5">
           <a
             href={`/freelancers/${application.freelancer_address}`}
-            className="text-sm font-semibold text-foreground font-poppins hover:text-accent transition-colors"
+            className="text-sm font-semibold text-foreground font-sans hover:text-accent transition-colors"
           >
             {truncateAddress(application.freelancer_address)}
           </a>
@@ -357,7 +357,7 @@ export default function ApplicationsPage() {
                     <h3 className="text-base font-semibold text-foreground">No applications yet</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Share your listing at{" "}
-                      <span className="font-poppins text-xs">/projects/{listingId}</span> to attract
+                      <span className="font-sans text-xs">/projects/{listingId}</span> to attract
                       freelancers.
                     </p>
                   </div>

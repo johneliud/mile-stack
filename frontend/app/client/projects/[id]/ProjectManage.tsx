@@ -184,7 +184,7 @@ function MilestoneCard({
             <p className="text-sm font-medium text-foreground">
               Release{" "}
               <span className="font-bold text-accent">{stroopsToXlm(milestone.amount)} XLM</span> to{" "}
-              <span className="font-poppins text-foreground">
+              <span className="font-sans text-foreground">
                 {truncateAddress(milestone.freelancer)}
               </span>
               ?

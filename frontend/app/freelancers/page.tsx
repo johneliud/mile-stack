@@ -194,7 +194,7 @@ export default function FreelancersPage() {
       <Navbar />
 
       <main className="flex-1 bg-background">
-        {/* ── Sticky title + search – pins just below the navbar ── */}
+        {/* - Sticky title + search – pins just below the navbar - */}
         <div className="sticky top-[57px] z-20 bg-background border-b border-border">
           <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
             <div className="py-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -320,7 +320,7 @@ export default function FreelancersPage() {
           </div>
         </div>
 
-        {/* ── Freelancer grid – window scrolls, Lenis drives it ── */}
+        {/* - Freelancer grid – window scrolls, Lenis drives it - */}
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
           {/* Loading */}
           {loading && (

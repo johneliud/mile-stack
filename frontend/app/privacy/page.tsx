@@ -114,9 +114,7 @@ export default function PrivacyPage() {
               <h2 className="text-base font-semibold text-foreground">5. Local Storage</h2>
               <p className="text-muted-foreground">
                 We use your browser&apos;s{" "}
-                <code className="bg-muted rounded px-1 py-0.5 text-xs font-poppins">
-                  localStorage
-                </code>{" "}
+                <code className="bg-muted rounded px-1 py-0.5 text-xs font-sans">localStorage</code>{" "}
                 to persist your selected role (&quot;client&quot; or &quot;freelancer&quot;) between
                 sessions. No cookies are set by MileStack. You can clear this at any time through
                 your browser settings.
