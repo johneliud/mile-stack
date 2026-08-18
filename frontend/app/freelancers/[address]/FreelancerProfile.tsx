@@ -129,7 +129,7 @@ export function FreelancerProfile({ address }: { address: string }) {
                       {profile.name}
                     </h1>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 bg-muted border border-border rounded-lg px-2.5 py-1 text-xs font-poppins text-muted-foreground">
+                      <span className="inline-flex items-center gap-1.5 bg-muted border border-border rounded-lg px-2.5 py-1 text-xs font-sans text-muted-foreground">
                         <Wallet className="h-3.5 w-3.5 shrink-0" />
                         {truncateAddress(profile.wallet_address)}
                       </span>
@@ -271,7 +271,7 @@ export function FreelancerProfile({ address }: { address: string }) {
                     <h2 className="text-xs font-semibold uppercase tracking-widest text-accent mb-1">
                       Stellar Address
                     </h2>
-                    <p className="text-xs font-poppins text-muted-foreground break-all bg-muted rounded-lg px-3 py-2.5">
+                    <p className="text-xs font-sans text-muted-foreground break-all bg-muted rounded-lg px-3 py-2.5">
                       {profile.wallet_address.toUpperCase()}
                     </p>
                   </div>*/}

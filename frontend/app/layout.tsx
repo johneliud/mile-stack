@@ -8,7 +8,7 @@ import { LenisProvider } from "@/contexts/LenisContext";
 import "./globals.css";
 
 const poppins = Poppins({
-  variable: "--font-poppins",
+  variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
   weight: ["300", "400", "500", "600", "700"],

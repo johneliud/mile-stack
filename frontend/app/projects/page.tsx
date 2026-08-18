@@ -61,7 +61,7 @@ function ListingCard({ listing }: { listing: Listing }) {
 
       <div className="border-t border-border pt-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="inline-flex items-center rounded-lg bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-sm font-bold text-amber-700 font-poppins">
+          <span className="inline-flex items-center rounded-lg bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-sm font-bold text-amber-700 font-sans">
             {listing.total_xlm.toLocaleString("en-US", { maximumFractionDigits: 2 })} XLM
           </span>
           <span className="text-xs text-muted-foreground font-medium">
@@ -159,7 +159,7 @@ export default function ProjectsPage() {
       <Navbar />
 
       <main className="flex-1 bg-background">
-        {/* ── Sticky title + search – pins just below the navbar ── */}
+        {/* - Sticky title + search – pins just below the navbar - */}
         <div className="sticky top-[57px] z-20 bg-background border-b border-border">
           <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
             <div className="py-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -285,7 +285,7 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        {/* ── Project grid – window scrolls, Lenis drives it ── */}
+        {/* - Project grid – window scrolls, Lenis drives it - */}
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
           {/* Loading */}
           {loading && (

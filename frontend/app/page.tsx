@@ -254,7 +254,7 @@ export default function Home() {
                   <div className="relative z-10">
                     {/*<div className="flex items-center justify-between gap-2 mb-4">
                       <span
-                        className={`text-2xl font-black tabular-nums font-poppins ${
+                        className={`text-2xl font-black tabular-nums font-sans ${
                           filled ? "text-white" : numClass
                         }`}
                       >
