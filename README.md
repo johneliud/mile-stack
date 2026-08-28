@@ -338,3 +338,9 @@ Import each secret key into Freighter (set to Testnet), then run `npm run seed` 
 2. Create a branch: `git checkout -b feat/<issue-number>-short-description`
 3. Make your changes and ensure tests pass: `cargo test`
 4. Open a PR referencing the issue with `Closes #<issue-number>`
+
+By contributing, you agree that your contributions are licensed under the [Apache License 2.0](./LICENSE).
+
+## License
+
+This project is licensed under the [Apache License 2.0](./LICENSE).
