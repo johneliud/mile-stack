@@ -21,11 +21,7 @@ import { FreelancerProfileSkeleton } from "@/components/ui/Skeleton";
 import { useRole } from "@/contexts/RoleContext";
 import { getProfile, type FreelancerProfile as Profile } from "@/lib/profiles";
 import { getReputation } from "@/lib/contract";
-
-function truncateAddress(addr: string) {
-  const a = addr.toUpperCase();
-  return `${a.slice(0, 6)}...${a.slice(-6)}`;
-}
+import { truncateAddress } from "@/lib/utils";
 
 function getInitials(name: string) {
   return name

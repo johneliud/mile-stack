@@ -82,7 +82,7 @@ async function simulateView(
 
 // Soroban unit enum variants are encoded as ScVec[ScSymbol], which scValToNative
 // converts to a one-element string array. Handle both that and plain-string fallbacks.
-function parseStatus(raw: unknown): MilestoneStatus {
+export function parseStatus(raw: unknown): MilestoneStatus {
   const VALID: MilestoneStatus[] = ["Pending", "Funded", "Completed", "Released", "Disputed"];
   const s = Array.isArray(raw) ? raw[0] : raw;
   if (typeof s === "string" && VALID.includes(s as MilestoneStatus)) return s as MilestoneStatus;
@@ -102,7 +102,7 @@ function parseMilestone(raw: Record<string, unknown>): ContractMilestone {
   };
 }
 
-function parseProject(raw: Record<string, unknown>): ContractProject {
+export function parseProject(raw: Record<string, unknown>): ContractProject {
   return {
     id: BigInt(String(raw.id ?? "0")),
     client: String(raw.client ?? ""),

@@ -30,6 +30,7 @@ import {
   type MilestoneStatus,
 } from "@/lib/contract";
 import { getProjectNamesByIds } from "@/lib/listings";
+import { truncateAddress } from "@/lib/utils";
 
 const MILESTONE_BADGE_VARIANT: Record<
   MilestoneStatus,
@@ -41,11 +42,6 @@ const MILESTONE_BADGE_VARIANT: Record<
   Released: "released",
   Disputed: "disputed",
 };
-
-function truncateAddress(addr: string) {
-  const a = addr.toUpperCase();
-  return `${a.slice(0, 6)}...${a.slice(-6)}`;
-}
 
 function formatDate(timestamp: bigint): string {
   return new Date(Number(timestamp) * 1000).toLocaleDateString("en-US", {
