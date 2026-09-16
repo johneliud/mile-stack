@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { filterFreelancers, filterListings } from "@/lib/filters";
 
 const listings = [
-  { title: "Smart contract audit", description: "Review Soroban code", skills: ["Rust", "Soroban"] },
+  {
+    title: "Smart contract audit",
+    description: "Review Soroban code",
+    skills: ["Rust", "Soroban"],
+  },
   { title: "Landing page", description: "Build a marketing site", skills: ["React", "CSS"] },
 ];
 

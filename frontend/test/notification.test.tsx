@@ -16,23 +16,23 @@ describe("NotificationProvider", () => {
   it("shows the newest notification and replaces the previous one", () => {
     vi.useFakeTimers();
     try {
-    render(
-      <NotificationProvider>
-        <NotificationHarness />
-      </NotificationProvider>,
-    );
+      render(
+        <NotificationProvider>
+          <NotificationHarness />
+        </NotificationProvider>,
+      );
 
-    fireEvent.click(screen.getByRole("button", { name: "Notify success" }));
-    expect(screen.getByRole("alert")).toHaveTextContent("Saved");
+      fireEvent.click(screen.getByRole("button", { name: "Notify success" }));
+      expect(screen.getByRole("alert")).toHaveTextContent("Saved");
 
-    fireEvent.click(screen.getByRole("button", { name: "Notify error" }));
-    expect(screen.getByRole("alert")).toHaveTextContent("Failed");
-    expect(screen.getByRole("alert")).not.toHaveTextContent("Saved"); 
+      fireEvent.click(screen.getByRole("button", { name: "Notify error" }));
+      expect(screen.getByRole("alert")).toHaveTextContent("Failed");
+      expect(screen.getByRole("alert")).not.toHaveTextContent("Saved");
 
-    act(() => vi.advanceTimersByTime(3350));
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-     } finally {
-       vi.useRealTimers();
-     }
+      act(() => vi.advanceTimersByTime(3350));
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
