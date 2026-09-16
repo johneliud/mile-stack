@@ -28,10 +28,10 @@ jobs:
         uses: stellar/stellar-cli@v23.0.1
 
       - name: Run contract tests
-        run: cargo test --locked
+        run: cargo test
 
       - name: Build Rust release
-        run: cargo build --locked --release
+        run: cargo build --release
 
       - name: Build contract Wasm
         run: stellar contract build
