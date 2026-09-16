@@ -15,6 +15,7 @@ function NotificationHarness() {
 describe("NotificationProvider", () => {
   it("shows the newest notification and replaces the previous one", () => {
     vi.useFakeTimers();
+    try {
     render(
       <NotificationProvider>
         <NotificationHarness />
@@ -26,10 +27,12 @@ describe("NotificationProvider", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Notify error" }));
     expect(screen.getByRole("alert")).toHaveTextContent("Failed");
-    expect(screen.getByRole("alert")).not.toHaveTextContent("Saved");
+    expect(screen.getByRole("alert")).not.toHaveTextContent("Saved"); 
 
     act(() => vi.advanceTimersByTime(3350));
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-    vi.useRealTimers();
+     } finally {
+       vi.useRealTimers();
+     }
   });
 });

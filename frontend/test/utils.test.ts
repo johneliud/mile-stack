@@ -5,6 +5,7 @@ describe("timeAgo", () => {
   afterEach(() => vi.useRealTimers());
 
   it("formats minutes, hours, and days", () => {
+    vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-09-10T12:00:00Z"));
     expect(timeAgo("2026-09-10T11:45:00Z")).toBe("15m ago");
     expect(timeAgo("2026-09-10T09:00:00Z")).toBe("3h ago");
