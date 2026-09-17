@@ -21,11 +21,8 @@ import { Button } from "@/components/ui/Button";
 import { FreelancerCardSkeleton } from "@/components/ui/Skeleton";
 import { getAllProfiles, type FreelancerProfile } from "@/lib/profiles";
 import { getReputation } from "@/lib/contract";
-
-function truncateAddress(addr: string) {
-  const a = addr.toUpperCase();
-  return `${a.slice(0, 6)}...${a.slice(-6)}`;
-}
+import { filterFreelancers } from "@/lib/filters";
+import { truncateAddress } from "@/lib/utils";
 
 function FreelancerCard({
   profile,
@@ -160,17 +157,7 @@ export default function FreelancersPage() {
   }, [profiles]);
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase().trim();
-    return profiles.filter((p) => {
-      const matchesSearch =
-        !q ||
-        (p.name ?? "").toLowerCase().includes(q) ||
-        (p.bio ?? "").toLowerCase().includes(q) ||
-        p.skills.some((s) => s.toLowerCase().includes(q));
-      const matchesSkills =
-        activeSkills.size === 0 || [...activeSkills].every((s) => p.skills.includes(s));
-      return matchesSearch && matchesSkills;
-    });
+    return filterFreelancers(profiles, search, activeSkills);
   }, [profiles, search, activeSkills]);
 
   function toggleSkill(skill: string) {

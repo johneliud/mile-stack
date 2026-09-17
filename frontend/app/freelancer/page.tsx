@@ -21,11 +21,7 @@ import {
   type MilestoneStatus,
 } from "@/lib/contract";
 import { getProjectNamesByIds } from "@/lib/listings";
-
-function truncateAddress(addr: string) {
-  const a = addr.toUpperCase();
-  return `${a.slice(0, 6)}...${a.slice(-6)}`;
-}
+import { truncateAddress } from "@/lib/utils";
 
 function formatDate(timestamp: bigint): string {
   return new Date(Number(timestamp) * 1000).toLocaleDateString("en-US", {

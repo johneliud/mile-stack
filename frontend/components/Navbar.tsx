@@ -7,6 +7,7 @@ import { Menu, X, Wallet, ExternalLink, Briefcase, Code2, ArrowLeftRight } from 
 import { useWallet } from "@/contexts/WalletContext";
 import { useRole, type UserRole } from "@/contexts/RoleContext";
 import { Button } from "@/components/ui/Button";
+import { truncateAddress } from "@/lib/utils";
 
 interface NavLink {
   label: string;
@@ -28,10 +29,6 @@ function getNavLinks(role: UserRole | null, isConnected: boolean): NavLink[] {
     return links;
   }
   return [browse];
-}
-
-function truncateAddress(addr: string) {
-  return `${addr.slice(0, 4)}...${addr.slice(-4)}`;
 }
 
 function RoleChip({ onSwitch }: { onSwitch: () => void }) {
@@ -95,7 +92,7 @@ function WalletButton({ onClose }: { onClose?: () => void }) {
     return (
       <div className="flex items-center gap-2">
         <span className="rounded-lg border border-border bg-muted px-3 py-2 text-sm font-medium text-foreground tabular-nums">
-          {truncateAddress(address)}
+              {truncateAddress(address, 4)}
         </span>
         <button
           onClick={handleDisconnect}
