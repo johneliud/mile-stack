@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { AlertCircle, RefreshCw, Home } from "lucide-react";
 
 export default function GlobalError({
@@ -80,7 +81,7 @@ export default function GlobalError({
               <RefreshCw size={14} />
               Try again
             </button>
-            <a
+            <Link
               href="/"
               style={{
                 display: "inline-flex",
@@ -99,7 +100,7 @@ export default function GlobalError({
             >
               <Home size={14} />
               Go home
-            </a>
+            </Link>
           </div>
         </div>
       </body>

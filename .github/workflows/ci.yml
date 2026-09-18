@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts/mile-stack
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32v1-none
+
+      - name: Set up Stellar CLI
+        uses: stellar/stellar-cli@v23.0.1
+
+      - name: Run contract tests
+        run: cargo test
+
+      - name: Build Rust release
+        run: cargo build --release
+
+      - name: Build contract Wasm
+        run: stellar contract build
+
+      - name: Verify contract artifact
+        run: test -s ../../target/wasm32v1-none/release/mile_stack.wasm
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run TypeScript checks
+        run: npx tsc --noEmit
+
+      - name: Check formatting
+        run: npx prettier --check .
+
+      - name: Build application
+        run: npm run build

@@ -92,7 +92,7 @@ function WalletButton({ onClose }: { onClose?: () => void }) {
     return (
       <div className="flex items-center gap-2">
         <span className="rounded-lg border border-border bg-muted px-3 py-2 text-sm font-medium text-foreground tabular-nums">
-              {truncateAddress(address, 4)}
+          {truncateAddress(address, 4)}
         </span>
         <button
           onClick={handleDisconnect}
